@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "akita-filter-plugin2": {
+    "akita-filters-plugin": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/akita-filter-plugin2",
+            "outputPath": "dist/akita-filters-plugin",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -61,18 +61,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "akita-filter-plugin2:build"
+            "browserTarget": "akita-filters-plugin:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "akita-filter-plugin2:build:production"
+              "browserTarget": "akita-filters-plugin:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "akita-filter-plugin2:build"
+            "browserTarget": "akita-filters-plugin:build"
           }
         },
         "test": {
@@ -106,7 +106,7 @@
         }
       }
     },
-    "akita-filter-plugin2-e2e": {
+    "akita-filters-plugin-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "prefix": "",
@@ -115,11 +115,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "akita-filter-plugin2:serve"
+            "devServerTarget": "akita-filters-plugin:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "akita-filter-plugin2:serve:production"
+              "devServerTarget": "akita-filters-plugin:serve:production"
             }
           }
         },
@@ -133,7 +133,45 @@
           }
         }
       }
+    },
+    "akita-filters-plugin": {
+      "root": "projects/akita-filters-plugin",
+      "sourceRoot": "projects/akita-filters-plugin/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/akita-filters-plugin/tsconfig.lib.json",
+            "project": "projects/akita-filters-plugin/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/akita-filters-plugin/src/test.ts",
+            "tsConfig": "projects/akita-filters-plugin/tsconfig.spec.json",
+            "karmaConfig": "projects/akita-filters-plugin/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/akita-filters-plugin/tsconfig.lib.json",
+              "projects/akita-filters-plugin/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
-  "defaultProject": "akita-filter-plugin2"
+  "defaultProject": "akita-filters-plugin",
+  "cli": {
+    "defaultCollection": "@datorama/akita"
+  }
 }

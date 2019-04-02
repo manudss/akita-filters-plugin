@@ -16,6 +16,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "akita-filters-plugin": [
+        "dist/akita-filters-plugin"
+      ],
+      "akita-filters-plugin/*": [
+        "dist/akita-filters-plugin/*"
+      ]
+    }
   }
 }

@@ -1,0 +1,27 @@
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Rapid Delivery</th>
+      <th>Price</th>
+      <th>Family</th>
+      <th>Origin</th>
+      <th>Size</th>
+      <th>description</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let product of products">
+      <td (click)="add.emit(product)">{{product.title}}</td>
+      <td>{{product.category}}</td>
+      <td>{{product.rapidDelivery}}</td>
+      <td>{{product.price}}</td>
+      <td>{{product.family}}</td>
+      <td>{{product.origin}}</td>
+      <td>{{product.size}}</td>
+      <td>{{product.description | slice:0:100}}</td>
+    </tr>
+  </tbody>
+</table>
