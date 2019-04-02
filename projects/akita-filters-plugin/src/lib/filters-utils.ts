@@ -1,7 +1,6 @@
 // import { isDefined, isObject, isString } from 'akita';
 import { AkitaFilter } from './akita-filters-store';
-import {isDefined} from '@angular/compiler/src/util';
-/*import {isString, isObject} from '@datorama/akita';*/
+import {isDefined, isString, isObject} from "@datorama/akita";
 
 /**
  * Helper function to do a default filter
@@ -30,12 +29,4 @@ export function searchFilterIn( searchKey: string, inObj: Object, inKey: string 
     && isString(inKey)
     && isString(inObj[inKey])
     && inObj[inKey].toLocaleLowerCase().includes(searchKey.toLocaleLowerCase());
-}
-
-function isString(test) {
-  return typeof test === 'string';
-}
-
-function isObject(test) {
-  return typeof test === 'object';
 }

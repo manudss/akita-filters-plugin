@@ -6,8 +6,8 @@ import { HomeComponent } from './home/home.component';
 import {AppRoutingModule} from './app-routing.module';
 import {CartComponent} from './cart/cart.component';
 import {NavComponent} from './nav/nav.component';
-import {AkitaNgDevtools} from '@datorama/akita-ngdevtools';
 import {environment} from '../environments/environment';
+import {AkitaNgDevtools} from "@datorama/akita-ngdevtools";
 
 @NgModule({
   declarations: [

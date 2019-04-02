@@ -1,7 +1,10 @@
 
 import { defaultFilter } from './filters-utils';
 import {EntityState, EntityStore, guid, ID, SortByOptions, StoreConfig} from '@datorama/akita';
-import {capitalize} from '@datorama/akita/schematics/ng-g/utils/string';
+
+function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.substr(1);
+}
 
 export interface AkitaFilter<E> {
   id: ID;

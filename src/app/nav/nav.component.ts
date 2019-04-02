@@ -11,7 +11,7 @@ import { resetStores } from '@datorama/akita';
       <div class="nav-wrapper cyan lighten-2">
         <a class="brand-logo" routerLink="/">Akita Filter Exemple</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-          <li><a (click)="resetStores()">Reset Stores</a></li>
+          <!--<li><a (click)="resetStores()">Reset Stores</a></li>-->
           <li *ngFor="let item of navItems">
             <a routerLinkActive="blue-text text-lighten-2" [routerLink]="item.toLowerCase()">{{item}}</a>
           </li>
@@ -22,7 +22,7 @@ import { resetStores } from '@datorama/akita';
   `
 })
 export class NavComponent {
-  navItems = ['Products', 'list'];
+  navItems = ['Products'];
   count$: Observable<number>;
 
   constructor(private cartQuery: CartQuery, private router: Router) {

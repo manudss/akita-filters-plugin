@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --port 4949",
     "build": "ng build",
+    "build:lib": "ng build akita-filters-plugin",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -22,6 +23,7 @@
     "@angular/router": "~7.2.11",
     "@datorama/akita": "^3.4.0",
     "core-js": "^2.5.4",
+    "ngx-take-until-destroy": "^5.4.0",
     "rxjs": "~6.3.3",
     "zone.js": "~0.8.26"
   },
@@ -33,9 +35,9 @@
     "@angular/language-service": "~7.2.11",
     "@datorama/akita-ng-router-store": "^3.0.0",
     "@datorama/akita-ngdevtools": "^1.0.2",
-    "@types/node": "~8.9.4",
     "@types/jasmine": "~2.8.8",
     "@types/jasminewd2": "~2.0.3",
+    "@types/node": "~8.9.4",
     "codelyzer": "~4.5.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
