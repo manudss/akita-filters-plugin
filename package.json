@@ -14,7 +14,6 @@
     "semantic-release": "semantic-release"
   },
   "author": "Emmanuel DE SAINT STEBAN",
-  "private": true,
   "jest": {
     "globals": {
       "ts-jest": {
