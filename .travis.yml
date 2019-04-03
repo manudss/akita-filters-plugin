@@ -1,0 +1,33 @@
+language: node_js
+
+cache:
+  directories:
+    - ~/.npm
+node_js:
+  - '10'
+notifications:
+  email: true
+  slack: desaintsteban:125X1HaXM6puZdd87s3eFc0s
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
+
+install:
+  - yarn
+
+script:
+  - cd $TRAVIS_BUILD_DIR/
+  - yarn run test
+  - yarn run compile
+jobs:
+  include:
+    # Define the release stage that runs semantic-release
+    - stage: release
+      node_js: lts/*
+      # Advanced: optionally overwrite your default `script` step to skip the tests
+      # script: skip
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script:
+          - npx semantic-release

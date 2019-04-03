@@ -1,8 +1,9 @@
 {
-  "name": "akita-filters-plugin",
-  "version": "0.0.1",
+  "name": "manudss@akita-filters-plugin",
+  "author": "manudss",
+  "description": "Plug-in for manage filters ",
+  "version": "3.0.0",
   "peerDependencies": {
-    "@angular/common": "^7.0.0",
-    "@angular/core": "^7.0.0"
+    "@datorama/akita": ">=3.0.0"
   }
 }
