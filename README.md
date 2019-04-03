@@ -1,5 +1,4 @@
 #Akita Filters Plugins
-***********************
 
 Sometimes, you need to display a list, and provide users the ability to fiters your list. 
 Entity-store give the hability to filter, an sorting, by given options to selectAll() fonction. 
@@ -32,9 +31,9 @@ And have another components to manage all filters.
 Install the module 
 
 ```
-npm install --save manudss@akita-filters-plugins
+npm install --save akita-filters-plugins
 
-yarn add manudss@akita-filters-plugins
+yarn add akita-filters-plugins
 ```
 
 # Filters Plugins 
