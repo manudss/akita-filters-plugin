@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve --port 4949",
     "build": "ng build",
-    "compile": "ng build akita-filters-plugin --prod",
+    "compile": "ng build akita-filters-plugin",
     "test": "jest",
     "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand --watch",
     "test:watch": "jest --watch",
