@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4949",
-    "build": "ng build",
+    "build": "ng build --prod --output-path docs --base-href /akita-filters-plugin/",
     "compile": "ng build akita-filters-plugin",
     "test": "jest",
     "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand --watch",
@@ -44,6 +44,7 @@
     "@angular/router": "~7.2.11",
     "@datorama/akita": "^3.4.0",
     "core-js": "^2.5.4",
+    "ngx-markdown": "^7.1.4",
     "ngx-take-until-destroy": "^5.4.0",
     "rxjs": "~6.3.3",
     "zone.js": "~0.8.26"
@@ -71,13 +72,13 @@
     "karma-jasmine-html-reporter": "^0.2.2",
     "ng-packagr": "^4.2.0",
     "protractor": "~5.4.0",
+    "semantic-release": "^15.13.3",
     "ts-jest": "^24.0.1",
     "ts-node": "~7.0.0",
     "tsickle": ">=0.29.0",
     "tslib": "^1.9.0",
     "tslint": "~5.11.0",
-    "typescript": "~3.1.6",
-    "semantic-release": "^15.13.3"
+    "typescript": "~3.1.6"
   },
   "repository": {
     "type": "git",

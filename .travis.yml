@@ -19,6 +19,9 @@ script:
   - cd $TRAVIS_BUILD_DIR/
   - yarn run test
   - yarn run compile
+  - cp README.md src/assets/README.md
+  - yarn run build
+  - cp docs/index.html docs/404.html
 jobs:
   include:
     # Define the release stage that runs semantic-release

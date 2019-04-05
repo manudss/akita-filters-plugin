@@ -7,7 +7,10 @@ import {AppRoutingModule} from './app-routing.module';
 import {CartComponent} from './cart/cart.component';
 import {NavComponent} from './nav/nav.component';
 import {environment} from '../environments/environment';
-import {AkitaNgDevtools} from "@datorama/akita-ngdevtools";
+import {AkitaNgDevtools} from '@datorama/akita-ngdevtools';
+import {MarkdownModule} from 'ngx-markdown';
+import {CommonModule} from '@angular/common';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -17,9 +20,12 @@ import {AkitaNgDevtools} from "@datorama/akita-ngdevtools";
     NavComponent
   ],
   imports: [
-    environment.production ? [] : AkitaNgDevtools.forRoot(),
+    CommonModule,
+    HttpClientModule,
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    environment.production ? [] : AkitaNgDevtools.forRoot(),
+    MarkdownModule.forRoot({ loader: HttpClient })
   ],
   providers: [],
   bootstrap: [AppComponent]
