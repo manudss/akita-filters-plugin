@@ -11,12 +11,12 @@ import {AkitaNgDevtools} from '@datorama/akita-ngdevtools';
 import {MarkdownModule} from 'ngx-markdown';
 import {CommonModule} from '@angular/common';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {CartModule} from "./cart/cart.module";
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    CartComponent,
     NavComponent
   ],
   imports: [
@@ -24,6 +24,7 @@ import {HttpClient, HttpClientModule} from '@angular/common/http';
     HttpClientModule,
     BrowserModule,
     AppRoutingModule,
+    CartModule,
     environment.production ? [] : AkitaNgDevtools.forRoot(),
     MarkdownModule.forRoot({ loader: HttpClient })
   ],
