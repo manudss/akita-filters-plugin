@@ -34,3 +34,10 @@ jobs:
         skip_cleanup: true
         script:
           - npx semantic-release
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: docs/  # or remove this line to upload from root of repo
+  github_token: $GH_TOKEN # Set in travis-ci.org dashboard
+  on:
+    branch: master
