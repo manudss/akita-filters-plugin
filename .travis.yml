@@ -11,19 +11,27 @@ notifications:
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
-
 install:
   - yarn
-
-script:
-  - cd $TRAVIS_BUILD_DIR/
-  - yarn run test
-  - yarn run compile
-  - cp README.md src/assets/README.md
-  - yarn run build
-  - cp docs/index.html docs/404.html
 jobs:
   include:
+    - stage: Build library
+      script:
+        - cd $TRAVIS_BUILD_DIR/
+        - yarn run test
+        - yarn run compile
+    - stage: deploy gihub page
+      script:
+        - cp README.md src/assets/README.md
+        - yarn run build
+        - cp docs/index.html docs/404.html
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        local_dir: ./docs  # or remove this line to upload from root of repo
+        github_token: $GH_TOKEN # Set in travis-ci.org dashboard
+        on:
+          branch: master
     # Define the release stage that runs semantic-release
     - stage: release
       node_js: lts/*
@@ -34,10 +42,4 @@ jobs:
         skip_cleanup: true
         script:
           - npx semantic-release
-deploy:
-  provider: pages
-  skip_cleanup: true
-  local_dir: docs/  # or remove this line to upload from root of repo
-  github_token: $GH_TOKEN # Set in travis-ci.org dashboard
-  on:
-    branch: master
+
