@@ -85,6 +85,18 @@
     "url": "https://github.com/manudss/akita-filters-plugin.git"
   },
   "release": {
+    "pkgRoot": "dist/akita-filters-plugin",
+    "prepare": {
+      "pkgRoot": "dist/akita-filters-plugin"
+    },
+    "publish": {
+      "pkgRoot": "dist/akita-filters-plugin"
+    }
+  },
+  "prepare": {
+    "pkgRoot": "dist/akita-filters-plugin"
+  },
+  "publish": {
     "pkgRoot": "dist/akita-filters-plugin"
   }
 }
