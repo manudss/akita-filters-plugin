@@ -26,7 +26,7 @@ And have another components to manage all filters.
 
 - You could set the order to apply all filters 
 
-# Installations
+# Installations;
 
 Install the module 
 
@@ -42,7 +42,7 @@ yarn add akita-filters-plugins
 
 You need to instanciate the filters Plugins : 
 
-```ts
+```typescript
 myFilter = new AkitaFiltersPlugin<MyEntitiesState, MyEntity>(this.myEntitiesQuery);
 ```
 
@@ -50,8 +50,18 @@ myFilter = new AkitaFiltersPlugin<MyEntitiesState, MyEntity>(this.myEntitiesQuer
 -> Give just the entytiesQuery class to the plugins. 
 
 You could define it in the constructor of your service, and add it to property of your service. 
-``` constructor(private productsStore: ProductsFiltersStore, private productsQuery: ProductsFiltersQuery, private productsDataService: ProductsFiltersDataService) {
+```typescript
+ constructor(private productsStore: ProductsFiltersStore, private productsQuery: ProductsFiltersQuery, private productsDataService: ProductsFiltersDataService) {
      this.filtersProduct = new AkitaFiltersPlugin<ProductPlantState, ProductPlant>(this.productsQuery);
+   }
+```
+
+You could also extends your class with last AkitaFiltersPlugin, and call the supper methode. All methode from AkitaFiltersPlugin will be available 
+```typescript
+class CustomService extends AkitaFiltersPlugin {     
+      constructor() {
+        super(wishQuery, {filtersStoreName: 'CustomFilters'});
+      }
    }
 ```
 
@@ -66,7 +76,7 @@ myFilter.selectAllByFilters();
 
 Then add filter 
 
-```ts
+```typescript
 myFilter.setFilter({
          id: 'category',
          value: 'garden',
@@ -78,7 +88,7 @@ By adding this filters, the data will be filtered, and the new data will be emit
 
 Exemple with Angular, you could add filter for exemple with a component like this. 
 
-```ts 
+```typescript 
 
 @Component({
   selector: 'app-category-filter',
@@ -129,8 +139,8 @@ export class CategoryFiltersComponent {
 
 A Akita filter is an object with the corresponding format :
 
-```ts
-type Filter = {
+```typescript
+type AkitaFilter  = {
    id: ID;
    /** A corresponding name for display the filter, by default, it will be ${id): ${value}  */
    name?: string;
@@ -156,7 +166,7 @@ type Filter = {
  - hide : true, it will be applyed and not displayed in the ui. 
  
 
-# filterPlugins API
+# AkitaFilterPlugins API
 
 ## Get Entity 
 ### selectAllByFilters(options: SelectOptions<E> = {}): Observable<E[]>
@@ -180,7 +190,7 @@ this.filterQuery.selectAll()
 
 Get all the current snapshot filters
  Note: filters with hide=true, will not be displayed. If you want it, call directly the filterQuery :
-```ts
+```typescript
 this.filterQuery.getAll()
 ```
 
@@ -188,7 +198,7 @@ this.filterQuery.getAll()
 
 Create or update a filter (give a Partial AkitaFilter object)
 
-```ts
+```typescript
 filterPlugin.setFilter({
          id: 'fastDelivery',
          name: 'Only fast Delivery',
@@ -213,13 +223,13 @@ Get filter value or return null, if value not available.
 
 Usefull to set init a form value, ex:
 
-```ts
+```typescript
 this.filterForm.controls.searchControl.setValue( this.productsService.getFilterValue('search') );
 ```
 
 ## Example to display the filters list
 
-```ts 
+```typescript 
 @Component({
   selector: 'app-list-filter',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -274,18 +284,18 @@ Retrieve the defined sort value,
 
 All filter is managed by an EntityStore, if you need to do more you could access it and use all standard api
 
-### filterPlugins.filterStore
+### AkitaFilterPlugins.filterStore
 
 get the filter store, It's an Entity store. Be getting the instance, you could do everythings, than EntityStore could done. 
  
-### filterPlugins.filterQuery
+### AkitaFilterPlugins.filterQuery
 
 get the Filter Query. To query the list of your filters. Use the api of EntityFilters. 
 
 ### set the filterStore name. 
 
 If you want to use a different filterStore name, you can set it setting params : filtersStoreName when create plugins:
-```ts
+```typescript
 myFilter = new AkitaFiltersPlugin<MyEntitiesState, MyEntity>(this.myEntitiesQuery, {filtersStoreName: 'newFiltersName'});
 ```
 
@@ -299,7 +309,7 @@ In filter-utils.ts file, their is helper function, to do somme search filters.
 
 Helper function to do a default filter, that will do a search if value is object, or equals otherwise. (only if filter value is defined)
 
-```ts
+```typescript
 this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscribe((search: string) => {
       if (search) {
         this.productsService.setFilter({
@@ -319,7 +329,7 @@ this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscrib
 
 Helper function to do search on all string element
 
-```ts
+```typescript
 this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscribe((search: string) => {
       if (search) {
         this.productsService.setFilter({
@@ -342,7 +352,7 @@ this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscrib
 
 Helper function to do search in one string key of an object
 
-```ts
+```typescript
 this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscribe((search: string) => {
       if (search) {
         this.productsService.setFilter({
