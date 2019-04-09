@@ -9,7 +9,7 @@ import { resetStores } from '@datorama/akita';
   template: `
     <nav>
       <div class="nav-wrapper cyan lighten-2">
-        <a class="brand-logo" routerLink="/">Akita Filter Exemple</a>
+        <a class="brand-logo" routerLink="/">Akita Filter Plugin : example and documentation</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
           <!--<li><a (click)="resetStores()">Reset Stores</a></li>-->
           <li *ngFor="let item of navItems">

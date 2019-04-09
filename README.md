@@ -26,11 +26,11 @@ And have another component to manage all filters.
 
 - You could set the order to apply all filters 
 
-# Installations;
+# Installations
 
 Install the module 
 
-```
+```typescript
 npm install --save akita-filters-plugins
 
 yarn add akita-filters-plugins
