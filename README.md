@@ -1,26 +1,26 @@
 # Akita Filters Plugins
 
-Sometimes, you need to display a list, and provide users the ability to fiters your list. 
-Entity-store give the hability to filter, an sorting, by given options to selectAll() fonction. 
-But each time, you want to change this filter, you need to recall the fonction.  
+Sometimes, you need to display a list and provide users the ability to filter your list. 
+Entity-store give the ability to filter, an sorting, by given options to selectAll() function. 
+But each time, you want to change this filter, you need to recall the function.  
 
-Filters plugins give you the possibility to managed multiples filters, add, remove and update filters, and each time filters as been updated, new filtered value as been emited.
+Filters plugins give you the possibility to managed multiples filters, add, remove and update filters, and each time filters have been updated, new filtered value has been emitted.
 
 #### Usage 
-This could be usefull, to display :
+This could be useful, to display :
 
-- products list, (with categorie filter, search, price filter etc...)
-- Store locator (with filter by region, location etc... )
+- products list, (with categories filter, search, price filter, etc...)
+- Store locator (with filter by region, location, etc... )
 - portfolio, image gallery
-- Any list of element that need multiple filters
-- Config filter that could be apply in multiple pages
+- Any list of elements that need multiple filters
+- Config filter that could be applied in multiple pages
 - ...
 
 #### Advantage : 
 - Add multiple filters (dynamically add, remove and update filters) without changing data.
 
-- The filters and the entity query could separated. You could have one components, that display only your element. Is juste make an select, to observe and display all information. 
-And have another components to manage all filters. 
+- The filters and the entity query could be separated. You could have one component, that displays only your element. Is just make a select, to observe and display all information. 
+And have another component to manage all filters. 
 
 - You could also display a list of filters, and permit to delete one. 
 
@@ -50,14 +50,14 @@ myFilter = new AkitaFiltersPlugin<MyEntitiesState, MyEntity>(this.myEntitiesQuer
 
 -> Give just the entytiesQuery class to the plugins. 
 
-You could define it in the constructor of your service, and add it to property of your service. 
+You could define it in the constructor of your service, and add it to the property of your service. 
 ```typescript
  constructor(private productsStore: ProductsFiltersStore, private productsQuery: ProductsFiltersQuery, private productsDataService: ProductsFiltersDataService) {
      this.filtersProduct = new AkitaFiltersPlugin<ProductPlantState, ProductPlant>(this.productsQuery);
    }
 ```
 
-You could also extends your class with last AkitaFiltersPlugin, and call the supper methode. All methode from AkitaFiltersPlugin will be available 
+You could also extend your class with last AkitaFiltersPlugin, and call the super method. All methods from AkitaFiltersPlugin will be available 
 ```typescript
 class CustomService extends AkitaFiltersPlugin {     
       constructor() {
@@ -69,7 +69,7 @@ class CustomService extends AkitaFiltersPlugin {
 
 ## Use 
 
-For getting, elements you need to call the function selectAllByFilters() form your filters plugins instance, instade of using the selectAll() function from your Query Class. 
+To get elements you need to call the function selectAllByFilters() form your filters plugins instance, instead of using the selectAll() function from your Query Class. 
 
 ```ts
 myFilter.selectAllByFilters();
@@ -85,11 +85,11 @@ myFilter.setFilter({
        });
 ```
 
-By adding this filters, the data will be filtered, and the new data will be emited. 
+By adding these filters, the data will be filtered, and the new data will be emitted. 
 
-Exemple with Angular, you could add filter for exemple with a component like this. 
+Example with Angular, you could add a filter for example with a component like this. 
 
-```typescript 
+```typescript
 
 @Component({
   selector: 'app-category-filter',
@@ -120,7 +120,7 @@ export class CategoryFiltersComponent {
   ngOnInit() {
     this.getallFiltersValues();
 
-  // On each changes, set filters 
+  // On each change, set filters 
     this.categoryControl.valueChanges.pipe(untilDestroyed(this)).subscribe(category => {
       this.productsService.setFilter({
         id: 'category',
@@ -138,7 +138,7 @@ export class CategoryFiltersComponent {
 
 ### AkitaFilter type
 
-A Akita filter is an object with the corresponding format :
+An Akita filter is an object with the corresponding format :
 
 ```typescript
 type AkitaFilter  = {
@@ -156,15 +156,15 @@ type AkitaFilter  = {
  };
  ```
  
- - Id and function was mandatored. (By default, Id will guid(), and default function, will be defaultFilter helpers). 
+ - Id and function were mandatored. (By default, Id will guid(), and default function, will be defaultFilter helpers). 
  
- - But you can set a name, that will be usefull to display the filter in the ui. (by default, it will be calculated with ID and value).
+ - But you can set a name, that will be useful to display the filter in the ui. (by default, it will be calculated with ID and value).
  
- - You can set the value, that could be used in your filter function, or to retrieve the value for a filter (in ex to init the form filter)
+ - You can set the value, that could be used in your filter function, or retrieve the value for a filter (in ex to init the form filter)
  
- - Order, coould be usefull, to execute a filter at the begin or the end. (Could be usefull to execute simple filter at the begining, and complexe filter like full search at the end)
+ - Or it could be useful, to execute a filter at the begin or the end. (Could be useful to execute simple filter at the beginning, and complex filter like full search at the end)
  
- - hide : true, it will be applyed and not displayed in the ui. 
+ - hide: true, it will be applied and not displayed in the ui. 
  
 
 # AkitaFilterPlugins API
@@ -172,9 +172,9 @@ type AkitaFilter  = {
 ## Get Entity 
 ### selectAllByFilters(options: SelectOptions<E> = {}): Observable<E[]>
 
-The main function to subscribe to filtered data. Select All Entity with apply filter to it, and updated with any change (entity or filter)
+The main function to subscribe to filtered data. Select All Entity with an apply filter to it, and updated with any change (entity or filter)
 
-You can pass same options than selectAll Function in EntityQuery. 
+You can pass the same options than selectAll Function in EntityQuery. 
 
 ## Manage filters 
 
@@ -230,7 +230,7 @@ this.filterForm.controls.searchControl.setValue( this.productsService.getFilterV
 
 ## Example to display the filters list
 
-```typescript 
+```typescript
 @Component({
   selector: 'app-list-filter',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -265,13 +265,12 @@ private filters$: Observable<AkitaFilter[]>;
     removeFilterAll() {
       this.productsService.clearFilters();
     }
-
 }
 ```
 
 ## Sorting 
 
-You could also set sorting, that will by applied after filter. Change sorting, will also re-emit new sorted data. 
+You could also set sorting, that will be applied after the filter. Change sorting will also re-emit newly sorted data. 
 
 ### setSortBy(order: SortByOptions<E>)
 
@@ -283,15 +282,15 @@ Retrieve the defined sort value,
 
 ## Advanced 
 
-All filter is managed by an EntityStore, if you need to do more you could access it and use all standard api
+All filter is managed by an EntityStore, if you need to do more you could access it and use all standard API
 
 ### AkitaFilterPlugins.filterStore
 
-get the filter store, It's an Entity store. Be getting the instance, you could do everythings, than EntityStore could done. 
+get the filter store, It's an Entity store. Be getting the instance, you could do everything than EntityStore could be done. 
  
 ### AkitaFilterPlugins.filterQuery
 
-get the Filter Query. To query the list of your filters. Use the api of EntityFilters. 
+get the Filter Query. To query the list of your filters. Use the API of EntityFilters. 
 
 ### set the filterStore name. 
 
@@ -304,11 +303,11 @@ By default, the name will, your 'EntityStoreName' concat with 'Filter'
 
 # Filter helpers Functions
 
-In filter-utils.ts file, their is helper function, to do somme search filters. 
+In filter-utils.ts file, there is a helper function, to do some search filters. 
 
 ## function defaultFilter<E = any>(inElement: E, index: number, array: E[], filter: Filter) 
 
-Helper function to do a default filter, that will do a search if value is object, or equals otherwise. (only if filter value is defined)
+Helper function to do a default filter, that will do a search if the value is the object, or equals otherwise. (only if the filter value is defined)
 
 ```typescript
 this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscribe((search: string) => {
@@ -328,7 +327,7 @@ this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscrib
 
 ## function searchFilter(searchKey: string, inObj: Object) 
 
-Helper function to do search on all string element
+Helper function to do a search on all string element
 
 ```typescript
 this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscribe((search: string) => {
@@ -351,7 +350,7 @@ this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscrib
 
 ## function searchFilterIn(searchKey: string, inObj: Object, inKey: string) 
 
-Helper function to do search in one string key of an object
+Helper function to do a search in one string key of an object
 
 ```typescript
 this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscribe((search: string) => {
