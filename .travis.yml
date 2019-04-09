@@ -20,6 +20,8 @@ jobs:
         - cd $TRAVIS_BUILD_DIR/
         - yarn run test
         - yarn run compile
+        - cp README.md dist/akita-filters-plugin/README.md
+        - cp LICENSE dist/akita-filters-plugin/LICENSE
     - stage: deploy gihub page
       script:
         - cp README.md src/assets/README.md

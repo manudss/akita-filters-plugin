@@ -35,6 +35,7 @@ npm install --save akita-filters-plugins
 
 yarn add akita-filters-plugins
 ```
+npm page : https://www.npmjs.com/package/akita-filters-plugin
 
 # Filters Plugins 
 

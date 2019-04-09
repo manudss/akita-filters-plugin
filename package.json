@@ -84,6 +84,11 @@
     "type": "git",
     "url": "https://github.com/manudss/akita-filters-plugin.git"
   },
+  "bugs": {
+    "url": "https://github.com/manudss/akita-filters-plugin/issues"
+  },
+  "homepage": "https://manudss.github.io/akita-filters-plugin/",
+  "license": "Apache License 2.0",
   "release": {
     "pkgRoot": "dist/akita-filters-plugin",
     "prepare": {

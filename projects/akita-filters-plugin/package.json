@@ -1,9 +1,18 @@
 {
   "name": "akita-filters-plugin",
-  "author": "manudss",
-  "description": "Plug-in for manage filters ",
+  "author": "Emmanuel DE SAINT STEBAN",
+  "description": "Plug-in for manage multiple filters with akita easily",
   "version": "3.0.0",
   "peerDependencies": {
     "@datorama/akita": ">=3.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/manudss/akita-filters-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/manudss/akita-filters-plugin/issues"
+  },
+  "homepage": "https://manudss.github.io/akita-filters-plugin/",
+  "license": "Apache License 2.0"
 }
