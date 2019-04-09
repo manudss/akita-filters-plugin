@@ -21,7 +21,7 @@ jobs:
         - yarn run test
         - yarn run compile
         - cp README.md dist/akita-filters-plugin/README.md
-        - cp LICENSE dist/akita-filters-plugin/LICENSE
+        - cp LICENSE.md dist/akita-filters-plugin/LICENSE.md
     - stage: deploy gihub page
       script:
         - cp README.md src/assets/README.md
