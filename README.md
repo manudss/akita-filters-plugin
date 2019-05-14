@@ -1,5 +1,10 @@
 # Akita Filters Plugins
 
+![npm](https://img.shields.io/npm/v/akita-filters-plugin.svg?style=popout-square) ![npm bundle size](https://img.shields.io/bundlephobia/min/akita-filters-plugin.svg?style=popout-square) 
+![GitHub last commit](https://img.shields.io/github/last-commit/manudss/akita-filters-plugin.svg?style=popout-square) 
+
+![Travis (.org)](https://img.shields.io/travis/manudss/akita-filters-plugin.svg?style=popout-square)
+
 Sometimes, you need to display a list and provide users the ability to filter your list. 
 Entity-store give the ability to filter, an sorting, by given options to selectAll() function. 
 But each time, you want to change this filter, you need to recall the function.  
