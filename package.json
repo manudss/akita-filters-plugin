@@ -47,7 +47,9 @@
     "ngx-markdown": "^7.1.4",
     "ngx-take-until-destroy": "^5.4.0",
     "rxjs": "~6.3.3",
-    "zone.js": "~0.8.26"
+    "zone.js": "~0.8.26",
+    "@angular/material": "latest",
+    "@angular/cdk": "latest"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.10.0",

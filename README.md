@@ -371,5 +371,82 @@ this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscrib
     });
 ```
 
+#Bonus
+
+## Data Connector for Angular Material Table.
+
+For dealing with angular material table, you need to provide a Data Connector. 
+This connector, help you by just giving the Entity Store. Data Connector, will deal with Akita Filter for you. 
+
+Define your data source here : 
+```typescript
+    this.dataSource = new AkitaMatDataSource<
+      Entity,
+      EntityState
+    >(EntityQuery);
+    this.dataSource.setDefaultSort('colomnName', 'asc');
+```
+
+then use it in Mat Data Table like other DataSource. 
+
+```angular2html
+<table
+              mat-table
+              #table
+              [dataSource]="dataSource"
+              [trackBy]="trackByName"
+              cdkDropList
+              [cdkDropListData]="dataSource"
+              (cdkDropListDropped)="dropTable($event)"
+              matSort
+            >...</table>
+```
+
+#### Dependencies
+
+Need to have installed in your project these api : 
+"@angular/material": "latest",
+"@angular/cdk": "latest"
+
+## Function 
+
+Then you have some function that you can use for manage filters 
+
+### filter properties : set filter(filters: string)
+
+By setting filter properties, you set a filter like search. 
+```typescript
+this.dataSource.filter = "Search"; 
+```
+
+### Sort properties :  set sort(sort: MatSort)
+
+By setting Mat Sort for sorting you can set the sort. Used by Mat Table when changing filter 
 
 
+### AkitaFilters properties : get AkitaFilters(): AkitaFiltersPlugin<S, T, any>
+
+Access to the AkitaFilters plugins, and use all function from AkitaFilters plugins.
+```typescript
+this.dataSource.AkitaFilters.setFilter({
+                                     id: 'category',
+                                     value: 'garden',
+                                     predicate: (value: ProductPlant, index, array) => value.category === category
+                                   }); 
+```
+
+### setDefaultSort : public setDefaultSort(sortColumun: keyof T, direction: 'asc' | 'desc' = 'asc')
+
+Set the default sort. 
+```typescript
+this.dataSource.setDefaultSort('colomnName', 'asc');
+```
+
+### Proxy helper function 
+
+Some proxy function, just to call AkitaFilters Plugins. 
+
+* setFilter(filter: Partial<AkitaFilter<T>>): void
+* removeFilter(id: ID): void
+* clearFilters(): void
+* getFilterValue<E = T>(id: string): E | null
