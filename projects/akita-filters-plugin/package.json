@@ -2,6 +2,8 @@
   "name": "akita-filters-plugin",
   "author": "Emmanuel DE SAINT STEBAN",
   "description": "Plug-in for manage multiple filters with akita easily",
+  "keywords": [
+    "angular", "ngx", "akita", "filters", "state management"],
   "version": "3.0.0",
   "peerDependencies": {
     "@datorama/akita": ">=3.0.0"

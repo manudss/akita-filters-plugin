@@ -14,6 +14,8 @@
     "semantic-release": "semantic-release"
   },
   "author": "Emmanuel DE SAINT STEBAN",
+  "keywords": [
+    "angular", "ngx", "akita", "filters", "state management"],
   "jest": {
     "globals": {
       "ts-jest": {
