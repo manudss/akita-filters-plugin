@@ -15,7 +15,7 @@ const routes: Routes = [
   },
   {
     path: 'products',
-    loadChildren: './products-filters/products-filters.module#ProductsFiltersModule'
+    loadChildren: () => import('./products-filters/products-filters.module').then(m => m.ProductsFiltersModule)
   }
 ];
 
