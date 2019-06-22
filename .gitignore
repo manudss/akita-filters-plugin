@@ -10,6 +10,7 @@
 
 # IDEs and editors
 /.idea
+*.iml
 .project
 .classpath
 .c9/
@@ -37,3 +38,4 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+

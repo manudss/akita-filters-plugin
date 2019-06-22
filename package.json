@@ -54,8 +54,8 @@
     "ngx-take-until-destroy": "^5.4.0",
     "rxjs": "~6.5.2",
     "zone.js": "~0.9.1",
-    "@angular/material": "latest",
-    "@angular/cdk": "latest"
+    "@angular/material": "7.0.0",
+    "@angular/cdk": "7.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.800.0",
