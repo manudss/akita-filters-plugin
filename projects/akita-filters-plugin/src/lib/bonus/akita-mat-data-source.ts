@@ -2,7 +2,7 @@ import {DataSource} from '@angular/cdk/table';
 import {Observable} from 'rxjs';
 import {ID, Order, QueryEntity} from '@datorama/akita';
 // import { AkitaFilter, AkitaFiltersPlugin } from 'akita-filters-plugin';
-import {MatSort, Sort} from '@angular/material';
+import { MatSort, Sort } from '@angular/material/sort';
 import {AkitaFilter} from '../akita-filters-store';
 import {AkitaFiltersPlugin} from '../akita-filters-plugin';
 
