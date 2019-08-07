@@ -123,7 +123,7 @@ export class AkitaFiltersPlugin<S extends EntityState<E> = any, E = any, P = any
   /**
    * Get all the current snapshot server filters (only if server is available else return default not hidden filters)
    *
-   *  Note: filters with server=true, will not be displayed. If you want it, call directly to:
+   *  Note: filters with server=false, will not be displayed. If you want it, call directly to:
    * `this.filtersQuery.getAll()`
    */
   getServerFilters(): AkitaFilter<E>[] {
