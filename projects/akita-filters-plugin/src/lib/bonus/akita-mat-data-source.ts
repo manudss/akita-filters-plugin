@@ -1,13 +1,15 @@
 import {DataSource} from '@angular/cdk/table';
-import {Observable} from 'rxjs';
+import {combineLatest, merge, Observable, of} from 'rxjs';
 import {ID, Order, QueryEntity} from '@datorama/akita';
-import {MatSort, Sort} from '@angular/material';
+import {MatPaginator, MatSort, PageEvent, Sort} from '@angular/material';
 import {AkitaFilter} from '../akita-filters-store';
 import {AkitaFiltersPlugin} from '../akita-filters-plugin';
+import {map} from 'rxjs/operators';
 
-export class AkitaMatDataSource<T, S = any> extends DataSource<T> {
-  private _dataQuery: QueryEntity<S, T>;
-  private _filters: AkitaFiltersPlugin<S, T, any>;
+export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
+
+  private _dataQuery: QueryEntity<S, E>;
+  private _filters: AkitaFiltersPlugin<S, E, any>;
 
   /**
    * Data source to use an Akita EntityStore with a Material table
@@ -16,10 +18,10 @@ export class AkitaMatDataSource<T, S = any> extends DataSource<T> {
    * @param query string : [Mandatory] the akita Query Entity, you wan to use to this data source.
    * @param akitaFilters string [Optional] If you want to provide an AkitaFilters that you use externally. Else it will create a new one.
    */
-  constructor(query: QueryEntity<S, T>, akitaFilters?: AkitaFiltersPlugin<S, T, any>) {
+  constructor(query: QueryEntity<S, E>, akitaFilters?: AkitaFiltersPlugin<S, E, any>) {
     super();
     this._dataQuery = query;
-    this._filters = akitaFilters ? akitaFilters : new AkitaFiltersPlugin<S, T, any>(query);
+    this._filters = akitaFilters ? akitaFilters : new AkitaFiltersPlugin<S, E, any>(query);
   }
 
   /**
@@ -52,30 +54,51 @@ export class AkitaMatDataSource<T, S = any> extends DataSource<T> {
     sort.sortChange.subscribe((sortValue: Sort) => {
       // @ts-ignore
       this._filters.setSortBy({
-        sortBy: sortValue.active as keyof T,
+        sortBy: sortValue.active as keyof E,
         sortByOrder: sortValue.direction === 'desc' ? Order.DESC : Order.ASC
       });
     });
   }
 
   /**
+   * @param paginator MatSort set the Mat Sort to subscribe to paginator change.
+   */
+  get paginator(): MatPaginator {
+    return this._paginator;
+  }
+
+  set paginator(value: MatPaginator) {
+    this._paginator = value;
+  }
+  private _paginator: MatPaginator;
+
+  /**
+   * Paginate the data (client-side). If you're using server-side pagination,
+   * this would be replaced by requesting the appropriate data from the server.
+   */
+  private getPagedData(data: E[], pages: PageEvent) {
+    const startIndex = pages.pageIndex * pages.pageSize;
+    return data.slice(startIndex, startIndex + pages.pageSize);
+  }
+
+  /**
    * Access to AkitaFiltersPlugins, usefull to interact with all filters
    */
-  get AkitaFilters(): AkitaFiltersPlugin<S, T, any> {
+  get AkitaFilters(): AkitaFiltersPlugin<S, E, any> {
     return this._filters;
   }
 
   /**
    *  add a filter to filters plugins
    */
-  addFilter(filter: Partial<AkitaFilter<T>>): void {
+  addFilter(filter: Partial<AkitaFilter<E>>): void {
     this._filters.setFilter(filter);
   }
 
   /**
    *  add a filter to filters plugins
    */
-  setFilter(filter: Partial<AkitaFilter<T>>): void {
+  setFilter(filter: Partial<AkitaFilter<E>>): void {
     this._filters.setFilter(filter);
   }
 
@@ -96,7 +119,7 @@ export class AkitaMatDataSource<T, S = any> extends DataSource<T> {
   /**
    * Get filter value, return null, if value not available
    */
-  getFilterValue<E = T>(id: string): E | null {
+  getFilterValue<V = E>(id: string): V | null {
     return this._filters.getFilterValue(id);
   }
 
@@ -106,7 +129,7 @@ export class AkitaMatDataSource<T, S = any> extends DataSource<T> {
    * @param direction string the direction for sorting (asc or desc). Default asc.
    */
   public setDefaultSort(
-    sortColumun: keyof T,
+    sortColumun: keyof E,
     direction: 'asc' | 'desc' = 'asc'
   ) {
     this._filters.setSortBy({
@@ -118,8 +141,18 @@ export class AkitaMatDataSource<T, S = any> extends DataSource<T> {
   /**
    * Function used by matTable to subscribe to the data
    */
-  connect(): Observable<T[]> {
-    return this._filters.selectAllByFilters();
+  connect(): Observable<E[]> {
+    if (this.paginator) {
+      return combineLatest(
+        this._filters.selectAllByFilters(),
+        merge( of(this.paginator), this.paginator.page)
+      ).pipe(map((combine) => {
+        const [allItems, pages] = combine;
+        return this.getPagedData(allItems, pages as PageEvent);
+      }));
+    } else {
+      return this._filters.selectAllByFilters();
+    }
   }
 
   /**
