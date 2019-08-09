@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {AngularMaterialDemoComponent} from './angular-material-demo.component';
-import {MatPaginatorModule, MatSortModule, MatTableModule} from '@angular/material';
+import {MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule, MatSortModule, MatTableModule} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
+import {FormsModule} from '@angular/forms';
 
 const routes: Routes = [
   {
@@ -18,7 +19,11 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
+    MatSortModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    FormsModule
   ]
 })
 export class AngularMaterialDemoModule { }
