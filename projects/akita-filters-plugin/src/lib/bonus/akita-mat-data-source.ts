@@ -1,10 +1,11 @@
 import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription} from 'rxjs';
-import {ID, Order, QueryEntity} from '@datorama/akita';
-import {MatPaginator, MatSort, PageEvent, Sort} from '@angular/material';
+import {getEntityType, HashMap, ID, Order, QueryEntity} from '@datorama/akita';
 import {AkitaFilter} from '../akita-filters-store';
 import {AkitaFiltersPlugin} from '../akita-filters-plugin';
-import {map, take, takeUntil, tap} from 'rxjs/operators';
+import {map, takeUntil, tap} from 'rxjs/operators';
+import {MatSort, Sort} from '@angular/material/sort';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 
 export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
 
@@ -17,12 +18,14 @@ export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
    * @param query string : [Mandatory] the akita Query Entity, you wan to use to this data source.
    * @param akitaFilters string [Optional] If you want to provide an AkitaFilters that you use externally. Else it will create a new one.
    */
-  constructor(query: QueryEntity<S, E>, akitaFilters?: AkitaFiltersPlugin<S, E, any>) {
+  constructor(query: QueryEntity<S>, akitaFilters?: AkitaFiltersPlugin<S>) {
     super();
     this._dataQuery = query;
-    this._filters = akitaFilters ? akitaFilters : new AkitaFiltersPlugin<S, E, any>(query);
-    this._hasCustomfilters = !!akitaFilters;
+    // @ts-ignore
+    this._filters = akitaFilters ? akitaFilters : new AkitaFiltersPlugin(query);
+    this._hasCustomFilters = !!akitaFilters;
     this._count$ = new BehaviorSubject(0);
+    // @ts-ignore ignore, as without options, we will allways have an Array.
     this._selectAllByFilter$ = this._filters.selectAllByFilters()
       .pipe(tap(value => this._updateCount(value)));
   }
@@ -63,7 +66,7 @@ export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
     });
 
     sort.initialized.subscribe(() => {
-      this.setDefaultSort(sort.active as keyof E, sort.direction === 'desc' ? Order.DESC : Order.ASC)
+      this.setDefaultSort(sort.active as keyof E, sort.direction === 'desc' ? Order.DESC : Order.ASC);
     });
   }
 
@@ -99,10 +102,10 @@ export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
     return this._filters;
   }
 
-  private _dataQuery: QueryEntity<S, E>;
-  private _filters: AkitaFiltersPlugin<S, E, any>;
+  private _dataQuery: QueryEntity<S>;
+  private readonly _filters: AkitaFiltersPlugin<S, E, any>;
   /** if set a custom filter plugins, do not delete all in disconnect() **/
-  private _hasCustomfilters: boolean;
+  private _hasCustomFilters: boolean;
   private _paginator: MatPaginator;
 
   private _selectAllByFilter$: Observable<E[]>;
@@ -145,14 +148,14 @@ export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
   /**
    *  add a filter to filters plugins
    */
-  addFilter(filter: Partial<AkitaFilter<E>>): void {
+  addFilter(filter: Partial<AkitaFilter<E, S>>): void {
     this._filters.setFilter(filter);
   }
 
   /**
    *  add a filter to filters plugins
    */
-  setFilter(filter: Partial<AkitaFilter<E>>): void {
+  setFilter(filter: Partial<AkitaFilter<E, S>>): void {
     this._filters.setFilter(filter);
   }
 
@@ -276,7 +279,7 @@ export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
    * @docs-private
    */
   disconnect(): void {
-    if (!this._hasCustomfilters) {
+    if (!this._hasCustomFilters) {
       this._filters.clearFilters();
       this._filters.destroy();
     }

@@ -19,7 +19,8 @@ export class ProductsFiltersService {
   constructor( private productsStore: ProductsFiltersStore,
                private productsQuery: ProductsFiltersQuery,
                private productsDataService: ProductsFiltersDataService ) {
-    this.filtersProduct = new AkitaFiltersPlugin<ProductPlantState, ProductPlant>(this.productsQuery);
+    // @ts-ignore
+    this.filtersProduct = new AkitaFiltersPlugin<ProductPlantState>(this.productsQuery);
   }
 
 
@@ -33,7 +34,7 @@ export class ProductsFiltersService {
     return this.productsQuery.getHasCache() === false ? request : empty();
   }
 
-  setFilter( filter: AkitaFilter<ProductPlant> ) {
+  setFilter( filter: AkitaFilter<ProductPlant, ProductPlantState> ) {
     this.filtersProduct.setFilter(filter);
   }
 
@@ -60,11 +61,12 @@ export class ProductsFiltersService {
     return sortValue.sortBy ? order + sortValue.sortBy : '+title';
   }
 
-  selectFilters(): Observable<AkitaFilter<ProductPlant>[]> {
+  selectFilters(): Observable<AkitaFilter<ProductPlant, ProductPlantState>[]> {
     return this.filtersProduct.selectFilters();
   }
 
   selectAll(): Observable<ProductPlant[]> {
+    // @ts-ignore zs it was not an hashMap with not asObject
     return this.filtersProduct.selectAllByFilters();
   }
 
