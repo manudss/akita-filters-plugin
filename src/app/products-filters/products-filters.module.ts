@@ -6,7 +6,7 @@ import {RouterModule, Routes} from '@angular/router';
 import {ReactiveFormsModule} from '@angular/forms';
 import {FiltersFormComponent} from './filters-form/filters-form.component';
 
-const publicApi = [ProductsListComponent, ProductFiltersComponent];
+const publicApi = [ProductsListComponent, ProductFiltersComponent, FiltersFormComponent];
 
 const routes: Routes = [
   {
@@ -17,7 +17,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [CommonModule, RouterModule.forChild(routes), ReactiveFormsModule],
-  declarations: [publicApi, FiltersFormComponent],
+  declarations: [publicApi],
   exports: [publicApi]
 })
 export class ProductsFiltersModule {

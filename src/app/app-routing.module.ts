@@ -15,7 +15,11 @@ const routes: Routes = [
   },
   {
     path: 'products',
-    loadChildren: () => import('./products-filters/products-filters.module').then(m => m.ProductsFiltersModule)
+    loadChildren: './products-filters/products-filters.module#ProductsFiltersModule'
+  },
+  {
+    path: 'angular-material-demo',
+    loadChildren: './angular-material-demo/angular-material-demo.module#AngularMaterialDemoModule'
   }
 ];
 

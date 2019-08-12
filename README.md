@@ -399,13 +399,14 @@ then use it in Mat Data Table like other DataSource.
               mat-table
               #table
               [dataSource]="dataSource"
-              [trackBy]="trackByName"
-              cdkDropList
-              [cdkDropListData]="dataSource"
-              (cdkDropListDropped)="dropTable($event)"
+              [trackBy]="trackByName" 
               matSort
             >...</table>
 ```
+
+#### Demo 
+
+ a demo page is available in the playground "angular-material-demo".  
 
 #### Dependencies
 
@@ -413,27 +414,66 @@ Need to have installed in your project these api :
 "@angular/material": "latest",
 "@angular/cdk": "latest"
 
+#### Constructor, use existing AkitaFiltersPlugin 
+
+If needed you can specify, an already existing AkitaFiltersPlugins in the constructor. Usefull to share it with another page/components. @see demo : angular-material-demo. 
+Else, it will create an internal AkitaFiltersPlugins. 
+
+```typescript
+    this.dataSource = new AkitaMatDataSource<Entity, EntityState>(this.productsQuery, this.productsService.filtersProduct);
+```
+
 ## Function 
 
 Then you have some function that you can use for manage filters 
 
-### filter properties : set filter(filters: string)
+### filter/search properties : set search(search: string)
 
-By setting filter properties, you set a filter like search. 
+By setting search properties, you set a filter like search. 
 ```typescript
-this.dataSource.filter = "Search"; 
+this.dataSource.search = "Search"; 
 ```
+Both use filter and filter, but prefere using search, as filter is so confusing with setFilters functions. (filter is here to be iso functionnality, then the MatDataSource)
 
 ### Sort properties :  set sort(sort: MatSort)
 
 By setting Mat Sort for sorting you can set the sort. Used by Mat Table when changing filter 
 
-
-### AkitaFilters properties : get AkitaFilters(): AkitaFiltersPlugin<S, T, any>
-
-Access to the AkitaFilters plugins, and use all function from AkitaFilters plugins.
 ```typescript
-this.dataSource.AkitaFilters.setFilter({
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  
+  ngAfterViewInit(): void {
+    this.dataSource.sort = this.sort;
+  }
+```
+
+
+### Paginator properties :  set paginator(paginator: MatPaginator)
+
+By setting MatPaginator for enable pagination with datasource. Used by Mat Paginator to define pagenation  
+
+```typescript
+@ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+  }
+```
+
+And add the paginator directly like this in the template. No need to give the size, as it will be setted by the datasource. 
+```html
+    <mat-paginator #paginator
+                   [pageIndex]="0"
+                   [pageSize]="25"
+                   [pageSizeOptions]="[10, 25, 50, 100, 250]">
+    </mat-paginator>
+```
+
+### AkitaFilters properties : get akitaFiltersPlugin(): AkitaFiltersPlugin<S, T, any>
+
+Access to the AkitaFilters plugins instance, and use all function from AkitaFilters plugins.
+```typescript
+this.dataSource.akitaFiltersPlugin.setFilter({
                                      id: 'category',
                                      value: 'garden',
                                      predicate: (value: ProductPlant, index, array) => value.category === category
