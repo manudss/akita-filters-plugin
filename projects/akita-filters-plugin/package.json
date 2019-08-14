@@ -3,14 +3,14 @@
   "author": "Emmanuel DE SAINT STEBAN",
   "description": "Plug-in for manage multiple filters with akita easily",
   "keywords": [
-    "angular", "ngx", "akita", "filters", "state management"],
+    "angular", "ngx", "akita", "filters", "state management", "angular material", "matDatasource", "angular material data source"],
   "version": "3.0.0",
   "peerDependencies": {
-    "@datorama/akita": ">=3.0.0"
+    "@datorama/akita": ">=4.0.0"
   },
   "optionalDependencies": {
-    "@angular/material": "latest",
-    "@angular/cdk": "latest"
+    "@angular/material": ">=8.0.0",
+    "@angular/cdk": ">=8.0.0"
   },
   "repository": {
     "type": "git",

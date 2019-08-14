@@ -1,11 +1,14 @@
 // import { isDefined, isObject, isString } from 'akita';
 import { AkitaFilter } from './akita-filters-store';
-import {isDefined, isString, isObject} from "@datorama/akita";
+import {isDefined, isString, isObject, HashMap, getEntityType} from '@datorama/akita';
 
 /**
  * Helper function to do a default filter
  */
-export function defaultFilter<E = any>( value: E, index: number, array: E[], filter: AkitaFilter<E> ): boolean {
+export function defaultFilter<E = any, S = any>(
+  value: E | getEntityType<S>,
+  index: number, array: E[] | HashMap<getEntityType<E>>,
+  filter: AkitaFilter<E, S> ): boolean {
   if ( isObject(value) && isString(filter.value) ) {
     return searchFilter(filter.value, value);
   }

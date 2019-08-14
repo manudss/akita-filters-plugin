@@ -1,12 +1,13 @@
 import { skip, take } from 'rxjs/operators';
 import { createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore } from './setup';
-import {AkitaFiltersPlugin} from "../lib/akita-filters-plugin";
-import {Order} from "@datorama/akita";
+import {AkitaFiltersPlugin} from '../lib/akita-filters-plugin';
+import {Order} from '@datorama/akita';
 
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);
 const filters = new AkitaFiltersPlugin(widgetsQuery);
+
 
 describe('AkitaFiltersPlugin', () => {
   describe('Manages Filters', () => {
@@ -15,8 +16,8 @@ describe('AkitaFiltersPlugin', () => {
         filters.filtersStore.remove();
 
         filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 0 });
-        filters.setFilter({ id: 'filter2', predicate: filter => filter });
-        filters.setFilter({ id: 'filter3', predicate: filter => filter });
+        filters.setFilter({ id: 'filter2', predicate: filter => !!filter });
+        filters.setFilter({ id: 'filter3', predicate: filter => !!!filter });
       });
 
       it('should take all filters by default', () => {
@@ -158,6 +159,60 @@ describe('AkitaFiltersPlugin', () => {
           });
       });
     });
+    describe('SelectAll with Filters and return asObject Type ', () => {
+      beforeEach(() => {
+        widgetsStore.remove();
+        filters.filtersStore.remove();
+        widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+        widgetsStore.update(2, { complete: true });
+        widgetsStore.update(3, { complete: true });
+      });
+
+      it('should select all if no filters', () => {
+        filters
+          .selectAllByFilters({asObject: true, })
+          .pipe(take(1))
+          .subscribe(result => {
+            console.log('asObject : ', result);
+            expect(result).toBeDefined();
+            expect(Object.keys(result).length).toEqual(4);
+            expect(result['1']).toEqual({ id: 1, title: 'Widget 1', complete: false });
+            expect(result['2']).toEqual({ id: 2, title: 'Widget 2', complete: true });
+            expect(result['3']).toEqual({ id: 3, title: 'Widget 3', complete: true });
+            expect(result['4']).toEqual({ id: 4, title: 'Widget 4', complete: false });
+          });
+      });
+
+      it('should apply filter if provided when select all', () => {
+        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
+
+        filters
+          .selectAllByFilters({asObject: true, })
+          .pipe(take(1))
+          .subscribe(result => {
+            console.log('asObject 2 : ', result);
+            expect(result).toBeDefined();
+            expect(Object.keys(result).length).toEqual(2);
+            expect(result['1']).toEqual({ id: 1, title: 'Widget 1', complete: false });
+            expect(result['3']).toEqual( { id: 3, title: 'Widget 3', complete: true });
+          });
+      });
+
+      it('should apply 2 filter if provided when select all', () => {
+        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
+        filters.setFilter({ id: 'filter2', predicate: filter => filter.complete });
+
+        filters
+          .selectAllByFilters({asObject: true, })
+          .pipe(take(1))
+          .subscribe(result1 => {
+            console.log('asObject 3 : ', result1);
+            expect(result1).toBeDefined();
+            expect(Object.keys(result1).length).toEqual(1);
+            expect(result1['3']).toEqual({ id: 3, title: 'Widget 3', complete: true });
+          });
+      });
+    });
 
     describe('SelectAll when any change in filter, or entities', () => {
       jest.useFakeTimers();
@@ -193,7 +248,7 @@ describe('AkitaFiltersPlugin', () => {
 
       it('should send a new value when add new entity', done3 => {
         jest.setTimeout(3000);
-        let count = 0;
+        const count = 0;
         filters.setFilter({ id: 'filter2', predicate: filter => filter.complete });
 
         filters
