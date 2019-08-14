@@ -11,6 +11,7 @@ export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
 
 
 
+
   /**
    * Data source to use an Akita EntityStore with a Material table
    * @see : https://material.angular.io/components/table/overview
@@ -57,6 +58,7 @@ export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
    * emitted by the MatSort will trigger an update to the table's rendered data.
    */
   set sort(sort: MatSort) {
+    this._sort = sort;
     sort.sortChange.pipe(takeUntil(this._disconnect)).subscribe((sortValue: Sort) => {
       // @ts-ignore
       this._filters.setSortBy({
@@ -106,7 +108,8 @@ export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
   private readonly _filters: AkitaFiltersPlugin<S, E, any>;
   /** if set a custom filter plugins, do not delete all in disconnect() **/
   private _hasCustomFilters: boolean;
-  private _paginator: MatPaginator;
+  private _paginator: MatPaginator = null;
+  private _sort: MatSort = null;
 
   private _selectAllByFilter$: Observable<E[]>;
   private _count$: BehaviorSubject<number>;

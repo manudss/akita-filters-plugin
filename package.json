@@ -52,7 +52,7 @@
     "@angular/platform-browser": "~8.2.1",
     "@angular/platform-browser-dynamic": "~8.2.1",
     "@angular/router": "~8.2.1",
-    "@datorama/akita": "^4.9.3",
+    "@datorama/akita": "^4.9.4",
     "core-js": "^3.2.0",
     "ngx-markdown": "^8.1.0",
     "ngx-take-until-destroy": "^5.4.0",

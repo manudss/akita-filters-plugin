@@ -1,6 +1,6 @@
 import {AkitaFilter, AkitaFiltersStore, createFilter, FiltersState} from './akita-filters-store';
 import {AkitaFiltersQuery} from './akita-filters-query';
-import {combineLatest, isObservable, merge, Observable, ObservedValueOf} from 'rxjs';
+import {combineLatest, isObservable, merge, Observable, ObservedValueOf, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {
   compareValues,
@@ -57,7 +57,7 @@ export class AkitaFiltersPlugin<S extends EntityState<E> = any, E = getEntityTyp
 
     this._selectFilters$ = this.filtersQuery.selectAll({sortBy: 'order'});
     this._selectFiltersAll$ = this.filtersQuery.selectAll({sortBy: 'order', filterBy: filter => !filter.hide});
-    this._selectSortBy$ = this.filtersQuery.select(state => state.sort);
+    this._selectSortBy$ = this.filtersQuery.select(state => state && state.sort ? state.sort : null);
   }
 
   get filtersStore(): AkitaFiltersStore<E> {
@@ -147,16 +147,22 @@ export class AkitaFiltersPlugin<S extends EntityState<E> = any, E = getEntityTyp
   selectAllByFilters(options?: SelectAllOptionsA<E>
     | SelectAllOptionsB<E> | SelectAllOptionsC<E> |
     SelectAllOptionsD<E> | SelectAllOptionsE<E> | any): Observable<E[] | HashMap<getEntityType<S>>> {
-    return combineLatest(this._selectFilters$, this.getQuery().selectAll(options), this.selectSortBy()).pipe(
-      map(([filters, entities, sort]) => {
-        const unkNowEntity: unknown = entities;
-        if (Array.isArray((unkNowEntity as E[]))) {
-          return this._applyFiltersForArray((unkNowEntity as E[]), filters, sort);
-        } else {
+    if (options && options.asObject) {
+      return combineLatest(this._selectFilters$, this.getQuery().selectAll(options)).pipe(
+        map(([filters, entities]) => {
+          const unkNowEntity: unknown = entities;
           return this._applyFiltersForHashMap((unkNowEntity as HashMap<getEntityType<S>>), filters);
-        }
-      })
-    );
+        })
+      );
+    } else {
+
+      return combineLatest(this._selectFilters$, this.getQuery().selectAll(options), this.selectSortBy()).pipe(
+        map(([filters, entities, sort]) => {
+          const unkNowEntity: unknown = entities;
+          return this._applyFiltersForArray((unkNowEntity as E[]), filters, sort);
+        })
+      );
+    }
   }
 
   /**
@@ -269,17 +275,17 @@ export class AkitaFiltersPlugin<S extends EntityState<E> = any, E = getEntityTyp
     entities: E[],
     filters: AkitaFilter<E, S>[],
     sort: ObservedValueOf<Observable<SortByOptions<E> | null>>): E[] {
-    if (filters.length === 0) {
-      return entities;
-    }
-    let entitiesFiltered = entities.filter((entity: E, index: number, array: E[]) => {
-      return filters.every((filter: AkitaFilter<E, S>) => {
-        if (filter.predicate) {
-          return !!filter.predicate(entity, index, array, filter);
-        }
-        return true;
+    let entitiesFiltered = entities;
+    if (filters.length !== 0) {
+      entitiesFiltered = entities.filter((entity: E, index: number, array: E[]) => {
+        return filters.every((filter: AkitaFilter<E, S>) => {
+          if (filter.predicate) {
+            return !!filter.predicate(entity, index, array, filter);
+          }
+          return true;
+        });
       });
-    });
+    }
 
     if (sort && sort.sortBy) {
       const _sortBy: any = isFunction(sort.sortBy) ? sort.sortBy : compareValues(sort.sortBy, sort.sortByOrder);

@@ -30,7 +30,7 @@ export class FiltersFormComponent implements OnInit, OnDestroy {
     this.setInitialFilters();
 
     this.filtersForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscribe((search: string ) => {
-      if( search ) {
+      if ( search ) {
         this.productsService.setFilter({
           id: 'search',
           value: search,
