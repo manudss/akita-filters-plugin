@@ -29,6 +29,7 @@ export class AkitaMatDataSource<E, S = any> extends DataSource<E> {
     // @ts-ignore ignore, as without options, we will allways have an Array.
     this._selectAllByFilter$ = this._filters.selectAllByFilters()
       .pipe(tap(value => this._updateCount(value)));
+    this._updateChangeSubscription();
   }
 
   /**

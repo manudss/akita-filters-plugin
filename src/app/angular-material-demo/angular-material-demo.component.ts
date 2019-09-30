@@ -31,7 +31,7 @@ export class AngularMaterialDemoComponent implements OnInit, AfterViewInit {
     private productsQuery: ProductsFiltersQuery) {}
 
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
+    // this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 }
