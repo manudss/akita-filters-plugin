@@ -18,6 +18,7 @@ export class AngularMaterialDemoComponent implements OnInit, AfterViewInit {
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['id', 'title'];
+  private usePaginator: boolean = true;
 
 
   ngOnInit(): void {
@@ -31,7 +32,12 @@ export class AngularMaterialDemoComponent implements OnInit, AfterViewInit {
     private productsQuery: ProductsFiltersQuery) {}
 
   ngAfterViewInit(): void {
-    // this.dataSource.paginator = this.paginator;
+    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+
+  updatePaginator($event) {
+    this.usePaginator = $event.checked;
+    this.dataSource.paginator = (this.usePaginator)? this.paginator : null;
   }
 }
