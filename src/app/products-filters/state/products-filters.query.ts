@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ProductsFiltersStore, ProductPlantState } from './products-filters.store';
 import { ProductPlant } from './products-filters.model';
-import {QueryConfig, QueryEntity} from '@datorama/akita';
+import {getEntityType, getIDType, QueryConfig, QueryEntity} from '@datorama/akita';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +9,7 @@ import {QueryConfig, QueryEntity} from '@datorama/akita';
 @QueryConfig({
   sortBy: 'price'
 })
-export class ProductsFiltersQuery extends QueryEntity<ProductPlantState> {
+export class ProductsFiltersQuery extends QueryEntity<ProductPlantState, getEntityType<ProductPlantState>, getIDType<ProductPlantState>> {
   constructor(protected store: ProductsFiltersStore) {
     super(store);
   }

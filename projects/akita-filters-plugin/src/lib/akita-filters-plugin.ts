@@ -37,7 +37,7 @@ interface NormalizedFilterOptions {
   sortByOrderKey?: string;
 }
 
-export class AkitaFiltersPlugin<S extends EntityState<E> = any, E = getEntityType<S>, I = OrArray<getIDType<S>>, P = any>
+export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I = OrArray<getIDType<S>>, P = any>
   extends EntityCollectionPlugin<E, P> {
 
   private readonly _filtersStore: AkitaFiltersStore<E>;
@@ -48,7 +48,7 @@ export class AkitaFiltersPlugin<S extends EntityState<E> = any, E = getEntityTyp
   private readonly _selectSortBy$: Observable<SortByOptions<E> | null>;
   private readonly _selectFiltersAll$: Observable<AkitaFilter<E, S>[]>;
 
-  constructor(protected query: QueryEntity<E | getEntityType<S>>, private params: FiltersParams<E> = {}) {
+  constructor(protected query: QueryEntity<E>, private params: FiltersParams<E> = {}) {
     super(query, params.entityIds);
     this.params = {...{filtersStoreName: this.getStore().storeName + 'Filters'}, ...params};
 

@@ -26,11 +26,14 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
 
-    <mat-paginator #paginator
-                   [pageIndex]="0"
-                   [pageSize]="25"
-                   [pageSizeOptions]="[10, 25, 50, 100, 250]">
-    </mat-paginator>
+    <div [hidden]="!usePaginator">
+      <mat-paginator #paginator
+                     [pageIndex]="0"
+                     [pageSize]="25"
+                     [pageSizeOptions]="[10, 25, 50, 100, 250]">
+      </mat-paginator>
+    </div>
+    <mat-slide-toggle (change)="updatePaginator($event)" [checked]="usePaginator">Use pagninator </mat-slide-toggle>
   </div>
 </div>
 
