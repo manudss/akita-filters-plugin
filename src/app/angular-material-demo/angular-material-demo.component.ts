@@ -18,7 +18,7 @@ export class AngularMaterialDemoComponent implements OnInit, AfterViewInit {
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['id', 'title'];
-  private usePaginator: boolean = true;
+  public usePaginator: boolean = true;
 
 
   ngOnInit(): void {
