@@ -11,6 +11,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {MatChipsModule} from "@angular/material/chips";
 
 const routes: Routes = [
   {
@@ -31,7 +32,8 @@ const routes: Routes = [
         MatInputModule,
         MatIconModule,
         FormsModule,
-        MatSlideToggleModule
+        MatSlideToggleModule,
+        MatChipsModule
     ]
 })
 export class AngularMaterialDemoModule { }

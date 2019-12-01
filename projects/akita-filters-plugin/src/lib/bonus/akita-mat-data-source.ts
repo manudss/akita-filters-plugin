@@ -26,9 +26,10 @@ export class AkitaMatDataSource<E, S extends EntityState = any> extends DataSour
     this._filters = akitaFilters ? akitaFilters : new AkitaFiltersPlugin<S, E>(query);
     this._hasCustomFilters = !!akitaFilters;
     this._count$ = new BehaviorSubject(0);
+
+    let count = 0;
     // @ts-ignore ignore, as without options, we will allways have an Array.
-    this._selectAllByFilter$ = this._filters.selectAllByFilters()
-      .pipe(tap(value => this._updateCount(value)));
+    this._selectAllByFilter$ = this._filters.selectAllByFilters();
     this._updateChangeSubscription();
   }
 
@@ -128,12 +129,12 @@ export class AkitaMatDataSource<E, S extends EntityState = any> extends DataSour
    */
   _renderChangesSubscription = Subscription.EMPTY;
 
-  private _updateCount(value) {
+  private _updateCount(value: E[]) {
     const count = value.length ? value.length : 0;
     if (count !== this._count$.getValue()) {
       this._count$.next(count);
 
-      if (this.paginator) { this._updatePaginator(count); }
+      this._updatePaginator(count);
     }
   }
 
@@ -142,6 +143,7 @@ export class AkitaMatDataSource<E, S extends EntityState = any> extends DataSour
    * this would be replaced by requesting the appropriate data from the server.
    */
   private _pageData(data: E[]) {
+    this._updateCount(data);
     if (!this.paginator) { return data; }
 
     const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
@@ -236,6 +238,7 @@ export class AkitaMatDataSource<E, S extends EntityState = any> extends DataSour
     const paginatedData = combineLatest(this._selectAllByFilter$, pageChange)
       .pipe(map(([data]) => this._pageData(data)));
     // Watched for paged data changes and send the result to the table to render.
+    let count2 = 0;
     this._renderChangesSubscription.unsubscribe();
     this._renderChangesSubscription = paginatedData.pipe(takeUntil(this._disconnect)).subscribe(data => this._renderData.next(data));
     this._internalPageChanges.next();

@@ -11,7 +11,7 @@ import { MatSort } from '@angular/material/sort';
   styleUrls: ['./angular-material-demo.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class AngularMaterialDemoComponent implements OnInit, AfterViewInit {
+export class AngularMaterialDemoComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   dataSource: AkitaMatDataSource<ProductPlant, ProductPlantState>;
@@ -24,6 +24,8 @@ export class AngularMaterialDemoComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.dataSource = new AkitaMatDataSource<ProductPlant, ProductPlantState>(this.productsQuery, this.productsService.filtersProduct);
     this.productsService.get().subscribe();
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   constructor(
@@ -31,13 +33,11 @@ export class AngularMaterialDemoComponent implements OnInit, AfterViewInit {
     private cartService: CartService,
     private productsQuery: ProductsFiltersQuery) {}
 
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
 
   updatePaginator($event) {
     this.usePaginator = $event.checked;
     this.dataSource.paginator = (this.usePaginator)? this.paginator : null;
   }
+
+
 }
