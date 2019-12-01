@@ -6,9 +6,24 @@
       <input matInput placeholder="Placeholder" [(ngModel)]="dataSource.search">
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
+    <mat-slide-toggle (change)="updatePaginator($event)" [checked]="usePaginator">Use pagninator </mat-slide-toggle>
+    <mat-chip-list>
+    <mat-chip *ngFor="let filter of (dataSource.akitaFiltersPlugIn.selectFilters() | async)">
+      {{filter.name}} <mat-icon matChipRemove  (click)="dataSource.removeFilter(filter.id)">cancel</mat-icon>
+    </mat-chip>
+  </mat-chip-list>
+
   </p>
 
+
   <div class="mat-elevation-z8">
+    <div [hidden]="!usePaginator">
+      <mat-paginator #paginator
+                     [pageIndex]="0"
+                     [pageSize]="25"
+                     [pageSizeOptions]="[10, 25, 50, 100, 250]">
+      </mat-paginator>
+    </div>
     <table mat-table class="full-width-table" [dataSource]="dataSource" matSort aria-label="Elements">
       <!-- Id Column -->
       <ng-container matColumnDef="id">
@@ -26,14 +41,8 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
 
-    <div [hidden]="!usePaginator">
-      <mat-paginator #paginator
-                     [pageIndex]="0"
-                     [pageSize]="25"
-                     [pageSizeOptions]="[10, 25, 50, 100, 250]">
-      </mat-paginator>
-    </div>
-    <mat-slide-toggle (change)="updatePaginator($event)" [checked]="usePaginator">Use pagninator </mat-slide-toggle>
+
+
   </div>
 </div>
 
