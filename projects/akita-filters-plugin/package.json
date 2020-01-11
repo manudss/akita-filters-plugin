@@ -4,7 +4,7 @@
   "description": "Plug-in for manage multiple filters with akita easily",
   "keywords": [
     "angular", "ngx", "akita", "filters", "state management", "angular material", "matDatasource", "angular material data source"],
-  "version": "3.0.0",
+  "version": "0.0.0-dev",
   "peerDependencies": {
     "@datorama/akita": ">=4.0.0"
   },
