@@ -162,7 +162,8 @@ type AkitaFilter: AkitaFilter<EntityState>  = {
      predicate: ( entity: getEntityType<S>, index: number, array: getEntityType<S>[] | HashMap<getEntityType<S>>, filter: AkitaFilter<S> ) => boolean;
      /** add any other data you want to add **/
      [key: string]: any;
- };```
+ };
+```
  
  - Id and function were mandatored. (By default, Id will guid(), and default function, will be defaultFilter helpers). 
  
@@ -178,7 +179,7 @@ type AkitaFilter: AkitaFilter<EntityState>  = {
 # AkitaFilterPlugins API
 
 ## Get Entity 
-###  selectAllByFilters(options?: SelectAllOptions*): Observable<getEntityType<S>[] | HashMap<getEntityType<S>>>
+###  selectAllByFilters(options?: SelectAllOptions*): Observable<getEntityType<MyEntityState>[] | HashMap<getEntityType<MyEntityState>>>
 
 The main function to subscribe to filtered data. Select All Entity with an apply filter to it, and updated with any change (entity or filter)
 
@@ -452,7 +453,7 @@ By setting Mat Sort for sorting you can set the sort. Used by Mat Table when cha
 
 ### Paginator properties :  set paginator(paginator: MatPaginator)
 
-By setting MatPaginator for enable pagination with datasource. Used by Mat Paginator to define pagenation  
+By setting MatPaginator for enable pagination with datasource. Used by Mat Paginator to define pagination  
 
 ```typescript
 @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
@@ -492,12 +493,12 @@ this.dataSource.setDefaultSort('colomnName', 'asc');
 ### Proxy helper function 
 
 Some proxy function, just to call AkitaFilters Plugins. 
-
-* setFilter(filter: Partial<AkitaFilter<T>>): void
+```typescript
+* setFilter(filter: Partial<AkitaFilter< S >>): void
 * removeFilter(id: ID): void
 * clearFilters(): void
-* getFilterValue<E = T>(id: string): E | null
-
+* getFilterValue< S >(id: string): E | null
+```
 
 ### Breaking Changes : 2.x to 3.x
 
@@ -505,21 +506,28 @@ To correspond with Akita, you need now to specify only the entityState. The enti
 
 Changes this 
 ```typescript
-new AkitaFiltersPlugin<MyEntitiesState, MyEntity>()```
+new AkitaFiltersPlugin<MyEntitiesState, MyEntity>()
+```
 to 
 ```typescript
-new AkitaFiltersPlugin<MyEntitiesState>()```
+new AkitaFiltersPlugin<MyEntitiesState>()
+```
 
 Changes this 
 ```typescript
-AkitaFilter<MyEntitiesState, MyEntity>[]```
+AkitaFilter<MyEntitiesState, MyEntity>[]
+```
 to 
 ```typescript
-AkitaFilter<MyEntitiesState>[]```
+AkitaFilter<MyEntitiesState>[]
+```
 
 Changes this 
 ```typescript
-new AkitaMatDataSource<MyEntity, MyEntitiesState>()```
+new AkitaMatDataSource<MyEntity, MyEntitiesState>()
+```
 to 
 ```typescript
-new AkitaMatDataSource<MyEntitiesState>()```
+new AkitaMatDataSource<MyEntitiesState>()
+```
+
