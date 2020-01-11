@@ -499,7 +499,7 @@ Some proxy function, just to call AkitaFilters Plugins.
 * getFilterValue<E = T>(id: string): E | null
 
 
-### Breaking Changes : 3.x to 4.x
+### Breaking Changes : 2.x to 3.x
 
 To correspond with Akita, you need now to specify only the entityState. The entity element is calculated as in akita with getEntityType<MyEntitiesState>
 
