@@ -6,7 +6,7 @@ function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.substr(1);
 }
 
-export interface AkitaFilter<E, S = any> {
+export interface AkitaFilter<S extends EntityState, E = getEntityType<S>> {
   id: ID;
   /** A corresponding name for display the filter, by default, it will be ${id): ${value}  */
   name?: string;
@@ -19,12 +19,12 @@ export interface AkitaFilter<E, S = any> {
   /** If you have enabled server filter, specify witch filters will be call to server, default to false. */
   server?: boolean;
   /** The function to apply filters, by default use defaultFilter helpers, that will search the value in the object */
-  predicate: ( entity: E | getEntityType<S>, index: number, array: E[] | HashMap<getEntityType<S>>, filter: AkitaFilter<E, S> ) => boolean;
+  predicate: ( entity: E, index: number, array: E[] | HashMap<E>, filter: AkitaFilter<S> ) => boolean;
   /** add any other data you want to add **/
   [key: string]: any;
 }
 
-export function createFilter<E, S = any>( filterParams: Partial<AkitaFilter<E, S>> ) {
+export function createFilter<S extends EntityState, E = getEntityType<S>>( filterParams: Partial<AkitaFilter<S, E>> ) {
   const id = filterParams.id ? filterParams.id : guid();
   const name = filterParams.name || (filterParams.value && filterParams.id ?
     `${capitalize(filterParams.id.toString())}: ${filterParams.value.toString()}` : undefined);
@@ -35,15 +35,15 @@ export function createFilter<E, S = any>( filterParams: Partial<AkitaFilter<E, S
     filterParams.predicate = defaultFilter;
   }
 
-  return { id, name, hide: false, order: 10, server: false, ...filterParams } as AkitaFilter<E>;
+  return { id, name, hide: false, order: 10, server: false, ...filterParams } as AkitaFilter<S>;
 }
 
-export interface FiltersState<E, S extends  FiltersState<E> = any> extends EntityState<AkitaFilter<E, S>> {
+export interface FiltersState<S extends EntityState, E = getEntityType<S>> extends EntityState<AkitaFilter<S, E>> {
   sort: SortByOptions<any>;
 }
 
 @StoreConfig({ name: 'filters' })
-export class AkitaFiltersStore<E> extends EntityStore<FiltersState<E>, AkitaFilter<E>> {
+export class AkitaFiltersStore<S extends EntityState> extends EntityStore<FiltersState<S>, AkitaFilter<S>> {
   constructor( storeName: string ) {
     super(undefined, { name: storeName });
   }

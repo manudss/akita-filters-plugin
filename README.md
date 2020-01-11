@@ -46,10 +46,10 @@ npm page : https://www.npmjs.com/package/akita-filters-plugin
 
 ## Instantiation 
 
-You need to instanciate the filters Plugins : 
+You need to instantiate the filters Plugins : 
 
 ```typescript
-myFilter = new AkitaFiltersPlugin<MyEntitiesState, MyEntity>(this.myEntitiesQuery);
+myFilter = new AkitaFiltersPlugin<MyEntitiesState>(this.myEntitiesQuery);
 ```
 
 
@@ -146,7 +146,7 @@ export class CategoryFiltersComponent {
 An Akita filter is an object with the corresponding format :
 
 ```typescript
-type AkitaFilter  = {
+type AkitaFilter: AkitaFilter<EntityState>  = {
    id: ID;
    /** A corresponding name for display the filter, by default, it will be ${id): ${value}  */
    name?: string;
@@ -156,10 +156,13 @@ type AkitaFilter  = {
    value?: any;
    /** If you want to have filter that is not displayed on the list */
    hide?: boolean;
+     /** If you have enabled server filter, specify witch filters will be call to server, default to false. */
+     server?: boolean;
    /** The function to apply filters, by default use defaultFilter helpers, that will search the value in the object */
-   predicate: (value: any, index: number, array: any[], filter: AkitaFilter) => any;
- };
- ```
+     predicate: ( entity: getEntityType<S>, index: number, array: getEntityType<S>[] | HashMap<getEntityType<S>>, filter: AkitaFilter<S> ) => boolean;
+     /** add any other data you want to add **/
+     [key: string]: any;
+ };```
  
  - Id and function were mandatored. (By default, Id will guid(), and default function, will be defaultFilter helpers). 
  
@@ -175,7 +178,7 @@ type AkitaFilter  = {
 # AkitaFilterPlugins API
 
 ## Get Entity 
-### selectAllByFilters(options: SelectOptions<E> = {}): Observable<E[]>
+###  selectAllByFilters(options?: SelectAllOptions*): Observable<getEntityType<S>[] | HashMap<getEntityType<S>>>
 
 The main function to subscribe to filtered data. Select All Entity with an apply filter to it, and updated with any change (entity or filter)
 
@@ -188,7 +191,8 @@ You can pass the same options than selectAll Function in EntityQuery.
  Select all the filters
   
    Note: filters with hide=true, will not be displayed. If you want it, call directly the filterQuery :
-   ```ts
+   
+```typescript
 this.filterQuery.selectAll()
 ```
    
@@ -211,8 +215,7 @@ filterPlugin.setFilter({
          value: true,
          order: 1,
          predicate: (value: ProductPlant, index, array) => value.rapidDelivery
-       });
-       
+       }); 
 ```
 
 ### removeFilter(id: string)
@@ -301,7 +304,7 @@ get the Filter Query. To query the list of your filters. Use the API of EntityFi
 
 If you want to use a different filterStore name, you can set it setting params : filtersStoreName when create plugins:
 ```typescript
-myFilter = new AkitaFiltersPlugin<MyEntitiesState, MyEntity>(this.myEntitiesQuery, {filtersStoreName: 'newFiltersName'});
+myFilter = new AkitaFiltersPlugin<MyEntitiesState>(this.myEntitiesQuery, {filtersStoreName: 'newFiltersName'});
 ```
 
 By default, the name will, your 'EntityStoreName' concat with 'Filter'
@@ -386,7 +389,6 @@ This connector, help you by just giving the Entity Store. Data Connector, will d
 Define your data source here : 
 ```typescript
     this.dataSource = new AkitaMatDataSource<
-      Entity,
       EntityState
     >(EntityQuery);
     this.dataSource.setDefaultSort('colomnName', 'asc');
@@ -420,7 +422,7 @@ If needed you can specify, an already existing AkitaFiltersPlugins in the constr
 Else, it will create an internal AkitaFiltersPlugins. 
 
 ```typescript
-    this.dataSource = new AkitaMatDataSource<Entity, EntityState>(this.productsQuery, this.productsService.filtersProduct);
+    this.dataSource = new AkitaMatDataSource<EntityState>(this.productsQuery, this.productsService.filtersProduct);
 ```
 
 ## Function 
@@ -469,7 +471,7 @@ And add the paginator directly like this in the template. No need to give the si
     </mat-paginator>
 ```
 
-### AkitaFilters properties : get akitaFiltersPlugin(): AkitaFiltersPlugin<S, T, any>
+### AkitaFilters properties : get akitaFiltersPlugin(): AkitaFiltersPlugin<EntityState>
 
 Access to the AkitaFilters plugins instance, and use all function from AkitaFilters plugins.
 ```typescript
@@ -495,3 +497,29 @@ Some proxy function, just to call AkitaFilters Plugins.
 * removeFilter(id: ID): void
 * clearFilters(): void
 * getFilterValue<E = T>(id: string): E | null
+
+
+### Breaking Changes : 3.x to 4.x
+
+To correspond with Akita, you need now to specify only the entityState. The entity element is calculated as in akita with getEntityType<MyEntitiesState>
+
+Changes this 
+```typescript
+new AkitaFiltersPlugin<MyEntitiesState, MyEntity>()```
+to 
+```typescript
+new AkitaFiltersPlugin<MyEntitiesState>()```
+
+Changes this 
+```typescript
+AkitaFilter<MyEntitiesState, MyEntity>[]```
+to 
+```typescript
+AkitaFilter<MyEntitiesState>[]```
+
+Changes this 
+```typescript
+new AkitaMatDataSource<MyEntity, MyEntitiesState>()```
+to 
+```typescript
+new AkitaMatDataSource<MyEntitiesState>()```

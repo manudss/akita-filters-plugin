@@ -9,7 +9,7 @@ import { QueryConfig, QueryEntity } from '@datorama/akita';
 @QueryConfig({
   sortBy: 'price'
 })
-export class ProductsQuery extends QueryEntity<State, Product> {
+export class ProductsQuery extends QueryEntity<State> {
   constructor(protected store: ProductsStore) {
     super(store);
   }

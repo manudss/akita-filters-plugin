@@ -1,13 +1,13 @@
 import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription} from 'rxjs';
-import {EntityState, ID, Order, QueryEntity} from '@datorama/akita';
+import {EntityState, getEntityType, ID, Order, QueryEntity} from '@datorama/akita';
 import {AkitaFilter} from '../akita-filters-store';
 import {AkitaFiltersPlugin} from '../akita-filters-plugin';
 import {map, takeUntil, tap} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 
-export class AkitaMatDataSource<E, S extends EntityState = any> extends DataSource<E> {
+export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
 
 
 
@@ -19,7 +19,7 @@ export class AkitaMatDataSource<E, S extends EntityState = any> extends DataSour
    * @param query string : [Mandatory] the akita Query Entity, you wan to use to this data source.
    * @param akitaFilters string [Optional] If you want to provide an AkitaFilters that you use externally. Else it will create a new one.
    */
-  constructor(query: QueryEntity<E> | any, akitaFilters?: AkitaFiltersPlugin<S, E>) {
+  constructor(query: QueryEntity<getEntityType<S>> | any, akitaFilters?: AkitaFiltersPlugin<S, E>) {
     super();
     this._dataQuery = query;
 
@@ -153,14 +153,14 @@ export class AkitaMatDataSource<E, S extends EntityState = any> extends DataSour
   /**
    *  add a filter to filters plugins
    */
-  addFilter(filter: Partial<AkitaFilter<E, S>>): void {
+  addFilter(filter: Partial<AkitaFilter<S>>): void {
     this._filters.setFilter(filter);
   }
 
   /**
    *  add a filter to filters plugins
    */
-  setFilter(filter: Partial<AkitaFilter<E, S>>): void {
+  setFilter(filter: Partial<AkitaFilter<S>>): void {
     this._filters.setFilter(filter);
   }
 
@@ -187,15 +187,15 @@ export class AkitaMatDataSource<E, S extends EntityState = any> extends DataSour
 
   /**
    * Set the default sort
-   * @param sortColumun the colum name present in your object
+   * @param sortColumn the colum name present in your object
    * @param direction string the direction for sorting (asc or desc). Default asc.
    */
   public setDefaultSort(
-    sortColumun: keyof E,
+    sortColumn: keyof E,
     direction: 'asc' | 'desc' = 'asc'
   ) {
     this._filters.setSortBy({
-      sortBy: sortColumun,
+      sortBy: sortColumn,
       sortByOrder: direction === 'desc' ? Order.DESC : Order.ASC
     });
   }
@@ -238,7 +238,6 @@ export class AkitaMatDataSource<E, S extends EntityState = any> extends DataSour
     const paginatedData = combineLatest(this._selectAllByFilter$, pageChange)
       .pipe(map(([data]) => this._pageData(data)));
     // Watched for paged data changes and send the result to the table to render.
-    let count2 = 0;
     this._renderChangesSubscription.unsubscribe();
     this._renderChangesSubscription = paginatedData.pipe(takeUntil(this._disconnect)).subscribe(data => this._renderData.next(data));
     this._internalPageChanges.next();

@@ -14,7 +14,7 @@ import {AkitaFiltersPlugin} from '../../../../projects/akita-filters-plugin/src/
   providedIn: 'root'
 })
 export class ProductsFiltersService {
-  filtersProduct: AkitaFiltersPlugin<ProductPlantState, ProductPlant>;
+  filtersProduct: AkitaFiltersPlugin<ProductPlantState>;
 
   constructor( private productsStore: ProductsFiltersStore,
                private productsQuery: ProductsFiltersQuery,
@@ -34,7 +34,7 @@ export class ProductsFiltersService {
     return this.productsQuery.getHasCache() === false ? request : empty();
   }
 
-  setFilter( filter: AkitaFilter<ProductPlant, ProductPlantState> ) {
+  setFilter( filter: AkitaFilter<ProductPlantState> ) {
     this.filtersProduct.setFilter(filter);
   }
 
@@ -61,7 +61,7 @@ export class ProductsFiltersService {
     return sortValue.sortBy ? order + sortValue.sortBy : '+title';
   }
 
-  selectFilters(): Observable<AkitaFilter<ProductPlant, ProductPlantState>[]> {
+  selectFilters(): Observable<AkitaFilter<ProductPlantState>[]> {
     return this.filtersProduct.selectFilters();
   }
 

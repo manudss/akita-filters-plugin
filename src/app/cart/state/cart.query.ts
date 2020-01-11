@@ -10,7 +10,7 @@ import { ProductsFiltersQuery } from '../../products-filters/state';
 @Injectable({
   providedIn: 'root'
 })
-export class CartQuery extends QueryEntity<State, CartItem> {
+export class CartQuery extends QueryEntity<State> {
   constructor(protected store: CartStore,
               private productsQuery: ProductsQuery,
               private productsFilterQuery: ProductsFiltersQuery) {

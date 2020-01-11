@@ -10,7 +10,7 @@ export interface ProductPlantState extends EntityState<ProductPlant> {}
 @StoreConfig({
   name: 'productsFilters'
 })
-export class ProductsFiltersStore extends EntityStore<ProductPlantState, ProductPlant> {
+export class ProductsFiltersStore extends EntityStore<ProductPlantState> {
   constructor() {
     super();
   }

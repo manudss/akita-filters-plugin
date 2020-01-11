@@ -14,7 +14,7 @@ import { MatSort } from '@angular/material/sort';
 export class AngularMaterialDemoComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  dataSource: AkitaMatDataSource<ProductPlant, ProductPlantState>;
+  dataSource: AkitaMatDataSource<ProductPlantState>;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['id', 'title'];
@@ -22,7 +22,7 @@ export class AngularMaterialDemoComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.dataSource = new AkitaMatDataSource<ProductPlant, ProductPlantState>(this.productsQuery, this.productsService.filtersProduct);
+    this.dataSource = new AkitaMatDataSource<ProductPlantState>(this.productsQuery, this.productsService.filtersProduct);
     this.productsService.get().subscribe();
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;

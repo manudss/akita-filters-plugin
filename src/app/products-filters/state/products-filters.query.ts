@@ -9,7 +9,7 @@ import {getEntityType, getIDType, QueryConfig, QueryEntity} from '@datorama/akit
 @QueryConfig({
   sortBy: 'price'
 })
-export class ProductsFiltersQuery extends QueryEntity<ProductPlantState, getEntityType<ProductPlantState>, getIDType<ProductPlantState>> {
+export class ProductsFiltersQuery extends QueryEntity<ProductPlantState> {
   constructor(protected store: ProductsFiltersStore) {
     super(store);
   }
