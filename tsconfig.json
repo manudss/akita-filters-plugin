@@ -19,12 +19,8 @@
       "dom"
     ],
     "paths": {
-      "akita-filters-plugin": [
-        "dist/akita-filters-plugin"
-      ],
-      "akita-filters-plugin/*": [
-        "dist/akita-filters-plugin/*"
-      ]
+      "akita-filters/plugin": ["projects/akita-filters-plugin/src/lib/plugin/index.ts"],
+      "akita-filters/datasource": ["projects/akita-filters-plugin/src/lib/datasource/index.ts"]
     }
   }
 }

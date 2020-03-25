@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {AkitaMatDataSource} from '../../../projects/akita-filters-plugin/src/lib/bonus/akita-mat-data-source';
+import {AkitaMatDataSource} from '../../../projects/akita-filters-plugin/src/lib/datasource/akita-mat-data-source';
 import {ProductPlant, ProductPlantState, ProductsFiltersQuery, ProductsFiltersService} from '../products-filters/state';
 import {CartService} from '../cart/state';
 import { MatPaginator } from '@angular/material/paginator';

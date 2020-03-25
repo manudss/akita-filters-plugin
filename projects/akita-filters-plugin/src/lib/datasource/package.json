@@ -1,0 +1,8 @@
+{
+  "ngPackage": {
+    "dest": "../../dist/akita-filters-plugin/datasource",
+    "lib": {
+      "entryFile": "./public_api.ts"
+    }
+  }
+}

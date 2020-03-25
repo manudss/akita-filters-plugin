@@ -15,7 +15,9 @@
     "lib": [
       "dom",
       "es2018"
-    ]
+    ],
+    "rootDirs": [
+      "src/lib/plugin", "src/lib/datasource"]
   },
   "angularCompilerOptions": {
     "skipTemplateCodegen": true,
@@ -27,5 +29,9 @@
   "exclude": [
     "src/test.ts",
     "**/*.spec.ts"
-  ]
+  ],
+  "paths": {
+    "akita-filters/plugin": ["dist/akita-filters-plugin"],
+    "akita-filters/datasource": ["dist/akita-filters-plugin/datasource"]
+  }
 }

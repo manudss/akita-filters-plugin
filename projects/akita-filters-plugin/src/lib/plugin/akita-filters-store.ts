@@ -1,5 +1,5 @@
 
-import { defaultFilter } from './filters-utils';
+import { defaultFilter } from 'akita-filters/plugin';
 import {EntityState, EntityStore, getEntityType, guid, HashMap, ID, SortByOptions, StoreConfig} from '@datorama/akita';
 
 function capitalize(str: string): string {

@@ -1,4 +1,4 @@
-import { AkitaFilter, FiltersState, AkitaFiltersStore } from './akita-filters-store';
+import { AkitaFilter, FiltersState, AkitaFiltersStore } from 'akita-filters/plugin';
 import {EntityState, getEntityType, Order, QueryConfig, QueryEntity} from '@datorama/akita';
 
 

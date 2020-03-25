@@ -1,11 +1,11 @@
 import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription} from 'rxjs';
 import {EntityState, getEntityType, ID, Order, QueryEntity} from '@datorama/akita';
-import {AkitaFilter} from '../akita-filters-store';
-import {AkitaFiltersPlugin} from '../akita-filters-plugin';
+
 import {map, takeUntil, tap} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import {AkitaFilter, AkitaFiltersPlugin} from 'akita-filters/plugin';
 
 export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
 
