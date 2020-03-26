@@ -58,13 +58,13 @@ myFilter = new AkitaFiltersPlugin<MyEntitiesState>(this.myEntitiesQuery);
 You could define it in the constructor of your service, and add it to the property of your service. 
 ```typescript
  constructor(private productsStore: ProductsFiltersStore, private productsQuery: ProductsFiltersQuery, private productsDataService: ProductsFiltersDataService) {
-     this.filtersProduct = new AkitaFiltersPlugin<ProductPlantState, ProductPlant>(this.productsQuery);
+     this.filtersProduct = new AkitaFiltersPlugin<ProductPlantState>(this.productsQuery);
    }
 ```
 
 You could also extend your class with last AkitaFiltersPlugin, and call the super method. All methods from AkitaFiltersPlugin will be available 
 ```typescript
-class CustomService extends AkitaFiltersPlugin {     
+class CustomService extends AkitaFiltersPlugin<ProductPlantState> {     
       constructor() {
         super(wishQuery, {filtersStoreName: 'CustomFilters'});
       }
@@ -389,10 +389,13 @@ This connector, help you by just giving the Entity Store. Data Connector, will d
 
 Define your data source here : 
 ```typescript
-    this.dataSource = new AkitaMatDataSource<
-      EntityState
-    >(EntityQuery);
+    this.dataSource = new AkitaMatDataSource<EntityState>(EntityQuery);
     this.dataSource.setDefaultSort('colomnName', 'asc');
+```
+
+Import it with submodule package : 
+```typescript
+import { AkitaMatDataSource } from 'akita-filters-plugins/datasource';
 ```
 
 then use it in Mat Data Table like other DataSource. 
@@ -499,6 +502,20 @@ Some proxy function, just to call AkitaFilters Plugins.
 * clearFilters(): void
 * getFilterValue< S >(id: string): E | null
 ```
+### Breaking Changes : 3.x to 4.x
+
+Akita-mat-data-source is now a subpackage to avoid error with akita-filters-plugin, if you don't use Angular Material.
+
+Changes this 
+```typescript
+import { AkitaMatDataSource } from 'akita-filters-plugins';
+```
+to 
+```typescript
+import { AkitaMatDataSource } from 'akita-filters-plugins/datasource';
+```
+
+
 
 ### Breaking Changes : 2.x to 3.x
 
