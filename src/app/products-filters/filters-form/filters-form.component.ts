@@ -3,8 +3,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import {ProductPlant, ProductPlantState, ProductsFiltersService} from '../state';
 import { untilDestroyed } from 'ngx-take-until-destroy';
-import {AkitaFilter} from '../../../../projects/akita-filters-plugin/src/lib/plugin/akita-filters-store';
-import {searchFilter} from '../../../../projects/akita-filters-plugin/src/lib/plugin/filters-utils';
+import {AkitaFilter} from '../../../../projects/akita-filters-plugin/src/lib/akita-filters-store';
+import {searchFilter} from '../../../../projects/akita-filters-plugin/src/lib/filters-utils';
 
 @Component({
   selector: 'app-filters-form',

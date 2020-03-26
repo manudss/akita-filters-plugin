@@ -1,6 +1,6 @@
 import { skip, take } from 'rxjs/operators';
 import { createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore } from './setup';
-import {AkitaFiltersPlugin} from '../lib/plugin/akita-filters-plugin';
+import {AkitaFiltersPlugin} from '../lib/akita-filters-plugin';
 import {Order} from '@datorama/akita';
 
 

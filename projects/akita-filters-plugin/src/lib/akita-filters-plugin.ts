@@ -1,5 +1,5 @@
-import {AkitaFilter, AkitaFiltersStore, createFilter, FiltersState} from 'akita-filters/plugin';
-import {AkitaFiltersQuery} from 'akita-filters/plugin';
+import {AkitaFilter, AkitaFiltersStore, createFilter, FiltersState} from './akita-filters-store';
+import {AkitaFiltersQuery} from './akita-filters-query';
 import {combineLatest, isObservable, merge, Observable, ObservedValueOf, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {

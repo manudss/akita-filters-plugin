@@ -183,6 +183,46 @@
           }
         }
       }
+    },
+    "akita-mat-datasource": {
+      "projectType": "library",
+      "root": "projects/akita-mat-datasource",
+      "sourceRoot": "projects/akita-mat-datasource/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/akita-mat-datasource/tsconfig.lib.json",
+            "project": "projects/akita-mat-datasource/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/akita-mat-datasource/tsconfig.lib.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/akita-mat-datasource/src/test.ts",
+            "tsConfig": "projects/akita-mat-datasource/tsconfig.spec.json",
+            "karmaConfig": "projects/akita-mat-datasource/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/akita-mat-datasource/tsconfig.lib.json",
+              "projects/akita-mat-datasource/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "akita-filters-plugin-playground",

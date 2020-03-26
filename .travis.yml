@@ -38,6 +38,7 @@ jobs:
       script:
         - cd $TRAVIS_BUILD_DIR/
         - yarn run compile
+        - yarn run compile:datasource
         - cp README.md dist/akita-filters-plugin/README.md
         - cp LICENSE.md dist/akita-filters-plugin/LICENSE.md
       # Advanced: optionally overwrite your default `script` step to skip the tests
