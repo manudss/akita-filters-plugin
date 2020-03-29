@@ -58,8 +58,10 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   /**
    * Instance of the MatSort directive used by the table to control its sorting. Sort changes
    * emitted by the MatSort will trigger an update to the table's rendered data.
+   *
+   * Important : Must be a MatSort, the type any added was to evit a bug with typescript where MatSort was different in external project.
    */
-  set sort(sort: MatSort) {
+  set sort(sort: MatSort | any) {
     this._sort = sort;
     sort.sortChange.pipe(takeUntil(this._disconnect)).subscribe((sortValue: Sort) => {
       this._filters.setSortBy({
@@ -82,12 +84,14 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * should be displayed. If the paginator receives its properties as template inputs,
    * e.g. `[pageLength]=100` or `[pageIndex]=1`, then be sure that the paginator's view has been
    * initialized before assigning it to this data source.
+   *
+   * Important : Must be a MatPaginator, the type any added was to evit a bug with typescript where MatSort was different in external project.
    */
-  get paginator(): MatPaginator {
+  get paginator(): MatPaginator | any {
     return this._paginator;
   }
 
-  set paginator(paginator: MatPaginator) {
+  set paginator(paginator: MatPaginator | any) {
     this._paginator = paginator;
     this._updateChangeSubscription();
   }
@@ -109,8 +113,8 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   private readonly _filters: AkitaFiltersPlugin<S>;
   /** if set a custom filter plugins, do not delete all in disconnect() **/
   private _hasCustomFilters: boolean;
-  private _paginator: MatPaginator = null;
-  private _sort: MatSort = null;
+  private _paginator: MatPaginator | any = null;
+  private _sort: MatSort | any = null;
 
   private _selectAllByFilter$: Observable<E[]>;
   private _count$: BehaviorSubject<number>;
