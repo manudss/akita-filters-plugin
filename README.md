@@ -310,6 +310,22 @@ myFilter = new AkitaFiltersPlugin<MyEntitiesState>(this.myEntitiesQuery, {filter
 
 By default, the name will, your 'EntityStoreName' concat with 'Filter'
 
+
+### AkitaFilters set AkitaFiltersStore and AkitaFiltersQuery (version 4.x)
+
+If you want to create an akitaFiltersPlugin by giving the AkitaFiltersStore or AkitaFiltersQuery,
+You can specify in constructor params, an existing AkitaFiltersStore or AkitaFiltersQuery. 
+Useful to create another plugins that use the same Filters store, for exemple to separate your query. 
+@see issue :  https://github.com/manudss/akita-filters-plugin/issues/10 
+
+```typescript
+    const myFiltersStore = new AkitaFiltersStore<S>("MyFilters");
+    const myFiltersQuery = new AkitaFiltersQuery<S>(filtersStore);
+
+    myFilter = new AkitaFiltersPlugin<MyEntitiesState>(this.myEntitiesQuery, 
+    {filtersStore: myFiltersStore, filtersQuery: myFiltersQuery});
+```
+
 # Filter helpers Functions
 
 In filter-utils.ts file, there is a helper function, to do some search filters. 
@@ -380,7 +396,10 @@ this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscrib
     });
 ```
 
-#Bonus
+#BONUS: Angular Material Datasource
+
+This specific package is only for Angular Material datatable. But akita filters plugins could be used without angular material. And maybe without angular. 
+This was released since version 4.x as a subpackage to avoid error, when not using Angular Material.
 
 ## Data Connector for Angular Material Table.
 
@@ -485,6 +504,7 @@ this.dataSource.akitaFiltersPlugin.setFilter({
                                      predicate: (value: ProductPlant, index, array) => value.category === category
                                    }); 
 ```
+
 
 ### setDefaultSort : public setDefaultSort(sortColumun: keyof T, direction: 'asc' | 'desc' = 'asc')
 
