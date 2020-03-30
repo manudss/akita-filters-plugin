@@ -23,7 +23,10 @@
       <td>{{product.origin}}</td>
       <td>{{product.size}}</td>
       <td>{{product.description | slice:0:100}}</td>
-      <td></td>
+      <td>
+        <button (click)="add.emit(product)" class="btn waves-effect waves-light ">
+        <i class="material-icons">add_shopping_cart</i>
+      </button></td>
 
     </tr>
   </tbody>
