@@ -46,7 +46,7 @@ jobs:
       deploy:
         provider: script
         skip_cleanup: true
-        script:
-          - npx semantic-release
+        script: npx semantic-release
         on:
-          branch: master, beta
+          all_branches: true
+          condition: $TRAVIS_BRANCH =~ ^(master|beta|next|next-major)$
