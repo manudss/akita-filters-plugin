@@ -12,7 +12,8 @@
     "test:watch": "jest --watch",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "beta": "semantic-release -d"
   },
   "author": "Emmanuel DE SAINT STEBAN",
   "keywords": [
@@ -84,7 +85,7 @@
     "karma-jasmine-html-reporter": "^1.4.2",
     "ng-packagr": "^9.0.0",
     "protractor": "~5.4.2",
-    "semantic-release": "^15.13.24",
+    "semantic-release": "^17.0.4",
     "ts-jest": "^24.0.2",
     "ts-node": "~8.3.0",
     "tslint": "~5.18.0",
@@ -101,6 +102,9 @@
   "license": "Apache License 2.0",
   "release": {
     "pkgRoot": "dist/akita-filters-plugin",
+    "branches": [
+      "master", "next", "next-major", {"name": "beta", "channel": "beta", "prerelease": "beta"}
+    ],
     "prepare": {
       "pkgRoot": "dist/akita-filters-plugin"
     },
