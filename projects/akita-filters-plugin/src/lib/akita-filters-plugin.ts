@@ -48,7 +48,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   private _selectFilters$: Observable<AkitaFilter<S>[]>;
   private readonly _selectSortBy$: Observable<SortByOptions<E> | null>;
   private readonly _selectFiltersAll$: Observable<AkitaFilter<S>[]>;
-  private _onChangeFilter: (filtersNormalized: (string | HashMap<any>)) => any;
+  private _onChangeFilter: (filtersNormalized: (string | HashMap<any>)) => any | boolean | Observable<getEntityType<S>[]>;
 
   constructor(protected query: QueryEntity<S>, private params: FiltersParams<S> = {}) {
     super(query, params.entityIds);
@@ -91,15 +91,11 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     const listObservable: Array<Observable<any>> = [];
     listObservable.push(this._filtersQuery.selectAll({sortBy: 'order', filterBy: filter => filter.server}));
 
-    this._filtersQuery.selectAll({sortBy: 'order', filterBy: filter => filter.server}).subscribe((data) => {
-      console.log('with server :', data);
-    });
 
     if (options.withSort) {
       listObservable.push(this.selectSortBy());
     }
-    merge<Observable<getEntityType<S>[]> | Observable<SortByOptions<E> | null>> (listObservable).subscribe((data) => {
-      console.log('With Server merge data', data);
+    combineLatest<Observable<getEntityType<S>[]> | Observable<SortByOptions<E> | null>> (listObservable).subscribe((data) => {
       const returnOnChange: boolean | Observable<getEntityType<S>[]> = this._onChangeFilter(this.getNormalizedFilters(options));
 
       if (returnOnChange !== false && isObservable(returnOnChange)) {
@@ -145,7 +141,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    * `this.filtersQuery.getAll()`
    */
   getServerFilters(): AkitaFilter<S>[] {
-    return this._server ? this._filtersQuery.getAll({filterBy: filter => !filter.server}) : this.getFilters();
+    return this._server ? this._filtersQuery.getAll({filterBy: filter => filter.server}) : this.getFilters();
   }
 
   /**
