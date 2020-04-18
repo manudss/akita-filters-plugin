@@ -20,6 +20,10 @@ const routes: Routes = [
   {
     path: 'angular-material-demo',
     loadChildren: () => import('./angular-material-demo/angular-material-demo.module').then(m => m.AngularMaterialDemoModule)
+  },
+  {
+    path: 'photos',
+    loadChildren: () => import('./with-server/with-server-demo.module').then(m => m.WithServerDemoModule)
   }
 ];
 
