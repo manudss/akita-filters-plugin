@@ -11,7 +11,6 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatChipsModule} from '@angular/material/chips';
-import { HttpMethod, NG_ENTITY_SERVICE_CONFIG, NgEntityServiceGlobalConfig } from '@datorama/akita-ng-entity-service';
 
 
 const routes: Routes = [
@@ -36,12 +35,7 @@ const routes: Routes = [
     MatSlideToggleModule,
     MatChipsModule
   ],
-  providers: [{
-    provide: NG_ENTITY_SERVICE_CONFIG,
-    useValue: {
-      baseUrl: 'https://jsonplaceholder.typicode.com'
-    }
-  }]
+  providers: []
 })
 export class WithServerDemoModule {
 }

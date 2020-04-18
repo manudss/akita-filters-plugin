@@ -12,8 +12,8 @@ export class PhotosFiltersService extends AkitaFiltersPlugin<PhotosState> {
   constructor(protected query: PhotosQuery, protected photosApi: PhotosService) {
     super(query);
     this.withServer((filtersNormalized: string | HashMap<any>) => {
-      console.log(filtersNormalized);
-      this.photosApi.get().subscribe();
+      console.log('filters normalized :', filtersNormalized);
+      return this.photosApi.get(filtersNormalized as HashMap<any>);
     });
 
 
@@ -21,8 +21,7 @@ export class PhotosFiltersService extends AkitaFiltersPlugin<PhotosState> {
   }
 
   load() {
-    this.photosApi.get().subscribe();
-    this.setFilter({id: 'search', server: true});
+    this.setFilter({id: '_limit', server: true, value: '30' });
   }
 
 }
