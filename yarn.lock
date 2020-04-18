@@ -952,7 +952,7 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@datorama/akita-ng-entity-service@latest":
+"@datorama/akita-ng-entity-service@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@datorama/akita-ng-entity-service/-/akita-ng-entity-service-2.0.0.tgz#d867921fafb53a0cd6134585432799b0ede99a74"
   integrity sha512-7seDHzduLrPVhOjCbQxORpJmt2c9Y/ZNzJIwcFHP59/jTUtVlNufwaF2u2IU6htlihjz3c1juAs0pfBYxkwgGQ==
@@ -973,13 +973,12 @@
   dependencies:
     tslib "^1.9.0"
 
-"@datorama/akita@^4.9.4":
-  version "4.21.0"
-  resolved "https://registry.yarnpkg.com/@datorama/akita/-/akita-4.21.0.tgz#247fbfa284adeb0d262bb5f6584a6a800f7ee82b"
-  integrity sha512-SEqk2QoXZyw4g7/easNa76HX6pnxDqi4jPUAB2C957Kz53IgjwUP0frAOAWaBo+LdZMP01XybsuAoS4jWFJ1fg==
+"@datorama/akita@^4.22.2":
+  version "4.22.2"
+  resolved "https://registry.yarnpkg.com/@datorama/akita/-/akita-4.22.2.tgz#ae111fcc763d9bb48b06435ae5c39ad7a211e3a3"
+  integrity sha512-FYhu6kf/6lqQGYaRgwbWPNEeYZXTrhyEJc+GtqZiTE+OLkDav7xiTGp28mTIka7aVqf+Ooa1+fc9+BNrLYwX9A==
   dependencies:
     schematics-utilities "^1.1.1"
-    tslib "^1.9.0"
 
 "@iarna/cli@^1.2.0":
   version "1.2.0"
