@@ -3,8 +3,18 @@
   <p>
     <mat-form-field appearance="outline">
       <mat-label>Filter list</mat-label>
-      <input matInput placeholder="Placeholder" [(ngModel)]="dataSource.search">
+      <input matInput placeholder="search" [(ngModel)]="search">
       <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Limit</mat-label>
+      <input matInput placeholder="enter limit" [(ngModel)]="limit">
+      <mat-icon matSuffix>last_page</mat-icon>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Album id</mat-label>
+      <input matInput placeholder="0 -> 99" [(ngModel)]="albumId">
+      <mat-icon matSuffix>collections</mat-icon>
     </mat-form-field>
     <mat-slide-toggle (change)="updatePaginator($event)" [checked]="usePaginator">Use pagninator </mat-slide-toggle>
     <mat-chip-list>
