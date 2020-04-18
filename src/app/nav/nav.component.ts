@@ -22,7 +22,7 @@ import { resetStores } from '@datorama/akita';
   `
 })
 export class NavComponent {
-  navItems = ['Products', 'angular-material-demo'];
+  navItems = ['Products', 'angular-material-demo', 'photos'];
   count$: Observable<number>;
 
   constructor(private cartQuery: CartQuery, private router: Router) {
