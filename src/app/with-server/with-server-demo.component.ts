@@ -42,13 +42,13 @@ export class WithServerDemoComponent implements OnInit {
   }
 
   get search() {
-    return this.photosService.getFilterValue('_q');
+    return this.photosService.getFilterValue('title_like');
   }
   set search(searchQuery: string) {
     if (searchQuery === '') {
-      this.photosService.removeFilter('_q');
+      this.photosService.removeFilter('title_like');
     } else {
-      this.photosService.setFilter({id: '_q', value: searchQuery, server: true, name: searchQuery});
+      this.photosService.setFilter({id: 'title_like', value: searchQuery, server: true, name: searchQuery});
     }
   }
 
