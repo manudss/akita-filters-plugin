@@ -55,6 +55,8 @@
     "@angular/platform-browser-dynamic": "~9.0.7",
     "@angular/router": "~9.0.7",
     "@datorama/akita": "^4.9.4",
+    "@datorama/akita-ng-entity-service": "latest",
+    "@types/jest": "^25.2.1",
     "core-js": "^3.2.0",
     "ngx-markdown": "^8.1.0",
     "ngx-take-until-destroy": "^5.4.0",
@@ -103,7 +105,14 @@
   "release": {
     "pkgRoot": "dist/akita-filters-plugin",
     "branches": [
-      "master", "next", "next-major", {"name": "beta", "channel": "beta", "prerelease": "beta"}
+      "master",
+      "next",
+      "next-major",
+      {
+        "name": "beta",
+        "channel": "beta",
+        "prerelease": "beta"
+      }
     ],
     "prepare": {
       "pkgRoot": "dist/akita-filters-plugin"

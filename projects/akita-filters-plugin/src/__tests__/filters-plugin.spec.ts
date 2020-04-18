@@ -1,8 +1,10 @@
 import { skip, take } from 'rxjs/operators';
 import { createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore } from './setup';
 import {AkitaFiltersPlugin} from '../lib/akita-filters-plugin';
-import {Order} from '@datorama/akita';
+import {HashMap, Order} from '@datorama/akita';
+import jest from '@types/jest';
 
+declare var jest: jest;
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);
@@ -225,7 +227,7 @@ describe('AkitaFiltersPlugin', () => {
 
       it('should call set filter must send a new value', done3 => {
         jest.setTimeout(2000);
-        let count = 0;
+        const count = 0;
         filters
           .selectAllByFilters()
           .pipe(
@@ -332,5 +334,32 @@ describe('AkitaFiltersPlugin', () => {
           });
       });
     });
+
+
+    describe('WithServer Feture : SelectAll when any change in filter, or entities', () => {
+      jest.useFakeTimers();
+
+      beforeEach(() => {
+        widgetsStore.remove();
+        filters.filtersStore.remove();
+        widgetsStore.add([createWidget(1), createWidgetCompleted(2), createWidgetCompleted(3), createWidget(4)]);
+      });
+
+      it('METHOD : withServer() : expected calls', () => {
+
+        const filtersQuery = {selectAll: jest.fn(), select: jest.fn()};
+
+        // @ts-ignore
+        const filtersWithServer = new AkitaFiltersPlugin(widgetsQuery, {filtersQuery}).withServer((filtersNormalized: string | HashMap<any>) => {
+          console.log(filtersNormalized);
+          return false;
+        });
+
+        expect(filtersWithServer.hasServer()).toEqual(true);
+        expect(filtersQuery.selectAll).toEqual(4);
+      });
+
+    });
+
   });
 });
