@@ -41,5 +41,38 @@ export class WithServerDemoComponent implements OnInit {
     this.dataSource.paginator = (this.usePaginator) ? this.paginator : null;
   }
 
+  get search() {
+    return this.photosService.getFilterValue('_q');
+  }
+  set search(searchQuery: string) {
+    if (searchQuery === '') {
+      this.photosService.removeFilter('_q');
+    } else {
+      this.photosService.setFilter({id: '_q', value: searchQuery, server: true, name: searchQuery});
+    }
+  }
+
+  get limit() {
+    return this.photosService.getFilterValue('_limit');
+  }
+  set limit(searchQuery: string) {
+    if (searchQuery === '') {
+      this.photosService.removeFilter('_limit');
+    } else {
+      this.photosService.setFilter({id: '_limit', value: searchQuery, server: true, name: `Limit : ${searchQuery}`});
+    }
+  }
+
+  get albumId() {
+    return this.photosService.getFilterValue('albumId_lte');
+  }
+  set albumId(searchQuery: string) {
+    if (searchQuery === '') {
+      this.photosService.removeFilter('albumId_lte');
+    } else {
+      this.photosService.setFilter({id: 'albumId_lte', value: searchQuery, server: true, name: `Album : ${searchQuery}`});
+    }
+  }
+
 
 }
