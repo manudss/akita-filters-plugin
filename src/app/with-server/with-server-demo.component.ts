@@ -28,7 +28,7 @@ export class WithServerDemoComponent implements OnInit {
     this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    this.photosService.load();
+    this.limit = '30';
   }
 
   constructor(
@@ -48,7 +48,7 @@ export class WithServerDemoComponent implements OnInit {
     if (searchQuery === '') {
       this.photosService.removeFilter('title_like');
     } else {
-      this.photosService.setFilter({id: 'title_like', value: searchQuery, server: true, name: searchQuery});
+      this.photosService.setFilter({id: 'title_like', value: searchQuery, name: searchQuery});
     }
   }
 
@@ -59,7 +59,7 @@ export class WithServerDemoComponent implements OnInit {
     if (searchQuery === '') {
       this.photosService.removeFilter('_limit');
     } else {
-      this.photosService.setFilter({id: '_limit', value: searchQuery, server: true, name: `Limit : ${searchQuery}`});
+      this.photosService.setFilter({id: '_limit', value: searchQuery, name: `Limit : ${searchQuery}`});
     }
   }
 
@@ -70,7 +70,18 @@ export class WithServerDemoComponent implements OnInit {
     if (searchQuery === '') {
       this.photosService.removeFilter('albumId');
     } else {
-      this.photosService.setFilter({id: 'albumId', value: searchQuery, server: true, name: `Album : ${searchQuery}`});
+      this.photosService.setFilter({id: 'albumId', server: true, value: searchQuery, name: `Album : ${searchQuery}`});
+    }
+  }
+
+  get albumIdLocal() {
+    return this.photosService.getFilterValue('albumIdLocal');
+  }
+  set albumIdLocal(searchQuery: string) {
+    if (searchQuery === '') {
+      this.photosService.removeFilter('albumIdLocal');
+    } else {
+      this.photosService.setFilter({id: 'albumIdLocal', server: false, value: searchQuery, name: `[local] Album  : ${searchQuery}`, predicate: entity => entity.albumId === parseInt(searchQuery, 10)});
     }
   }
 
