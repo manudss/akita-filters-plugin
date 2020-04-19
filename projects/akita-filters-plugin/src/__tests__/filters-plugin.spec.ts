@@ -3,6 +3,7 @@ import { createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore } from 
 import {AkitaFiltersPlugin} from '../lib/akita-filters-plugin';
 import {HashMap, Order} from '@datorama/akita';
 import jest from '@types/jest';
+import {of} from 'rxjs';
 
 declare var jest: jest;
 
@@ -345,18 +346,38 @@ describe('AkitaFiltersPlugin', () => {
         widgetsStore.add([createWidget(1), createWidgetCompleted(2), createWidgetCompleted(3), createWidget(4)]);
       });
 
-      it('METHOD : withServer() : expected calls', () => {
+      describe('METHOD : withServer()', () => {
+        let filtersQuery;
+        let withServerFunc;
+        let filtersWithServer;
 
-        const filtersQuery = {selectAll: jest.fn(), select: jest.fn()};
-
-        // @ts-ignore
-        const filtersWithServer = new AkitaFiltersPlugin(widgetsQuery, {filtersQuery}).withServer((filtersNormalized: string | HashMap<any>) => {
-          console.log(filtersNormalized);
-          return false;
+        beforeEach(() => {
+          filtersQuery = {selectAll: jest.fn().mockReturnValue(of([])), select: jest.fn(), selectSortBy: jest.fn(), getAll: jest.fn()};
+          withServerFunc = jest.fn();
+          // @ts-ignore
+          filtersWithServer = new AkitaFiltersPlugin(widgetsQuery, {filtersQuery});
+          filtersWithServer.selectSortBy = jest.fn();
         });
 
-        expect(filtersWithServer.hasServer()).toEqual(true);
-        expect(filtersQuery.selectAll).toEqual(4);
+        it('expected initialCall', () => {
+          filtersWithServer.withServer(withServerFunc);
+          expect(filtersWithServer.hasServer()).toEqual(true);
+          expect(withServerFunc).toHaveBeenCalledTimes(0);
+          expect(filtersQuery.selectAll).toHaveBeenCalledTimes(4);
+          expect(filtersWithServer.selectSortBy).toHaveBeenCalledTimes(0);
+        });
+
+        it('expected initialCall with sort', () => {
+
+          filtersWithServer.withServer(withServerFunc, {withSort: true});
+          expect(filtersWithServer.hasServer()).toEqual(true);
+          expect(withServerFunc).toHaveBeenCalledTimes(0);
+          expect(filtersQuery.selectAll).toHaveBeenCalledTimes(4);
+          expect(filtersWithServer.selectSortBy).toHaveBeenCalledTimes(1);
+        });
+
+
+
       });
 
     });
