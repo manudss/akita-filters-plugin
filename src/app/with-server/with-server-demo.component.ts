@@ -20,7 +20,7 @@ export class WithServerDemoComponent implements OnInit {
   dataSource: AkitaMatDataSource<PhotosState>;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['id', 'title', 'thumbnailUrl'];
+  displayedColumns = ['id', 'albumId', 'title', 'thumbnailUrl'];
   public usePaginator: boolean = true;
 
 
@@ -64,13 +64,13 @@ export class WithServerDemoComponent implements OnInit {
   }
 
   get albumId() {
-    return this.photosService.getFilterValue('albumId_lte');
+    return this.photosService.getFilterValue('albumId');
   }
   set albumId(searchQuery: string) {
     if (searchQuery === '') {
-      this.photosService.removeFilter('albumId_lte');
+      this.photosService.removeFilter('albumId');
     } else {
-      this.photosService.setFilter({id: 'albumId_lte', value: searchQuery, server: true, name: `Album : ${searchQuery}`});
+      this.photosService.setFilter({id: 'albumId', value: searchQuery, server: true, name: `Album : ${searchQuery}`});
     }
   }
 
