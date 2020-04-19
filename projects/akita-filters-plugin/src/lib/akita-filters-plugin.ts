@@ -1,7 +1,7 @@
 import {AkitaFilter, AkitaFiltersStore, createFilter, FiltersState} from './akita-filters-store';
 import {AkitaFiltersQuery} from './akita-filters-query';
 import {combineLatest, isObservable, merge, Observable, ObservedValueOf, of} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {distinctUntilChanged, map} from 'rxjs/operators';
 import {
   compareValues,
   EntityCollectionPlugin,
@@ -31,11 +31,15 @@ export interface FiltersParams<S extends EntityState> {
   [key: string]: any;
 }
 
-interface NormalizedFilterOptions {
+export interface NormalizedFilterOptions {
   withSort?: boolean;
   asQueryParams?: boolean;
   sortByKey?: string;
   sortByOrderKey?: string;
+}
+
+export interface WithServerOptions extends NormalizedFilterOptions {
+  [key: string]: any;
 }
 
 export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I = OrArray<getIDType<S>>, P = any>
@@ -81,7 +85,9 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    */
   withServer(
     onChangeFilter: (filtersNormalized: string | HashMap<any>) => any | boolean,
-    options: NormalizedFilterOptions = {}): AkitaFiltersPlugin<S, E, I, P> {
+    options: WithServerOptions = {}): AkitaFiltersPlugin<S, E, I, P> {
+    options = {...options};
+
     this._server = true;
     this._onChangeFilter = onChangeFilter;
 
@@ -89,12 +95,14 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     this._selectFilters$ = this._filtersQuery.selectAll({sortBy: 'order', filterBy: filter => !filter.server});
 
     const listObservable: Array<Observable<any>> = [];
-    listObservable.push(this._filtersQuery.selectAll({sortBy: 'order', filterBy: filter => filter.server}));
+    listObservable.push(this._filtersQuery.selectAll({sortBy: 'order', filterBy: filter => filter.server === true})
+      .pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))));
 
 
     if (options.withSort) {
       listObservable.push(this.selectSortBy());
     }
+
     combineLatest<Observable<getEntityType<S>[]> | Observable<SortByOptions<E> | null>> (listObservable).subscribe((data) => {
       const returnOnChange: boolean | Observable<getEntityType<S>[]> = this._onChangeFilter(this.getNormalizedFilters(options));
 
@@ -106,6 +114,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     });
     return this;
   }
+
 
   /** Return true, if server is configured **/
   hasServer(): boolean {
@@ -173,7 +182,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    * Create or update a filter
    */
   setFilter(filter: Partial<AkitaFilter<S>>) {
-    if (this._server && isUndefined(typeof filter.server)) {
+    if (this._server && isUndefined(filter.server)) {
       filter.server = true;
     }
     const entity = createFilter(filter);
