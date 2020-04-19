@@ -13,11 +13,8 @@ export class PhotosFiltersService extends AkitaFiltersPlugin<PhotosState> {
     super(query);
     this.withServer((filtersNormalized: string | HashMap<any>) => {
       console.log('filters normalized :', filtersNormalized);
-      return this.photosApi.get(filtersNormalized as HashMap<any>);
+      return this.photosApi.get({params: filtersNormalized as HashMap<any>});
     });
-
-
-
   }
 
   load() {
