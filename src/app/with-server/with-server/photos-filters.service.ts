@@ -17,8 +17,5 @@ export class PhotosFiltersService extends AkitaFiltersPlugin<PhotosState> {
     });
   }
 
-  load() {
-    this.setFilter({id: '_limit', server: true, value: '30' });
-  }
 
 }
