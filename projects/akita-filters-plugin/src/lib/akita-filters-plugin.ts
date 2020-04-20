@@ -1,6 +1,6 @@
 import {AkitaFilter, AkitaFiltersStore, createFilter, FiltersState} from './akita-filters-store';
 import {AkitaFiltersQuery} from './akita-filters-query';
-import {combineLatest, isObservable, merge, Observable, ObservedValueOf, of} from 'rxjs';
+import {combineLatest, isObservable, Observable, ObservedValueOf, Subscription} from 'rxjs';
 import {distinctUntilChanged, map} from 'rxjs/operators';
 import {
   compareValues,
@@ -53,6 +53,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   private readonly _selectSortBy$: Observable<SortByOptions<E> | null>;
   private readonly _selectFiltersAll$: Observable<AkitaFilter<S>[]>;
   private _onChangeFilter: (filtersNormalized: (string | HashMap<any>)) => any | boolean | Observable<getEntityType<S>[]>;
+  private _lastServerSubscribtion: Subscription;
 
   constructor(protected query: QueryEntity<S>, private params: FiltersParams<S> = {}) {
     super(query, params.entityIds);
@@ -103,11 +104,15 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
       listObservable.push(this.selectSortBy());
     }
 
-    combineLatest<Observable<getEntityType<S>[]> | Observable<SortByOptions<E> | null>> (listObservable).subscribe((data) => {
-      const returnOnChange: boolean | Observable<getEntityType<S>[]> = this._onChangeFilter(this.getNormalizedFilters(options));
+    combineLatest<Observable<getEntityType<S>[]> | Observable<SortByOptions<E> | null>> (listObservable)
+      .pipe(map((data) => {
+      return this.getNormalizedFilters(options);
+    })).subscribe((normalizerFilters) => {
+      const returnOnChange: boolean | Observable<getEntityType<S>[]> = this._onChangeFilter(normalizerFilters);
 
       if (returnOnChange !== false && isObservable(returnOnChange)) {
-        returnOnChange.subscribe((newValue: getEntityType<S>[]) => {
+        if (this._lastServerSubscribtion) { this._lastServerSubscribtion.unsubscribe(); }
+        this._lastServerSubscribtion = returnOnChange.subscribe((newValue: getEntityType<S>[]) => {
           this.getStore().set(newValue);
         });
       }
