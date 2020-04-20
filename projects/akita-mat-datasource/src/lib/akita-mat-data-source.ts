@@ -1,15 +1,20 @@
 import {DataSource} from '@angular/cdk/table';
-import {BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription} from 'rxjs';
-import {EntityState, getEntityType, ID, Order, QueryEntity} from '@datorama/akita';
+import {BehaviorSubject, combineLatest, isObservable, merge, Observable, of, Subject, Subscription} from 'rxjs';
+import {EntityState, getEntityType, HashMap, ID, Order, QueryEntity, SortByOptions} from '@datorama/akita';
 
-import {map, takeUntil, tap} from 'rxjs/operators';
+import {distinctUntilChanged, map, takeUntil, tap} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 // @ts-ignore
 import {AkitaFilter, AkitaFiltersPlugin} from 'akita-filters-plugin';
+import {WithServerOptions} from '../../../akita-filters-plugin/src/lib';
+
+export interface DataSourceWithServerOptions {
+  searchFilterId?: string;
+  serverPagination?: boolean;
+}
 
 export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
-
 
 
 
@@ -19,9 +24,13 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    *
    * @param query string : [Mandatory] the akita Query Entity, you wan to use to this data source.
    * @param akitaFilters string [Optional] If you want to provide an AkitaFilters that you use externally. Else it will create a new one.
+   * @param dataSourceOptions [Optional] If you want to specify some options for user
    */
-  constructor(query: QueryEntity<getEntityType<S>> | any, akitaFilters?: AkitaFiltersPlugin<S>) {
+  constructor(query: QueryEntity<getEntityType<S>> | any,
+              akitaFilters: AkitaFiltersPlugin<S> = null,
+              dataSourceOptions: DataSourceWithServerOptions = {}) {
     super();
+    this._dataSourceOptions = {searchFilterId: 'search', ...dataSourceOptions};
     this._dataQuery = query;
 
     this._filters = akitaFilters ? akitaFilters : new AkitaFiltersPlugin<S>(query);
@@ -48,10 +57,10 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * @param searchQuery the string use to search
    */
   set search(searchQuery: string) {
-    if (searchQuery === '') {
-      this._filters.removeFilter('search');
+    if (searchQuery === '' || !searchQuery) {
+      this._filters.removeFilter(this._dataSourceOptions.searchFilterId);
     } else {
-      this._filters.setFilter({id: 'search', value: searchQuery});
+      this._filters.setFilter({id: this._dataSourceOptions.searchFilterId, value: searchQuery, name: searchQuery});
     }
   }
 
@@ -85,7 +94,8 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * e.g. `[pageLength]=100` or `[pageIndex]=1`, then be sure that the paginator's view has been
    * initialized before assigning it to this data source.
    *
-   * Important : Must be a MatPaginator, the type any added was to evit a bug with typescript where MatSort was different in external project.
+   * Important : Must be a MatPaginator, the type any added was to evit a bug with typescript
+   * where MatSort was different in external project.
    */
   get paginator(): MatPaginator | any {
     return this._paginator;
@@ -109,8 +119,17 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     return this._filters;
   }
 
+
+  get server(): boolean {
+    return this._server;
+  }
+
+  set server(value: boolean) {
+    this._server = value;
+  }
+
   private _dataQuery: QueryEntity<E>;
-  private readonly _filters: AkitaFiltersPlugin<S>;
+  private _filters: AkitaFiltersPlugin<S>;
   /** if set a custom filter plugins, do not delete all in disconnect() **/
   private _hasCustomFilters: boolean;
   private _paginator: MatPaginator | any = null;
@@ -125,13 +144,39 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   /** Used to react to internal changes of the paginator that are made by the data source itself. */
   private readonly _disconnect = new Subject<void>();
 
+  private _server: boolean = false;
+  private _dataSourceOptions: DataSourceWithServerOptions;
+
+
 
 
   /**
    * Subscription to the changes that should trigger an update to the table's rendered rows, such
    * as filtering, sorting, pagination, or base data changes.
    */
-  _renderChangesSubscription = Subscription.EMPTY;
+  private _renderChangesSubscription = Subscription.EMPTY;
+
+  /**
+   *  Add support of filters from server. Provide a function that will be call each time a filter changes
+   *
+   *  new AkitaFilterPlugins(query).withServer((filters) => {
+   *      return this.api.getData(filters);
+   *  });
+   *
+   *  Return false to not add in store. if you want to manage the store in your own.
+   */
+  public withServer(
+    onChangeFilter: (filtersNormalized: string | HashMap<any>) => any | boolean,
+    options: WithServerOptions = {}): AkitaMatDataSource<S, E> {
+    options = {...options};
+
+    this._server = true;
+    this._filters = this._filters.withServer(onChangeFilter, options);
+
+    return this;
+  }
+
+
 
   private _updateCount(value: E[]) {
     const count = value.length ? value.length : 0;
