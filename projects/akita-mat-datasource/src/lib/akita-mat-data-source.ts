@@ -1,11 +1,12 @@
 import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription} from 'rxjs';
 import {EntityState, getEntityType, ID, Order, QueryEntity} from '@datorama/akita';
-import {AkitaFilter} from '../akita-filters-store';
-import {AkitaFiltersPlugin} from '../akita-filters-plugin';
+
 import {map, takeUntil, tap} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
+// @ts-ignore
+import {AkitaFilter, AkitaFiltersPlugin} from 'akita-filters-plugin';
 
 export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
 
@@ -19,16 +20,15 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * @param query string : [Mandatory] the akita Query Entity, you wan to use to this data source.
    * @param akitaFilters string [Optional] If you want to provide an AkitaFilters that you use externally. Else it will create a new one.
    */
-  constructor(query: QueryEntity<getEntityType<S>> | any, akitaFilters?: AkitaFiltersPlugin<S, E>) {
+  constructor(query: QueryEntity<getEntityType<S>> | any, akitaFilters?: AkitaFiltersPlugin<S>) {
     super();
     this._dataQuery = query;
 
-    this._filters = akitaFilters ? akitaFilters : new AkitaFiltersPlugin<S, E>(query);
+    this._filters = akitaFilters ? akitaFilters : new AkitaFiltersPlugin<S>(query);
     this._hasCustomFilters = !!akitaFilters;
     this._count$ = new BehaviorSubject(0);
 
-    let count = 0;
-    // @ts-ignore ignore, as without options, we will allways have an Array.
+    // @ts-ignore ignore, as without options, we will always have an Array.
     this._selectAllByFilter$ = this._filters.selectAllByFilters();
     this._updateChangeSubscription();
   }
@@ -58,8 +58,10 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   /**
    * Instance of the MatSort directive used by the table to control its sorting. Sort changes
    * emitted by the MatSort will trigger an update to the table's rendered data.
+   *
+   * Important : Must be a MatSort, the type any added was to evit a bug with typescript where MatSort was different in external project.
    */
-  set sort(sort: MatSort) {
+  set sort(sort: MatSort | any) {
     this._sort = sort;
     sort.sortChange.pipe(takeUntil(this._disconnect)).subscribe((sortValue: Sort) => {
       this._filters.setSortBy({
@@ -82,12 +84,14 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * should be displayed. If the paginator receives its properties as template inputs,
    * e.g. `[pageLength]=100` or `[pageIndex]=1`, then be sure that the paginator's view has been
    * initialized before assigning it to this data source.
+   *
+   * Important : Must be a MatPaginator, the type any added was to evit a bug with typescript where MatSort was different in external project.
    */
-  get paginator(): MatPaginator {
+  get paginator(): MatPaginator | any {
     return this._paginator;
   }
 
-  set paginator(paginator: MatPaginator) {
+  set paginator(paginator: MatPaginator | any) {
     this._paginator = paginator;
     this._updateChangeSubscription();
   }
@@ -95,22 +99,22 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   /**
    * @deprecated use get akitaFiltersPlugin
    */
-  get AkitaFilters(): AkitaFiltersPlugin<S, E, any> {
+  get AkitaFilters(): AkitaFiltersPlugin<S> {
     return this._filters;
   }
   /**
    * Access to AkitaFiltersPlugins, usefull to interact with all filters
    */
-  get akitaFiltersPlugIn(): AkitaFiltersPlugin<S, E> {
+  get akitaFiltersPlugIn(): AkitaFiltersPlugin<S> {
     return this._filters;
   }
 
   private _dataQuery: QueryEntity<E>;
-  private readonly _filters: AkitaFiltersPlugin<S, E>;
+  private readonly _filters: AkitaFiltersPlugin<S>;
   /** if set a custom filter plugins, do not delete all in disconnect() **/
   private _hasCustomFilters: boolean;
-  private _paginator: MatPaginator = null;
-  private _sort: MatSort = null;
+  private _paginator: MatPaginator | any = null;
+  private _sort: MatSort | any = null;
 
   private _selectAllByFilter$: Observable<E[]>;
   private _count$: BehaviorSubject<number>;

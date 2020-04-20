@@ -8,10 +8,6 @@
   "peerDependencies": {
     "@datorama/akita": ">=4.0.0"
   },
-  "optionalDependencies": {
-    "@angular/material": ">=8.0.0",
-    "@angular/cdk": ">=8.0.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/manudss/akita-filters-plugin.git"

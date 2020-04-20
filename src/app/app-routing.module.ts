@@ -15,11 +15,11 @@ const routes: Routes = [
   },
   {
     path: 'products',
-    loadChildren: './products-filters/products-filters.module#ProductsFiltersModule'
+    loadChildren: () => import('./products-filters/products-filters.module').then(m => m.ProductsFiltersModule)
   },
   {
     path: 'angular-material-demo',
-    loadChildren: './angular-material-demo/angular-material-demo.module#AngularMaterialDemoModule'
+    loadChildren: () => import('./angular-material-demo/angular-material-demo.module').then(m => m.AngularMaterialDemoModule)
   }
 ];
 

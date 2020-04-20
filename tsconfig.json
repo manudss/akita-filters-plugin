@@ -20,10 +20,10 @@
     ],
     "paths": {
       "akita-filters-plugin": [
-        "dist/akita-filters-plugin"
+        "projects/akita-filters-plugin/src/lib/index.ts"
       ],
-      "akita-filters-plugin/*": [
-        "dist/akita-filters-plugin/*"
+      "akita-filters-plugin/datasource": [
+        "projects/akita-mat-datasource/src/lib/index.ts"
       ]
     }
   }
