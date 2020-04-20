@@ -1,7 +1,5 @@
 import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {AkitaMatDataSource} from '../../../projects/akita-mat-datasource/src/lib/akita-mat-data-source';
-import {ProductPlant, ProductPlantState, ProductsFiltersQuery, ProductsFiltersService} from '../products-filters/state';
-import {CartService} from '../cart/state';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import {PhotosState} from './with-server/state/photos-store.service';
@@ -25,7 +23,7 @@ export class WithServerDemoComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService);
+    this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService, {searchFilterId: 'title_like'})/*.withServer(this.photosService.getOnChangeFilter())*/;
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     this.limit = '30';
