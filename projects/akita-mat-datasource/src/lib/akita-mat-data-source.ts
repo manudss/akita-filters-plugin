@@ -7,7 +7,7 @@ import {MatSort, Sort} from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 // @ts-ignore
 import {AkitaFilter, AkitaFiltersPlugin} from 'akita-filters-plugin';
-import {WithServerOptions} from '../../../akita-filters-plugin/src/lib';
+import {WithServerOptions} from 'akita-filters-plugin';
 
 export interface DataSourceWithServerOptions {
   searchFilterId?: string;
