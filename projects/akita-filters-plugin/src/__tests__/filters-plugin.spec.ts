@@ -382,5 +382,56 @@ describe('AkitaFiltersPlugin', () => {
 
     });
 
+    describe('getNormalizedFilters()', () => {
+      beforeEach(() => {
+        widgetsStore.remove();
+        filters.filtersStore.remove();
+        filters.setFilter({ id: 'filter1', value: 'value 1' });
+        filters.setFilter({ id: 'filter2', value: 'value 2' });
+
+      });
+      it ('return all filters with default options', () => {
+        const normalizedFilters = filters.getNormalizedFilters();
+        expect(normalizedFilters).toEqual({filter1: 'value 1', filter2: 'value 2'});
+      });
+
+      it ('return all filters with default options as query params', () => {
+        const normalizedFilters = filters.getNormalizedFilters({asQueryParams: true});
+        expect(normalizedFilters).toEqual('filter1=value%201&filter2=value%202');
+      });
+
+      describe('withSort options', () => {
+        beforeEach(() => {
+          filters.setSortBy({ sortBy: 'id', sortByOrder: Order.DESC });
+        });
+
+        it('return all filters with sort if specified', () => {
+          const normalizedFilters = filters.getNormalizedFilters({withSort: true});
+          expect(normalizedFilters).toEqual({ filter1: 'value 1',
+            filter2: 'value 2',
+            sortBy: 'id',
+            sortByOrder: 'desc' });
+        });
+
+        it('return all filters with default options as query params', () => {
+          const normalizedFilters = filters.getNormalizedFilters({withSort: true, asQueryParams: true});
+          expect(normalizedFilters).toEqual('filter1=value%201&filter2=value%202&sortBy=id&sortByOrder=desc');
+        });
+
+        it('return all filters with sort if specified and with custom key', () => {
+          const normalizedFilters = filters.getNormalizedFilters({withSort: true, sortByKey: '_sort', sortByOrderKey: '_order'});
+          expect(normalizedFilters).toEqual({ filter1: 'value 1',
+            filter2: 'value 2',
+            _sort: 'id',
+            _order: 'desc' });
+        });
+
+        it('return all filters with default options as query params', () => {
+          const normalizedFilters = filters.getNormalizedFilters({withSort: true, sortByKey: '_sort', sortByOrderKey: '_order', asQueryParams: true});
+          expect(normalizedFilters).toEqual('filter1=value%201&filter2=value%202&_sort=id&_order=desc');
+        });
+      }
+    });
+
   });
 });
