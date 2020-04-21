@@ -333,6 +333,135 @@ describe('AkitaFiltersPlugin', () => {
       });
     });
 
+    describe('getAll with Filters ', () => {
+      beforeEach(() => {
+        widgetsStore.remove();
+        filters.filtersStore.remove();
+        filters.setSortBy({ sortBy: 'id', sortByOrder: Order.ASC});
+        widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+        widgetsStore.update(2, {complete: true});
+        widgetsStore.update(3, {complete: true});
+      });
+
+      it('should get all if no filters', () => {
+        const result = filters.getAllByFilters();
+        expect(Array.isArray(result)).toBeTruthy();
+        expect(result.length).toEqual(4);
+        expect(result[0].id).toEqual(1);
+        expect(result[1].id).toEqual(2);
+        expect(result[2].id).toEqual(3);
+        expect(result[3].id).toEqual(4);
+      });
+
+      it('should get all sorted if provided', () => {
+        filters.setSortBy({ sortBy: 'id', sortByOrder: Order.DESC});
+        const result = filters.getAllByFilters();
+
+        expect(Array.isArray(result)).toBeTruthy();
+        expect(result.length).toEqual(4);
+        expect(result[0].id).toEqual(4);
+        expect(result[1].id).toEqual(3);
+        expect(result[2].id).toEqual(2);
+        expect(result[3].id).toEqual(1);
+      });
+
+      it('should apply filter if filter provided when get all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+
+        const result = filters.getAllByFilters(); //?
+
+        expect(Array.isArray(result)).toBeTruthy();
+        expect(result.length).toEqual(2);
+        expect(result[0].id).toEqual(1);
+        expect(result[1].id).toEqual(3);
+
+      });
+
+      it('should apply 2 filter if provided when get all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
+
+        const result1 = filters
+          .getAllByFilters();
+
+        expect(Array.isArray(result1)).toBeTruthy();
+        expect(result1.length).toEqual(1);
+        expect(result1[0].id).toEqual(3);
+      });
+
+      it('should apply 2 filter in current order if provided when get all', () => {
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+
+        const result2 = filters
+          .getAllByFilters();
+
+        expect(Array.isArray(result2)).toBeTruthy();
+        expect(result2.length).toEqual(1);
+        expect(result2[0].id).toEqual(3);
+      });
+
+      it('should apply 2 filter with specified order if order is specified when get all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1, order: 2});
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete, order: 1});
+
+        const result2 = filters
+          .getAllByFilters();
+
+        expect(Array.isArray(result2)).toBeTruthy();
+        expect(result2.length).toEqual(1);
+        expect(result2[0].id).toEqual(3);
+      });
+    });
+    describe('getAll with Filters and return asObject Type ', () => {
+      beforeEach(() => {
+        widgetsStore.remove();
+        filters.filtersStore.remove();
+        widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+        widgetsStore.update(2, {complete: true});
+        widgetsStore.update(3, {complete: true});
+      });
+
+      it('should select all if no filters', () => {
+        const result = filters
+          .getAllByFilters({asObject: true});
+
+        expect(result).toBeDefined();
+        expect(Object.keys(result).length).toEqual(4);
+        expect(result['1']).toEqual({id: 1, title: 'Widget 1', complete: false});
+        expect(result['2']).toEqual({id: 2, title: 'Widget 2', complete: true});
+        expect(result['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
+        expect(result['4']).toEqual({id: 4, title: 'Widget 4', complete: false});
+
+      });
+
+      it('should apply filter if provided when select all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+
+        const result = filters
+          .getAllByFilters({asObject: true});
+
+        expect(result).toBeDefined();
+        expect(Object.keys(result).length).toEqual(2);
+        expect(result['1']).toEqual({id: 1, title: 'Widget 1', complete: false});
+        expect(result['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
+
+      });
+
+      it('should apply 2 filter if provided when select all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
+
+        const result1 = filters
+          .getAllByFilters({asObject: true});
+
+        expect(result1).toBeDefined();
+        expect(Object.keys(result1).length).toEqual(1);
+        expect(result1['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
+        1;
+      });
+    });
+
 
     describe('WithServer Feature : SelectAll when any change in filter, or entities', () => {
       jest.useFakeTimers();

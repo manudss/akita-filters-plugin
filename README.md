@@ -201,6 +201,13 @@ The main function to subscribe to filtered data. Select All Entity with an apply
 
 You can pass the same options than selectAll Function in EntityQuery. 
 
+###  getAllByFilters(options?: SelectAllOptions*): getEntityType<MyEntityState>[] | HashMap<getEntityType<MyEntityState>>
+
+The snapshot function to get snapshot filtered data. Get All current Entity with apply filter to it.
+
+You can pass the same options than getAll Function in EntityQuery. 
+
+
 ## Manage filters 
 
 ### selectFilters(): Observable<AkitaFilter[]>
