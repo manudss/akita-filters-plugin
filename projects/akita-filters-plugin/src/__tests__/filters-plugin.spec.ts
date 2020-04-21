@@ -1,7 +1,7 @@
-import { skip, take } from 'rxjs/operators';
-import { createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore } from './setup';
+import {skip, take} from 'rxjs/operators';
+import {createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore} from './setup';
 import {AkitaFiltersPlugin} from '../lib/akita-filters-plugin';
-import {HashMap, Order} from '@datorama/akita';
+import {Order} from '@datorama/akita';
 import jest from '@types/jest';
 import {of} from 'rxjs';
 
@@ -18,9 +18,9 @@ describe('AkitaFiltersPlugin', () => {
       beforeEach(() => {
         filters.filtersStore.remove();
 
-        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 0 });
-        filters.setFilter({ id: 'filter2', predicate: filter => !!filter });
-        filters.setFilter({ id: 'filter3', predicate: filter => !!!filter });
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 0});
+        filters.setFilter({id: 'filter2', predicate: filter => !!filter});
+        filters.setFilter({id: 'filter3', predicate: filter => !!!filter});
       });
 
       it('should take all filters by default', () => {
@@ -31,7 +31,7 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should add filter if not exist with all default values', () => {
-        filters.setFilter({ id: 'filter4', predicate: filter => filter.id });
+        filters.setFilter({id: 'filter4', predicate: filter => filter.id});
         expect(filters.filtersQuery.getCount()).toEqual(4);
         expect(filters.filtersQuery.getEntity('filter4').id).toEqual('filter4');
         expect(filters.filtersQuery.getEntity('filter4').hide).toEqual(false);
@@ -40,14 +40,14 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should update filter if exist with new value', () => {
-        filters.setFilter({ id: 'filter3', hide: true, name: 'Filter 3', order: 2 });
+        filters.setFilter({id: 'filter3', hide: true, name: 'Filter 3', order: 2});
         expect(filters.filtersQuery.getCount()).toEqual(3);
         expect(filters.filtersQuery.getEntity('filter3').id).toEqual('filter3');
         expect(filters.filtersQuery.getEntity('filter3').hide).toEqual(true);
         expect(filters.filtersQuery.getEntity('filter3').name).toEqual('Filter 3');
         expect(filters.filtersQuery.getEntity('filter3').order).toEqual(2);
 
-        filters.setFilter({ id: 'filter2', value: 'aaaa' });
+        filters.setFilter({id: 'filter2', value: 'aaaa'});
         expect(filters.filtersQuery.getEntity('filter2').value).toEqual('aaaa');
         expect(filters.filtersQuery.getEntity('filter2').name).toEqual('Filter2: aaaa');
       });
@@ -61,8 +61,8 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should set / get value  ', () => {
-        filters.setFilter({ id: 'filter1', value: true });
-        filters.setFilter({ id: 'filter2', value: 'aaaa' });
+        filters.setFilter({id: 'filter1', value: true});
+        filters.setFilter({id: 'filter2', value: 'aaaa'});
         expect(filters.filtersQuery.getEntity('filter1').value).toEqual(true);
         expect(filters.getFilterValue('filter1')).toEqual(true);
 
@@ -74,7 +74,7 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should call getFilters() and get only filters not hidden ', () => {
-        filters.setFilter({ id: 'filter2', hide: true });
+        filters.setFilter({id: 'filter2', hide: true});
         const filtersAll = filters.getFilters();
 
         expect(filtersAll.length).toEqual(2);
@@ -87,8 +87,8 @@ describe('AkitaFiltersPlugin', () => {
         widgetsStore.remove();
         filters.filtersStore.remove();
         widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
-        widgetsStore.update(2, { complete: true });
-        widgetsStore.update(3, { complete: true });
+        widgetsStore.update(2, {complete: true});
+        widgetsStore.update(3, {complete: true});
       });
 
       it('should select all if no filters', () => {
@@ -106,7 +106,7 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should apply filter if provided when select all', () => {
-        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
 
         filters
           .selectAllByFilters()
@@ -120,8 +120,8 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should apply 2 filter if provided when select all', () => {
-        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
-        filters.setFilter({ id: 'filter2', predicate: filter => filter.complete });
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
 
         filters
           .selectAllByFilters()
@@ -134,8 +134,8 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should apply 2 filter in current order if provided when select all', () => {
-        filters.setFilter({ id: 'filter2', predicate: filter => filter.complete });
-        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
 
         filters
           .selectAllByFilters()
@@ -149,8 +149,8 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should apply 2 filter with specified order if order is specified when select all', () => {
-        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1, order: 2 });
-        filters.setFilter({ id: 'filter2', predicate: filter => filter.complete, order: 1 });
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1, order: 2});
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete, order: 1});
 
         filters
           .selectAllByFilters()
@@ -167,52 +167,49 @@ describe('AkitaFiltersPlugin', () => {
         widgetsStore.remove();
         filters.filtersStore.remove();
         widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
-        widgetsStore.update(2, { complete: true });
-        widgetsStore.update(3, { complete: true });
+        widgetsStore.update(2, {complete: true});
+        widgetsStore.update(3, {complete: true});
       });
 
       it('should select all if no filters', () => {
         filters
-          .selectAllByFilters({asObject: true, })
+          .selectAllByFilters({asObject: true,})
           .pipe(take(1))
           .subscribe(result => {
-            console.log('asObject : ', result);
             expect(result).toBeDefined();
             expect(Object.keys(result).length).toEqual(4);
-            expect(result['1']).toEqual({ id: 1, title: 'Widget 1', complete: false });
-            expect(result['2']).toEqual({ id: 2, title: 'Widget 2', complete: true });
-            expect(result['3']).toEqual({ id: 3, title: 'Widget 3', complete: true });
-            expect(result['4']).toEqual({ id: 4, title: 'Widget 4', complete: false });
+            expect(result['1']).toEqual({id: 1, title: 'Widget 1', complete: false});
+            expect(result['2']).toEqual({id: 2, title: 'Widget 2', complete: true});
+            expect(result['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
+            expect(result['4']).toEqual({id: 4, title: 'Widget 4', complete: false});
           });
       });
 
       it('should apply filter if provided when select all', () => {
-        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
 
         filters
-          .selectAllByFilters({asObject: true, })
+          .selectAllByFilters({asObject: true,})
           .pipe(take(1))
           .subscribe(result => {
-            console.log('asObject 2 : ', result);
             expect(result).toBeDefined();
             expect(Object.keys(result).length).toEqual(2);
-            expect(result['1']).toEqual({ id: 1, title: 'Widget 1', complete: false });
-            expect(result['3']).toEqual( { id: 3, title: 'Widget 3', complete: true });
+            expect(result['1']).toEqual({id: 1, title: 'Widget 1', complete: false});
+            expect(result['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
           });
       });
 
       it('should apply 2 filter if provided when select all', () => {
-        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
-        filters.setFilter({ id: 'filter2', predicate: filter => filter.complete });
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
 
         filters
-          .selectAllByFilters({asObject: true, })
+          .selectAllByFilters({asObject: true,})
           .pipe(take(1))
           .subscribe(result1 => {
-            console.log('asObject 3 : ', result1);
             expect(result1).toBeDefined();
             expect(Object.keys(result1).length).toEqual(1);
-            expect(result1['3']).toEqual({ id: 3, title: 'Widget 3', complete: true });
+            expect(result1['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
           });
       });
     });
@@ -245,14 +242,14 @@ describe('AkitaFiltersPlugin', () => {
           });
 
         jest.runAllTimers();
-        filters.setFilter({ id: 'filter2', predicate: filter => filter.complete });
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
         jest.runAllTimers();
       });
 
       it('should send a new value when add new entity', done3 => {
         jest.setTimeout(3000);
         const count = 0;
-        filters.setFilter({ id: 'filter2', predicate: filter => filter.complete });
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
 
         filters
           .selectAllByFilters()
@@ -283,8 +280,8 @@ describe('AkitaFiltersPlugin', () => {
         widgetsStore.remove();
         filters.filtersStore.remove();
         widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
-        widgetsStore.update(2, { complete: true });
-        widgetsStore.update(3, { complete: true });
+        widgetsStore.update(2, {complete: true});
+        widgetsStore.update(3, {complete: true});
       });
 
       it('should not sort if no sort specified', () => {
@@ -304,7 +301,7 @@ describe('AkitaFiltersPlugin', () => {
       it('should apply sort if provided in other sens', () => {
         jest.setTimeout(1000);
 
-        filters.setSortBy({ sortBy: 'id', sortByOrder: Order.DESC });
+        filters.setSortBy({sortBy: 'id', sortByOrder: Order.DESC});
         jest.runAllTimers();
 
         filters
@@ -321,8 +318,8 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should apply filter and sort', () => {
-        filters.setSortBy({ sortBy: 'id', sortByOrder: Order.DESC });
-        filters.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
+        filters.setSortBy({sortBy: 'id', sortByOrder: Order.DESC});
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
 
         filters
           .selectAllByFilters()
@@ -333,6 +330,135 @@ describe('AkitaFiltersPlugin', () => {
             expect(result[0].id).toEqual(3);
             expect(result[1].id).toEqual(1);
           });
+      });
+    });
+
+    describe('getAll with Filters ', () => {
+      beforeEach(() => {
+        widgetsStore.remove();
+        filters.filtersStore.remove();
+        filters.setSortBy({ sortBy: 'id', sortByOrder: Order.ASC});
+        widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+        widgetsStore.update(2, {complete: true});
+        widgetsStore.update(3, {complete: true});
+      });
+
+      it('should get all if no filters', () => {
+        const result = filters.getAllByFilters();
+        expect(Array.isArray(result)).toBeTruthy();
+        expect(result.length).toEqual(4);
+        expect(result[0].id).toEqual(1);
+        expect(result[1].id).toEqual(2);
+        expect(result[2].id).toEqual(3);
+        expect(result[3].id).toEqual(4);
+      });
+
+      it('should get all sorted if provided', () => {
+        filters.setSortBy({ sortBy: 'id', sortByOrder: Order.DESC});
+        const result = filters.getAllByFilters();
+
+        expect(Array.isArray(result)).toBeTruthy();
+        expect(result.length).toEqual(4);
+        expect(result[0].id).toEqual(4);
+        expect(result[1].id).toEqual(3);
+        expect(result[2].id).toEqual(2);
+        expect(result[3].id).toEqual(1);
+      });
+
+      it('should apply filter if filter provided when get all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+
+        const result = filters.getAllByFilters(); //?
+
+        expect(Array.isArray(result)).toBeTruthy();
+        expect(result.length).toEqual(2);
+        expect(result[0].id).toEqual(1);
+        expect(result[1].id).toEqual(3);
+
+      });
+
+      it('should apply 2 filter if provided when get all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
+
+        const result1 = filters
+          .getAllByFilters();
+
+        expect(Array.isArray(result1)).toBeTruthy();
+        expect(result1.length).toEqual(1);
+        expect(result1[0].id).toEqual(3);
+      });
+
+      it('should apply 2 filter in current order if provided when get all', () => {
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+
+        const result2 = filters
+          .getAllByFilters();
+
+        expect(Array.isArray(result2)).toBeTruthy();
+        expect(result2.length).toEqual(1);
+        expect(result2[0].id).toEqual(3);
+      });
+
+      it('should apply 2 filter with specified order if order is specified when get all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1, order: 2});
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete, order: 1});
+
+        const result2 = filters
+          .getAllByFilters();
+
+        expect(Array.isArray(result2)).toBeTruthy();
+        expect(result2.length).toEqual(1);
+        expect(result2[0].id).toEqual(3);
+      });
+    });
+    describe('getAll with Filters and return asObject Type ', () => {
+      beforeEach(() => {
+        widgetsStore.remove();
+        filters.filtersStore.remove();
+        widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+        widgetsStore.update(2, {complete: true});
+        widgetsStore.update(3, {complete: true});
+      });
+
+      it('should select all if no filters', () => {
+        const result = filters
+          .getAllByFilters({asObject: true});
+
+        expect(result).toBeDefined();
+        expect(Object.keys(result).length).toEqual(4);
+        expect(result['1']).toEqual({id: 1, title: 'Widget 1', complete: false});
+        expect(result['2']).toEqual({id: 2, title: 'Widget 2', complete: true});
+        expect(result['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
+        expect(result['4']).toEqual({id: 4, title: 'Widget 4', complete: false});
+
+      });
+
+      it('should apply filter if provided when select all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+
+        const result = filters
+          .getAllByFilters({asObject: true});
+
+        expect(result).toBeDefined();
+        expect(Object.keys(result).length).toEqual(2);
+        expect(result['1']).toEqual({id: 1, title: 'Widget 1', complete: false});
+        expect(result['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
+
+      });
+
+      it('should apply 2 filter if provided when select all', () => {
+        filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+        filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
+
+        const result1 = filters
+          .getAllByFilters({asObject: true});
+
+        expect(result1).toBeDefined();
+        expect(Object.keys(result1).length).toEqual(1);
+        expect(result1['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
+        1;
       });
     });
 
@@ -375,7 +501,6 @@ describe('AkitaFiltersPlugin', () => {
           expect(filtersQuery.selectAll).toHaveBeenCalledTimes(4);
           expect(filtersWithServer.selectSortBy).toHaveBeenCalledTimes(1);
         });
-
 
 
       });

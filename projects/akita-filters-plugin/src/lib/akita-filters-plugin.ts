@@ -184,6 +184,28 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   }
 
   /**
+   * Get All Entity with apply filter to it, and updated with any change (entity or filter)
+   * Will not apply sort, if need return   asObject:true !
+   */
+  getAllByFilters(options?: SelectAllOptionsA<E>
+    | SelectAllOptionsB<E> | SelectAllOptionsC<E> |
+    SelectAllOptionsD<E> | SelectAllOptionsE<E> | any): getEntityType<S>[] | HashMap<getEntityType<S>> {
+    const filters = this.filtersQuery.getAll();
+    const unkNowEntity: unknown = this.getQuery().getAll(options);
+    if (options && options.asObject) {
+      return this._applyFiltersForHashMap((unkNowEntity as HashMap<getEntityType<S>>), filters);
+    } else {
+      const sort = this.getSortBy();
+      return this._applyFiltersForArray((unkNowEntity as getEntityType<S>[]), filters, sort);
+    }
+  }
+
+  public getSortBy() {
+    const state = this.filtersQuery.getValue();
+    return state && state.sort ? state.sort : null;
+  }
+
+  /**
    * Create or update a filter
    */
   setFilter(filter: Partial<AkitaFilter<S>>) {
