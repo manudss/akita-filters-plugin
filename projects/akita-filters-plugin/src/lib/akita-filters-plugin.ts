@@ -59,8 +59,8 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     super(query, params.entityIds);
     this.params = {...{filtersStoreName: this.getStore().storeName + 'Filters'}, ...params};
 
-    this._filtersStore = (params?.filtersStore) ? params.filtersStore : new AkitaFiltersStore<S>(this.params.filtersStoreName);
-    this._filtersQuery = (params?.filtersQuery) ? params.filtersQuery : new AkitaFiltersQuery<S>(this._filtersStore);
+    this._filtersStore = (params.filtersStore) ? params.filtersStore : new AkitaFiltersStore<S>(this.params.filtersStoreName);
+    this._filtersQuery = (params.filtersQuery) ? params.filtersQuery : new AkitaFiltersQuery<S>(this._filtersStore);
 
     this._selectFilters$ = this.filtersQuery.selectAll({sortBy: 'order'});
     this._selectFiltersAll$ = this.filtersQuery.selectAll({sortBy: 'order', filterBy: filter => !filter.hide});
