@@ -396,6 +396,54 @@ this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscrib
     });
 ```
 
+### With Server : apply filters from server 
+
+Previous options applys all filters locally. But some times, you wants to call filters by making request to server.  
+To do this, you need to setWithServer options to your AkitaFiltersPlugin. You will provide a callback function, that will be called everytime a filter changed.
+You will make your call, and return this observable. AkitaFiltersPlugin will subscribe to this observable, and add your new data in the store. 
+
+```typescript
+myFilter = new AkitaFiltersPlugin<MyEntitiesState>(this.myEntitiesQuery)
+.withServer((filtersNormalized: string | HashMap<any>) => 
+ {
+     return this.httpClient.get({params: filtersNormalized as HashMap<any>}); // make here your pull request to server and return the observable
+ });
+```
+The data will be filtersNormalized that will be returned by getNormalizedFilters(). 
+This function will return all your server filters in a normalized format : 
+
+By default return an key value object, with all server filters : 
+```json
+{filter1: 'value 1', filter2: 'value 2'}
+```
+or if you specify the NormalizedFilterOptions options in `withServer(Callbackfunc, {asQueryParams: true})`
+
+You will have directly a serialized version for your query params: 
+`filter1=value%201&filter2=value%202`
+
+You can also give some others options : 
+```typescript
+ìnterface NormalizedFilterOptions {
+  asQueryParams?: boolean; // display as query params : filter1=value%201&filter2=value%202
+  withSort?: boolean; // To include sort : { filter1: 'value 1',
+                      //                     filter2: 'value 2',
+                      //                     sortBy: 'id',
+                      //                     sortByOrder: 'desc' }
+                      //  or as query params : filter1=value%201&filter2=value%202&sortBy=id&sortByOrder=desc  
+  sortByKey?: string;      // to specify the sortBy key used in previous example, default 'sortBy'                      
+  sortByOrderKey?: string; // to specify the sortBy key used in previous example, 'sortByOrder'
+                           // will result for example : filter1=value%201&filter2=value%202&_sort=id&_order=desc
+} 
+```
+
+This will return only all filters that was set as `server = true`. 
+
+In your components, you will need to only subecribe to your selectAll() function from your store, to get all new data. 
+
+Or you can also combine it with locals filters or sort (if you add some filters with ``server: false`` ). In this case subscribe to selectAllByFilters(). 
+
+
+
 #BONUS: Angular Material Datasource
 
 This specific package is only for Angular Material datatable. But akita filters plugins could be used without angular material. And maybe without angular. 
