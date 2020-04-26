@@ -4,6 +4,8 @@ import {AkitaFiltersPlugin} from '../lib/akita-filters-plugin';
 import {Order} from '@datorama/akita';
 import {jest} from '@jest/globals';
 import {of} from 'rxjs';
+import Mock = jest.Mock;
+import MockedFunction = jest.MockedFunction;
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);
@@ -435,6 +437,161 @@ describe('AkitaFiltersPlugin', () => {
         });
       });
     });
+
+    describe('METHOD : withServer() should calls withServerFunc', () => {
+      let withServerFunc: Mock;
+      let filtersWithServer;
+      let storeSet: {set: Mock};
+
+      beforeEach(() => {
+        withServerFunc = jest.fn();
+        // @ts-ignore
+        filtersWithServer = new AkitaFiltersPlugin(widgetsQuery);
+        storeSet = {set: jest.fn()};
+        filtersWithServer.getStore = jest.fn().mockReturnValue(storeSet);
+      });
+
+      it('must call withServerFunc each time some filters has been added or removed', () => {
+        filtersWithServer.withServer(withServerFunc);
+        expect(withServerFunc).toHaveBeenCalledTimes(1);
+        expect(withServerFunc).toHaveBeenCalledWith({});
+        filtersWithServer.setFilter({ id: 'filter1', value: true, server: true });
+        filtersWithServer.setFilter({ id: 'filter2', value: 'aaaa', server: false });
+        filtersWithServer.setFilter({ id: 'filter3', value: 'bbb', server: true });
+        expect(withServerFunc).toHaveBeenCalledTimes(3);
+        expect(withServerFunc).toHaveBeenNthCalledWith(2, {'filter1': true});
+        expect(withServerFunc).toHaveBeenNthCalledWith(3,  {'filter1': true,  'filter3': 'bbb'});
+        filtersWithServer.setFilter({ id: 'filter3', value: 'ccc', server: true });
+        expect(withServerFunc).toHaveBeenCalledTimes(4);
+        expect(withServerFunc).toHaveBeenNthCalledWith(4,  {'filter1': true,  'filter3': 'ccc'});
+        filtersWithServer.removeFilter('filter3');
+        expect(withServerFunc).toHaveBeenCalledTimes(5);
+        expect(withServerFunc).toHaveBeenNthCalledWith(5,  {'filter1': true});
+      });
+
+      it('must call set store function each time some returns', () => {
+        filtersWithServer.withServer(withServerFunc);
+        withServerFunc.mockReturnValueOnce(of([createWidget(1), createWidget(2), createWidgetCompleted(3)]))
+          .mockReturnValueOnce(of([createWidget(1), createWidget(2)]))
+          .mockReturnValueOnce(of([createWidget(1), createWidget(2), createWidgetCompleted(3)]))
+          .mockReturnValueOnce(false)
+          .mockName('withServerFunc');
+        expect(storeSet.set).toHaveBeenCalledTimes(0);
+        filtersWithServer.setFilter({ id: 'filter1', value: true, server: true });
+        expect(storeSet.set).toHaveBeenCalledTimes(1);
+        expect(storeSet.set.mock.calls[0]).toEqual([
+          [
+            { complete: false, id: 1, title: 'Widget 1' },
+            { complete: false, id: 2, title: 'Widget 2' },
+            { complete: true, id: 3, title: 'Widget 3' }
+          ]
+        ]);
+        filtersWithServer.setFilter({ id: 'filter3', value: 'ccc', server: true });
+        expect(storeSet.set).toHaveBeenCalledTimes(2);
+        expect(storeSet.set.mock.calls[1]).toEqual([
+          [
+            { complete: false, id: 1, title: 'Widget 1' },
+            { complete: false, id: 2, title: 'Widget 2' }
+          ]
+        ]);
+        filtersWithServer.removeFilter('filter3');
+        expect(storeSet.set).toHaveBeenCalledTimes(3);
+        expect(storeSet.set.mock.calls[2]).toEqual([
+          [
+            { complete: false, id: 1, title: 'Widget 1' },
+            { complete: false, id: 2, title: 'Widget 2' },
+            { complete: true, id: 3, title: 'Widget 3' }
+          ]
+        ]);
+      });
+
+      it('must not call set store function if returns is false', () => {
+        filtersWithServer.withServer(withServerFunc);
+        withServerFunc.mockReturnValueOnce(false).mockName('withServerFunc');
+        expect(storeSet.set).toHaveBeenCalledTimes(0);
+        expect(withServerFunc).toHaveBeenCalledTimes(1);
+        filtersWithServer.setFilter({ id: 'filter1', value: true, server: true });
+        expect(withServerFunc).toHaveBeenCalledTimes(2);
+        expect(storeSet.set).toHaveBeenCalledTimes(0);
+      });
+
+    });
+
+    describe('METHOD : getServerFilters()', () => {
+      let filtersQuery;
+      let withServerFunc;
+      let filtersWithServer;
+
+      beforeEach(() => {
+        withServerFunc = jest.fn();
+        // @ts-ignore
+        filtersWithServer = new AkitaFiltersPlugin(widgetsQuery, {filtersQuery});
+        filtersWithServer.selectSortBy = jest.fn();
+      });
+
+      it('when server is true, must return only server filters', () => {
+
+        filtersWithServer.withServer(withServerFunc);
+        filtersWithServer.setFilter({ id: 'filter1', value: true, server: true });
+        filtersWithServer.setFilter({ id: 'filter2', value: 'aaaa', server: false });
+        filtersWithServer.setFilter({ id: 'filter3', value: 'bbb', server: true });
+        const serverFilters = filtersWithServer.getServerFilters();
+
+        expect(serverFilters.length).toEqual(2);
+        expect(serverFilters[0]).toMatchObject({
+          hide: false,
+          id: 'filter1',
+          name: 'Filter1: true',
+          order: 10,
+          server: true,
+          value: true
+        });
+        expect(serverFilters[1]).toMatchObject({
+          hide: false,
+          id: 'filter3',
+          name: 'Filter3: bbb',
+          order: 10,
+          server: true,
+          value: 'bbb'
+        });
+      });
+
+      it('when server is false, must return all filters', () => {
+
+        filtersWithServer.setFilter({ id: 'filter1', value: true, server: true });
+        filtersWithServer.setFilter({ id: 'filter2', value: 'aaaa', server: false });
+        filtersWithServer.setFilter({ id: 'filter3', value: 'bbb', server: true });
+        const serverFilters = filtersWithServer.getServerFilters();
+
+        expect(serverFilters.length).toEqual(3);
+        expect(serverFilters[0]).toMatchObject({
+          hide: false,
+          id: 'filter1',
+          name: 'Filter1: true',
+          order: 10,
+          server: true,
+          value: true
+        });
+        expect(serverFilters[1]).toMatchObject({
+          hide: false,
+          id: 'filter2',
+          name: 'Filter2: aaaa',
+          order: 10,
+          server: false,
+          value: 'aaaa'
+        });
+        expect(serverFilters[2]).toMatchObject({
+          hide: false,
+          id: 'filter3',
+          name: 'Filter3: bbb',
+          order: 10,
+          server: true,
+          value: 'bbb'
+        });
+      });
+    });
+
+  });
 
   });
 });
