@@ -334,7 +334,7 @@ describe('AkitaFiltersPlugin', () => {
     });
 
 
-    describe('WithServer Feture : SelectAll when any change in filter, or entities', () => {
+    describe('WithServer Feature : SelectAll when any change in filter, or entities', () => {
       jest.useFakeTimers();
 
       beforeEach(() => {

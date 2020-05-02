@@ -277,6 +277,12 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     return this;
   }
 
+  public hasServer() {
+    return this._server;
+  }
+
+
+
   /**
    *  add a filter to filters plugins
    */
