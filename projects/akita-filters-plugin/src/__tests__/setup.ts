@@ -8,7 +8,7 @@ const getInitialActiveState = () =>
 export class Todo {
   id: ID;
   title?: string;
-  completed? = false;
+  completed?: false;
   price?: number;
   constructor(params: Todo) {
     Object.assign(this, params);

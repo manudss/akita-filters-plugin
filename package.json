@@ -30,10 +30,19 @@
         "diagnostics": false
       }
     },
+    "rootDir": "projects",
     "moduleFileExtensions": [
       "ts",
       "js"
     ],
+    "moduleNameMapper": {
+      "^akita-filters-plugin$":
+        "<rootDir>/akita-filters-plugin/src/lib/index.ts"
+      ,
+      "^akita-filters-plugin\/datasource$":
+        "<rootDir>/akita-mat-datasource/src/lib/index.ts"
+
+    },
     "setupFiles": [
       "jest-localstorage-mock"
     ],
