@@ -27,7 +27,7 @@ export function searchFilter( searchKey: string, inObj: Object ): boolean {
 /**
  * Helper function to do search in one key of an object
  */
-export function searchFilterIn( searchKey: string, inObj: Object, inKey: string ): boolean {
+export function searchFilterIn<T = Object>( searchKey: string, inObj: T, inKey: keyof T ): boolean {
   return  isString(searchKey)
     && isString(inKey)
     && isString(inObj[inKey])
