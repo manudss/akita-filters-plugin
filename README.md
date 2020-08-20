@@ -396,7 +396,7 @@ this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscrib
     });
 ```
 
-#BONUS: Angular Material Datasource
+# BONUS: Angular Material Datasource
 
 This specific package is only for Angular Material datatable. But akita filters plugins could be used without angular material. And maybe without angular. 
 This was released since version 4.x as a subpackage to avoid error, when not using Angular Material.
