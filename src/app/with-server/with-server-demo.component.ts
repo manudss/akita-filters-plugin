@@ -1,7 +1,7 @@
-import {AfterViewInit, Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {AkitaMatDataSource} from '../../../projects/akita-mat-datasource/src/lib/akita-mat-data-source';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatSort} from '@angular/material/sort';
 import {PhotosState} from './with-server/state/photos-store.service';
 import {PhotosQuery} from './with-server/state/users-query.service';
 import {PhotosFiltersService} from './with-server/photos-filters.service';
@@ -13,35 +13,23 @@ import {PhotosFiltersService} from './with-server/photos-filters.service';
   encapsulation: ViewEncapsulation.None
 })
 export class WithServerDemoComponent implements OnInit {
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
+  @ViewChild(MatSort, {static: true}) sort: MatSort;
   dataSource: AkitaMatDataSource<PhotosState>;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['id', 'albumId', 'title', 'thumbnailUrl'];
   public usePaginator: boolean = true;
 
-
-  ngOnInit(): void {
-    this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService, {searchFilterId: 'title_like'})/*.withServer(this.photosService.getOnChangeFilter())*/;
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-    this.limit = '30';
-  }
-
   constructor(
     private photosService: PhotosFiltersService,
-    private photosQuery: PhotosQuery) {}
-
-
-  updatePaginator($event) {
-    this.usePaginator = $event.checked;
-    this.dataSource.paginator = (this.usePaginator) ? this.paginator : null;
+    private photosQuery: PhotosQuery) {
   }
 
   get search() {
     return this.photosService.getFilterValue('title_like');
   }
+
   set search(searchQuery: string) {
     if (searchQuery === '') {
       this.photosService.removeFilter('title_like');
@@ -53,6 +41,7 @@ export class WithServerDemoComponent implements OnInit {
   get limit() {
     return this.photosService.getFilterValue('_limit');
   }
+
   set limit(searchQuery: string) {
     if (searchQuery === '') {
       this.photosService.removeFilter('_limit');
@@ -64,6 +53,7 @@ export class WithServerDemoComponent implements OnInit {
   get albumId() {
     return this.photosService.getFilterValue('albumId');
   }
+
   set albumId(searchQuery: string) {
     if (searchQuery === '') {
       this.photosService.removeFilter('albumId');
@@ -75,11 +65,40 @@ export class WithServerDemoComponent implements OnInit {
   get albumIdLocal() {
     return this.photosService.getFilterValue('albumIdLocal');
   }
+
   set albumIdLocal(searchQuery: string) {
     if (searchQuery === '') {
       this.photosService.removeFilter('albumIdLocal');
     } else {
-      this.photosService.setFilter({id: 'albumIdLocal', server: false, value: searchQuery, name: `[local] Album  : ${searchQuery}`, predicate: entity => entity.albumId === parseInt(searchQuery, 10)});
+      this.photosService.setFilter({
+        id: 'albumIdLocal',
+        server: false,
+        value: searchQuery,
+        name: `[local] Album  : ${searchQuery}`,
+        predicate: entity => entity.albumId === parseInt(searchQuery, 10)
+      });
+    }
+  }
+
+  ngOnInit(): void {
+    this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService, {
+      searchFilterId: 'title_like',
+      pageSizeId: '_limit',
+      pageSizeDisplay: true,
+      pageIndexId: '_page',
+      pageIndexDisplay: true,
+      serverPagination: true,
+    });
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.dataSource.total = 5000;
+  }
+
+  updatePaginator($event) {
+    this.usePaginator = $event.checked;
+    this.dataSource.paginator = (this.usePaginator) ? this.paginator : null;
+    if (!this.usePaginator) {
+      this.limit = '30';
     }
   }
 
