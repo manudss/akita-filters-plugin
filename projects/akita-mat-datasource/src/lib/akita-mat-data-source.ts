@@ -1,8 +1,8 @@
 import {DataSource} from '@angular/cdk/table';
-import {BehaviorSubject, combineLatest, merge, Observable, of, Subject, Subscription} from 'rxjs';
+import {BehaviorSubject, combineLatest, merge, Observable, Subject, Subscription} from 'rxjs';
 import {EntityState, getEntityType, HashMap, ID, Order, QueryEntity} from '@datorama/akita';
 
-import {debounceTime, distinct, map, takeUntil, tap, throttleTime} from 'rxjs/operators';
+import {debounceTime, map, takeUntil} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 // @ts-ignore
@@ -141,6 +141,13 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   private _sort: MatSort | any = null;
 
   /**
+   * Instance of the MatSort component used by the table to sort data
+   */
+  get sort(): MatSort | any {
+    return this._sort;
+  }
+
+  /**
    * Instance of the MatSort directive used by the table to control its sorting. Sort changes
    * emitted by the MatSort will trigger an update to the table's rendered data.
    *
@@ -173,11 +180,11 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * set and get total for paginator, when use in server pagination
    */
   get total(): number {
-    return this.paginator.length;
+    return this.paginator?.length;
   }
 
   set total(value: number) {
-    this.paginator.length = value;
+    this.paginator?.length = value;
   }
 
   /**
@@ -317,10 +324,10 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       // pipeline can progress to the next step. Note that the value from these streams are not used,
       // they purely act as a signal to progress in the pipeline.
       const pageChange: Observable<PageEvent | null | void> = merge(
-          this.paginator.page,
-          this._internalPageChanges,
-          this.paginator.initialized
-        ) as Observable<PageEvent | void>;
+        this.paginator.page,
+        this._internalPageChanges,
+        this.paginator.initialized
+      ) as Observable<PageEvent | void>;
 
       subscription = combineLatest([this._selectAllByFilter$, pageChange])
         .pipe(map(([data, page]) => this._pageData(data)));
@@ -380,23 +387,23 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       this._serverPaginationSubscription.unsubscribe();
       this._serverPaginationSubscription = paginatedData.pipe(takeUntil(this._disconnect))
         .subscribe(() => {
-        this.setFilters([{
-          id: this._dataSourceOptions.pageIndexId,
-          value: this.paginator.pageIndex,
-          hide: !this._dataSourceOptions.pageIndexDisplay,
-          name: `${this._dataSourceOptions.pageIndexName}: ${this.paginator.pageIndex}`,
-          server: true
-        }, {
-          id: this._dataSourceOptions.pageSizeId,
-          value: this.paginator.pageSize,
-          hide: !this._dataSourceOptions.pageSizeDisplay,
-          name: `${this._dataSourceOptions.pageSizeName}: ${this.paginator.pageSize}`,
-          server: true
-        }]);
-      });
+          this.setFilters([{
+            id: this._dataSourceOptions.pageIndexId,
+            value: this.paginator.pageIndex,
+            hide: !this._dataSourceOptions.pageIndexDisplay,
+            name: `${this._dataSourceOptions.pageIndexName}: ${this.paginator.pageIndex}`,
+            server: true
+          }, {
+            id: this._dataSourceOptions.pageSizeId,
+            value: this.paginator.pageSize,
+            hide: !this._dataSourceOptions.pageSizeDisplay,
+            name: `${this._dataSourceOptions.pageSizeName}: ${this.paginator.pageSize}`,
+            server: true
+          }]);
+        });
       this._internalPageChanges.next();
     } else {
-      this.removeFilters([this._dataSourceOptions.pageIndexId, this._dataSourceOptions.pageSizeId])
+      this.removeFilters([this._dataSourceOptions.pageIndexId, this._dataSourceOptions.pageSizeId]);
       this._serverPaginationSubscription.unsubscribe();
     }
 
