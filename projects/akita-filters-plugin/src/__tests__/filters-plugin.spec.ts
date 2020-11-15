@@ -176,7 +176,6 @@ describe('AkitaFiltersPlugin', () => {
           .selectAllByFilters({asObject: true, })
           .pipe(take(1))
           .subscribe(result => {
-            console.log('asObject : ', result);
             expect(result).toBeDefined();
             expect(Object.keys(result).length).toEqual(4);
             expect(result['1']).toEqual({ id: 1, title: 'Widget 1', complete: false });
@@ -193,7 +192,6 @@ describe('AkitaFiltersPlugin', () => {
           .selectAllByFilters({asObject: true, })
           .pipe(take(1))
           .subscribe(result => {
-            console.log('asObject 2 : ', result);
             expect(result).toBeDefined();
             expect(Object.keys(result).length).toEqual(2);
             expect(result['1']).toEqual({ id: 1, title: 'Widget 1', complete: false });
@@ -209,7 +207,6 @@ describe('AkitaFiltersPlugin', () => {
           .selectAllByFilters({asObject: true, })
           .pipe(take(1))
           .subscribe(result1 => {
-            console.log('asObject 3 : ', result1);
             expect(result1).toBeDefined();
             expect(Object.keys(result1).length).toEqual(1);
             expect(result1['3']).toEqual({ id: 3, title: 'Widget 3', complete: true });

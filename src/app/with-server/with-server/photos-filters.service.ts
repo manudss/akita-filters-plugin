@@ -4,7 +4,7 @@ import {AkitaFiltersPlugin} from 'akita-filters-plugin';
 import {PhotosQuery} from './state/users-query.service';
 import {HashMap} from '@datorama/akita';
 import {PhotosService} from './state/photos.service';
-import {map} from 'rxjs/operators';
+import {map, tap} from 'rxjs/operators';
 
 
 @Injectable({providedIn: 'root'})
@@ -18,7 +18,11 @@ export class PhotosFiltersService extends AkitaFiltersPlugin<PhotosState> {
 
   public getOnChangeFilter() {
     return (filtersNormalized: string | HashMap<any>) => {
-      return this.photosApi.get({params: filtersNormalized as HashMap<any>});
+      const filtersObject = filtersNormalized as HashMap<any>;
+      if (filtersObject?._page) {
+        filtersObject._page = filtersObject._page + 1;
+      }
+      return this.photosApi.get({params: filtersObject});
     };
   }
 }

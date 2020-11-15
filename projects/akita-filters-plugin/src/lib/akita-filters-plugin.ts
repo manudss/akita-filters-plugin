@@ -89,7 +89,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     options: WithServerOptions = {}): AkitaFiltersPlugin<S, E, I, P> {
     options = {...options};
 
-    this._server = true;
+    this.server = true;
     this._onChangeFilter = onChangeFilter;
 
     // Change default select filters to remove server filters, if you use selectAllByFilters();
@@ -120,10 +120,18 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     return this;
   }
 
+  get server(): boolean {
+    return this._server;
+  }
+
+  set server(value: boolean) {
+    this._server = value;
+  }
+
 
   /** Return true, if server is configured **/
   hasServer(): boolean {
-    return this._server;
+    return this.server;
   }
 
   /**
@@ -155,7 +163,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    * `this.filtersQuery.getAll()`
    */
   getServerFilters(): AkitaFilter<S>[] {
-    return this._server ? this._filtersQuery.getAll({filterBy: filter => filter.server}) : this.getFilters();
+    return this.server ? this._filtersQuery.getAll({filterBy: filter => filter.server}) : this.getFilters();
   }
 
   /**
@@ -187,7 +195,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    * Create or update a filter
    */
   setFilter(filter: Partial<AkitaFilter<S>>) {
-    if (this._server && isUndefined(filter.server)) {
+    if (this.server && isUndefined(filter.server)) {
       filter.server = true;
     }
     const entity = createFilter(filter);
@@ -195,10 +203,32 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   }
 
   /**
+   * Create or update multiples filters
+   */
+  setFilters(filters: Partial<AkitaFilter<S>>[]) {
+    if (!filters) { return; }
+    const entities = filters.map((filter => {
+      if (this.server && isUndefined(filter.server)) {
+        filter.server = true;
+      }
+      return createFilter(filter);
+    }));
+
+    this.filtersStore.upsertMany(entities);
+  }
+
+  /**
    * Remove a Filter
    */
   removeFilter(id: ID) {
     this.filtersStore.remove(id);
+  }
+
+  /**
+   * Remove a Filter
+   */
+  removeFilters(ids: ID[]) {
+    this.filtersStore.remove(ids);
   }
 
   /**
