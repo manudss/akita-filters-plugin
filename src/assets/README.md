@@ -31,9 +31,9 @@ And have another component to manage all filters.
 Install the module 
 
 ```typescript
-npm install --save akita-filters-plugins
+npm install --save akita-filters-plugin
 
-yarn add akita-filters-plugins
+yarn add akita-filters-plugin
 ```
 npm page : https://www.npmjs.com/package/akita-filters-plugin
 
