@@ -49,10 +49,10 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   private readonly _filtersQuery: AkitaFiltersQuery<S>;
   private _server: boolean = false;
 
-  private _selectFilters$: Observable<AkitaFilter<S>[]>;
+  private _selectFilters$: Observable<Array<AkitaFilter<S>>>;
   private readonly _selectSortBy$: Observable<SortByOptions<E> | null>;
-  private readonly _selectFiltersAll$: Observable<AkitaFilter<S>[]>;
-  private _onChangeFilter: (filtersNormalized: (string | HashMap<any>)) => any | boolean | Observable<getEntityType<S>[]>;
+  private readonly _selectFiltersAll$: Observable<Array<AkitaFilter<S>>>;
+  private _onChangeFilter: (filtersNormalized: (string | HashMap<any>)) => any | boolean | Observable<Array<getEntityType<S>>>;
   private _lastServerSubscribtion: Subscription;
 
   constructor(protected query: QueryEntity<S>, private params: FiltersParams<S> = {}) {
@@ -104,15 +104,15 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
       listObservable.push(this.selectSortBy());
     }
 
-    combineLatest<Observable<getEntityType<S>[]> | Observable<SortByOptions<E> | null>> (listObservable)
+    combineLatest<Observable<Array<getEntityType<S>>> | Observable<SortByOptions<E> | null>> (listObservable)
       .pipe(map((data) => {
       return this.getNormalizedFilters(options);
     })).subscribe((normalizerFilters) => {
-      const returnOnChange: boolean | Observable<getEntityType<S>[]> = this._onChangeFilter(normalizerFilters);
+      const returnOnChange: boolean | Observable<Array<getEntityType<S>>> = this._onChangeFilter(normalizerFilters);
 
       if (returnOnChange !== false && isObservable(returnOnChange)) {
         if (this._lastServerSubscribtion) { this._lastServerSubscribtion.unsubscribe(); }
-        this._lastServerSubscribtion = returnOnChange.subscribe((newValue: getEntityType<S>[]) => {
+        this._lastServerSubscribtion = returnOnChange.subscribe((newValue: Array<getEntityType<S>>) => {
           this.getStore().set(newValue);
         });
       }
@@ -142,7 +142,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    *
    *
    */
-  selectFilters(): Observable<AkitaFilter<S>[]> {
+  selectFilters(): Observable<Array<AkitaFilter<S>>> {
     return this._selectFiltersAll$;
   }
 
@@ -152,7 +152,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    *  Note: filters with hide=true, will not be displayed. If you want it, call directly to:
    * `this.filtersQuery.getAll()`
    */
-  getFilters(): AkitaFilter<S>[] {
+  getFilters(): Array<AkitaFilter<S>> {
     return this._filtersQuery.getAll({filterBy: filter => !filter.hide});
   }
 
@@ -162,7 +162,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    *  Note: filters with server=false, will not be displayed. If you want it, call directly to:
    * `this.filtersQuery.getAll()`
    */
-  getServerFilters(): AkitaFilter<S>[] {
+  getServerFilters(): Array<AkitaFilter<S>> {
     return this.server ? this._filtersQuery.getAll({filterBy: filter => filter.server}) : this.getFilters();
   }
 
@@ -172,7 +172,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    */
   selectAllByFilters(options?: SelectAllOptionsA<E>
     | SelectAllOptionsB<E> | SelectAllOptionsC<E> |
-    SelectAllOptionsD<E> | SelectAllOptionsE<E> | any): Observable<getEntityType<S>[] | HashMap<getEntityType<S>>> {
+    SelectAllOptionsD<E> | SelectAllOptionsE<E> | any): Observable<Array<getEntityType<S>> | HashMap<getEntityType<S>>> {
     if (options && options.asObject) {
       return combineLatest(this._selectFilters$, this.getQuery().selectAll(options)).pipe(
         map(([filters, entities]) => {
@@ -185,7 +185,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
       return combineLatest(this._selectFilters$, this.getQuery().selectAll(options), this.selectSortBy()).pipe(
         map(([filters, entities, sort]) => {
           const unkNowEntity: unknown = entities;
-          return this._applyFiltersForArray((unkNowEntity as getEntityType<S>[]), filters, sort);
+          return this._applyFiltersForArray((unkNowEntity as Array<getEntityType<S>>), filters, sort);
         })
       );
     }
@@ -205,7 +205,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   /**
    * Create or update multiples filters
    */
-  setFilters(filters: Partial<AkitaFilter<S>>[]) {
+  setFilters(filters: Array<Partial<AkitaFilter<S>>>) {
     if (!filters) { return; }
     const entities = filters.map((filter => {
       if (this.server && isUndefined(filter.server)) {
@@ -320,12 +320,12 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   }
 
   private _applyFiltersForArray(
-    entities: getEntityType<S>[],
-    filters: AkitaFilter<S>[],
-    sort: ObservedValueOf<Observable<SortByOptions<E> | null>>): getEntityType<S>[] {
+    entities: Array<getEntityType<S>>,
+    filters: Array<AkitaFilter<S>>,
+    sort: ObservedValueOf<Observable<SortByOptions<E> | null>>): Array<getEntityType<S>> {
     let entitiesFiltered = entities;
     if (filters.length !== 0) {
-      entitiesFiltered = entities.filter((entity: getEntityType<S>, index: number, array: getEntityType<S>[]) => {
+      entitiesFiltered = entities.filter((entity: getEntityType<S>, index: number, array: Array<getEntityType<S>>) => {
         return filters.every((filter: AkitaFilter<S>) => {
           if (filter.predicate) {
             return !!filter.predicate(entity, index, array, filter);
@@ -344,7 +344,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
 
   private _applyFiltersForHashMap(
     entities: HashMap<getEntityType<S>>,
-    filters: AkitaFilter<S>[]): HashMap<getEntityType<S>> {
+    filters: Array<AkitaFilter<S>>): HashMap<getEntityType<S>> {
     if (filters.length === 0) {
       return entities;
     }
@@ -359,9 +359,9 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
       return hashMapFiltered;
   }
 
-  private _applyFiltersForOneEntity(filters: AkitaFilter<S>[],
-                                    entity: getEntityType<S>, index: number,
-                                    array: getEntityType<S>[] | HashMap<getEntityType<S>>) {
+  private _applyFiltersForOneEntity(filters: Array<AkitaFilter<S>>,
+                                    entity: Array<getEntityType<S>>, index: number,
+                                    array: Array<getEntityType<S>> | HashMap<getEntityType<S>>) {
     return filters.every((filter: AkitaFilter<S>) => {
       if (filter.predicate) {
         return !!filter.predicate(entity, index, array, filter);
