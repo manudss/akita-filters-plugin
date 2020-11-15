@@ -462,7 +462,7 @@ Define your data source here :
 
 Import it with submodule package : 
 ```typescript
-import { AkitaMatDataSource } from 'akita-filters-plugins/datasource';
+import { AkitaMatDataSource } from 'akita-filters-plugin/datasource';
 ```
 
 then use it in Mat Data Table like other DataSource. 
@@ -576,11 +576,11 @@ Akita-mat-data-source is now a subpackage to avoid error with akita-filters-plug
 
 Changes this 
 ```typescript
-import { AkitaMatDataSource } from 'akita-filters-plugins';
+import { AkitaMatDataSource } from 'akita-filters-plugin';
 ```
 to 
 ```typescript
-import { AkitaMatDataSource } from 'akita-filters-plugins/datasource';
+import { AkitaMatDataSource } from 'akita-filters-plugin/datasource';
 ```
 
 
