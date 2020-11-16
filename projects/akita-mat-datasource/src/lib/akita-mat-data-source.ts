@@ -185,7 +185,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   }
 
   set total(value: number) {
-    this.paginator?.length = value;
+    if (this.paginator) {
+      this.paginator.length = value;
+    }
   }
 
   /**
@@ -225,7 +227,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   /**
    *  add or update multiple filter to filters plugins
    */
-  setFilters(filters: Partial<Array<AkitaFilter<S>>>): void {
+  setFilters(filters: Array<Partial<AkitaFilter<S>>>): void {
     this._filters.setFilters(filters);
   }
 
