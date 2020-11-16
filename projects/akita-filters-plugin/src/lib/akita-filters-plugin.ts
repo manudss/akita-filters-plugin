@@ -360,7 +360,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   }
 
   private _applyFiltersForOneEntity(filters: Array<AkitaFilter<S>>,
-                                    entity: Array<getEntityType<S>>, index: number,
+                                    entity: getEntityType<S>, index: number,
                                     array: Array<getEntityType<S>> | HashMap<getEntityType<S>>) {
     return filters.every((filter: AkitaFilter<S>) => {
       if (filter.predicate) {
