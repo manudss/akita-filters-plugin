@@ -7,7 +7,7 @@ import {PhotosQuery} from './users-query.service';
 export class PhotosService extends NgEntityService<PhotosState> {
 
 
-  constructor(protected store: PhotosStore, protected query: PhotosQuery) {
+  constructor(protected store: PhotosStore | any, protected query: PhotosQuery) {
     super(store);
   }
 
