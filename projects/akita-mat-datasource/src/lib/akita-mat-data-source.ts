@@ -27,12 +27,12 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   private _filters: AkitaFiltersPlugin<S>;
   /** if set a custom filter plugins, do not delete all in disconnect() **/
   private _hasCustomFilters: boolean;
-  private _selectAllByFilter$: Observable<Array<E>>;
+  private _selectAllByFilter$: Observable<E[]>;
   private _count$: BehaviorSubject<number>;
   /** Used to react to internal changes of the paginator that are made by the data source itself. */
   private readonly _internalPageChanges = new Subject<void>();
   /** Stream emitting render data to the table (depends on ordered data changes). */
-  private readonly _renderData = new BehaviorSubject<Array<E>>([]);
+  private readonly _renderData = new BehaviorSubject<E[]>([]);
   /** Used to react to internal changes of the paginator that are made by the data source itself. */
   private readonly _disconnect = new Subject<void>();
   private _dataSourceOptions: DataSourceWithServerOptions;
@@ -185,7 +185,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   }
 
   set total(value: number) {
-    this.paginator?.length = value;
+    if (this.paginator) {
+      this.paginator.length = value;
+    }
   }
 
   /**
@@ -225,7 +227,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   /**
    *  add or update multiple filter to filters plugins
    */
-  setFilters(filters: Partial<Array<AkitaFilter<S>>>): void {
+  setFilters(filters: Array<Partial<AkitaFilter<S>>>): void {
     this._filters.setFilters(filters);
   }
 
@@ -289,7 +291,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   /**
    * Function used by matTable to subscribe to the data
    */
-  connect(): Observable<Array<E>> {
+  connect(): Observable<E[]> {
     return this._renderData;
   }
 
@@ -410,7 +412,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
 
   }
 
-  private _updateCount(value: Array<E>) {
+  private _updateCount(value: E[]) {
     const count = value.length ? value.length : 0;
     if (count !== this._count$.getValue() && !this._dataSourceOptions.serverPagination) {
       this._count$.next(count);
@@ -423,7 +425,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * Paginate the data (client-side). If you're using server-side pagination,
    * this would be replaced by requesting the appropriate data from the server.
    */
-  private _pageData(data: Array<E>) {
+  private _pageData(data: E[]) {
     this._updateCount(data);
     if (!this.paginator || this._dataSourceOptions.serverPagination) {
       return data;
