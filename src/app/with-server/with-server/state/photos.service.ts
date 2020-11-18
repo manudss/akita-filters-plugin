@@ -6,15 +6,7 @@ import {PhotosQuery} from './users-query.service';
 @Injectable({ providedIn: 'root' })
 export class PhotosService extends NgEntityService<PhotosState> {
 
-
-  constructor(protected store: PhotosStore | any, protected query: PhotosQuery) {
-    super(store);
+  constructor(store: PhotosStore, protected query: PhotosQuery) {
+    super(store as any);
   }
-
-  /*get(params: {
-    [param: string]: string | string[];
-  }) {
-    return this.http.get(`https://jsonplaceholder.typicode.com/photos`, {params});
-  }*/
-
 }

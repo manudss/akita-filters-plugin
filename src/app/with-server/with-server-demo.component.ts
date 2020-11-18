@@ -81,17 +81,20 @@ export class WithServerDemoComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // noinspection TypeScriptValidateTypes
     this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService, {
-      searchFilterId: 'title_like',
+      searchFilterId: 'title_like', serverPagination: false,
+    });
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.dataSource.total = 5000;
+    this.dataSource.withOptions({
       pageSizeId: '_limit',
       pageSizeDisplay: true,
       pageIndexId: '_page',
       pageIndexDisplay: true,
       serverPagination: true,
     });
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-    this.dataSource.total = 5000;
   }
 
   updatePaginator($event) {

@@ -199,6 +199,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
       filter.server = true;
     }
     const entity = createFilter(filter);
+    // noinspection TypeScriptValidateTypes
     this.filtersStore.upsert(entity.id, entity);
   }
 
