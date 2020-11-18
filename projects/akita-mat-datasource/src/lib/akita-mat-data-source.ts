@@ -83,6 +83,11 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     this.search = searchQuery;
   }
 
+  get filter(): string {
+    return this.search;
+  }
+
+
   /**
    * filter all the list by a search term.
    *
@@ -97,6 +102,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       // noinspection TypeScriptValidateTypes
       this._filters.setFilter({id: this._dataSourceOptions.searchFilterId, value: searchQuery, name: searchQuery});
     }
+  }
+  get search(): string {
+    return this._filters.getFilterValue<string>(this._dataSourceOptions.searchFilterId);
   }
 
   /**
@@ -188,12 +196,20 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   }
 
   withOptions(dataSourceOptions: DataSourceWithServerOptions) {
+    this.options = dataSourceOptions;
+    return this;
+  }
+
+  set options(dataSourceOptions: DataSourceWithServerOptions)  {
     this._dataSourceOptions = {
       ...this._dataSourceOptions,
       ...dataSourceOptions
     };
     this.updateSubscriptions();
-    return this;
+  }
+
+  get options(): DataSourceWithServerOptions {
+    return this._dataSourceOptions;
   }
 
   /**

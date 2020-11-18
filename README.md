@@ -580,6 +580,13 @@ See exemple in exemple page "photos"
 });
 ```
 
+You can also set options after constructor with function : 
+```typescript
+    this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService).withOptions({
+    serverPagination: true, // set to true, to use server side pagination.    
+});
+```
+
 
 But you will need to set the total by your one, depending on how you get this information.
 
