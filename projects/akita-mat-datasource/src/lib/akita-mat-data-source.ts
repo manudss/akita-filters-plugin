@@ -10,14 +10,15 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {AkitaFilter, AkitaFiltersPlugin, WithServerOptions} from 'akita-filters-plugin';
 
 export interface DataSourceWithServerOptions {
-  searchFilterId?: string;
-  serverPagination?: boolean;
-  pageIndexId?: string;
-  pageIndexName?: string;
-  pageIndexDisplay?: boolean;
-  pageSizeId?: string;
-  pageSizeName?: string;
-  pageSizeDisplay?: boolean;
+  searchFilterId?: string; // Id used for search when use search in filters
+  serverPagination?: boolean; // Use server pagnidation
+  pageIndexId?: string; // Id used for page Index ID
+  pageIndexName?: string; // Name used to display page index filter
+  pageIndexDisplay?: boolean; // True to enable display
+  pageSizeId?: string; // Page size for Size ID
+  pageSizeName?: string; // Name for display page size filter
+  pageSizeDisplay?: boolean; // Display page size filter
+  debounceTimeBetweenToChanges?: number; // Debounce time number between to changes, to avoid closest multiples changes
 }
 
 export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
@@ -93,6 +94,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     if (searchQuery === '' || !searchQuery) {
       this._filters.removeFilter(this._dataSourceOptions.searchFilterId);
     } else {
+      // noinspection TypeScriptValidateTypes
       this._filters.setFilter({id: this._dataSourceOptions.searchFilterId, value: searchQuery, name: searchQuery});
     }
   }
@@ -132,11 +134,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
 
   set paginator(paginator: MatPaginator | any) {
     this._paginator = paginator;
-    if (this.server && this._dataSourceOptions.serverPagination) {
-      this._subscribeServerPagination(paginator);
-    } else {
-      this._updateChangeSubscription();
-    }
+    this.updateSubscriptions();
   }
 
   private _sort: MatSort | any = null;
@@ -168,7 +166,6 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     });
   }
 
-
   get server(): boolean {
     return this.akitaFiltersPlugIn.server;
   }
@@ -188,6 +185,15 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     if (this.paginator) {
       this.paginator.length = value;
     }
+  }
+
+  withOptions(dataSourceOptions: DataSourceWithServerOptions) {
+    this._dataSourceOptions = {
+      ...this._dataSourceOptions,
+      ...dataSourceOptions
+    };
+    this.updateSubscriptions();
+    return this;
   }
 
   /**
@@ -308,6 +314,14 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     this._disconnect.complete();
   }
 
+  private updateSubscriptions() {
+    if (this.server && this._dataSourceOptions.serverPagination) {
+      this._subscribeServerPagination(this._paginator);
+    } else {
+      this._updateChangeSubscription();
+    }
+  }
+
   /**
    * Subscribe to changes that should trigger an update to the table's rendered rows. When the
    * changes occur, process the current state of the filter, sort, and pagination along with
@@ -341,7 +355,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     this._renderChangesSubscription.unsubscribe();
     this._renderChangesSubscription = subscription.pipe(
       takeUntil(this._disconnect),
-      debounceTime(50)
+      debounceTime(this._dataSourceOptions.debounceTimeBetweenToChanges)
     )
       .subscribe(data => this._renderData.next(data));
 
@@ -380,8 +394,17 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   }
 
   private _subscribeServerPagination(paginator: any) {
+    const {
+      pageSizeName,
+      pageSizeDisplay,
+      pageIndexId,
+      serverPagination,
+      pageIndexDisplay,
+      pageSizeId,
+      pageIndexName
+    } = this._dataSourceOptions;
 
-    if (paginator && this._dataSourceOptions.serverPagination) {
+    if (paginator && serverPagination) {
       const paginatedData = merge(
         this.paginator.page,
         this._internalPageChanges,
@@ -390,23 +413,24 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       this._serverPaginationSubscription.unsubscribe();
       this._serverPaginationSubscription = paginatedData.pipe(takeUntil(this._disconnect))
         .subscribe(() => {
+          // noinspection TypeScriptValidateTypes
           this.setFilters([{
-            id: this._dataSourceOptions.pageIndexId,
+            id: pageIndexId,
             value: this.paginator.pageIndex,
-            hide: !this._dataSourceOptions.pageIndexDisplay,
-            name: `${this._dataSourceOptions.pageIndexName}: ${this.paginator.pageIndex}`,
+            hide: !pageIndexDisplay,
+            name: `${pageIndexName}: ${this.paginator.pageIndex}`,
             server: true
           }, {
-            id: this._dataSourceOptions.pageSizeId,
+            id: pageSizeId,
             value: this.paginator.pageSize,
-            hide: !this._dataSourceOptions.pageSizeDisplay,
-            name: `${this._dataSourceOptions.pageSizeName}: ${this.paginator.pageSize}`,
+            hide: !pageSizeDisplay,
+            name: `${pageSizeName}: ${this.paginator.pageSize}`,
             server: true
           }]);
         });
       this._internalPageChanges.next();
     } else {
-      this.removeFilters([this._dataSourceOptions.pageIndexId, this._dataSourceOptions.pageSizeId]);
+      this.removeFilters([pageIndexId, pageSizeId]);
       this._serverPaginationSubscription.unsubscribe();
     }
 
