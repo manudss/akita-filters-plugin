@@ -95,6 +95,8 @@ export class WithServerDemoComponent implements OnInit {
       pageIndexDisplay: true,
       serverPagination: true,
     });
+
+    this.photosService.total$.subscribe((total) => this.dataSource.total = total);
   }
 
   updatePaginator($event) {
