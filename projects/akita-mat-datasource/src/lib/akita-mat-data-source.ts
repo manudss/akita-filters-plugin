@@ -314,7 +314,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * Function used by matTable to subscribe to the data
    */
   connect(): Observable<E[]> {
-    return this._renderData;
+    return this._renderData.pipe(takeUntil(this._disconnect));
   }
 
   /**
@@ -326,6 +326,8 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       this._filters.clearFilters();
       this._filters.destroy();
     }
+    this._renderChangesSubscription?.unsubscribe();
+    this._serverPaginationSubscription?.unsubscribe();
     this._disconnect.next();
     this._disconnect.complete();
   }
@@ -333,9 +335,8 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   private updateSubscriptions() {
     if (this.server && this._dataSourceOptions.serverPagination) {
       this._subscribeServerPagination(this._paginator);
-    } else {
-      this._updateChangeSubscription();
     }
+    this._updateChangeSubscription();
   }
 
   /**
