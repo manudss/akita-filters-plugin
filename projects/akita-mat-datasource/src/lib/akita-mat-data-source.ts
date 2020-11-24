@@ -355,7 +355,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       subscription = combineLatest([this._selectAllByFilter$, pageChange])
         .pipe(map(([data, page]) => this._pageData(data)));
     } else {
-      subscription = this._selectAllByFilter$;
+      subscription = this._selectAllByFilter$.pipe(tap(data => this._updateCount(data)));
     }
     subscription.pipe(
       takeUntil(this._disconnect),
@@ -444,10 +444,10 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
 
   private _updateCount(value: E[]) {
     const count = value.length ? value.length : 0;
-    if (count !== this._count$.getValue() && !this._dataSourceOptions.serverPagination) {
+    if (count !== this._count$.getValue()) {
       this._count$.next(count);
 
-      this._updatePaginator(count);
+      if (this.paginator && !this._dataSourceOptions.serverPagination) { this._updatePaginator(count); }
     }
   }
 

@@ -6,13 +6,14 @@
       <input matInput placeholder="Placeholder" [(ngModel)]="dataSource.search">
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
-    <mat-slide-toggle (change)="updatePaginator($event)" [checked]="usePaginator">Use pagninator </mat-slide-toggle>
+    <mat-slide-toggle (change)="updatePaginator($event)" [checked]="usePaginator">Use paginator </mat-slide-toggle>
+
     <mat-chip-list>
     <mat-chip *ngFor="let filter of (dataSource.akitaFiltersPlugIn.selectFilters() | async)">
       {{filter.name}} <mat-icon matChipRemove  (click)="dataSource.removeFilter(filter.id)">cancel</mat-icon>
     </mat-chip>
   </mat-chip-list>
-
+    <span>Count : {{count$ | async}}</span>
   </p>
 
 

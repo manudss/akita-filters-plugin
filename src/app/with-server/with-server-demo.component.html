@@ -28,7 +28,7 @@
       {{filter.name}} <mat-icon matChipRemove  (click)="dataSource.removeFilter(filter.id)">cancel</mat-icon>
     </mat-chip>
   </mat-chip-list>
-
+    <span>Count : {{count$ | async}} / Total : {{dataSource.total}}</span>
   </p>
 
 

@@ -5,6 +5,7 @@ import {MatSort} from '@angular/material/sort';
 import {PhotosState} from './with-server/state/photos-store.service';
 import {PhotosQuery} from './with-server/state/users-query.service';
 import {PhotosFiltersService} from './with-server/photos-filters.service';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-angular-material-demo',
@@ -20,6 +21,7 @@ export class WithServerDemoComponent implements OnInit {
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['id', 'albumId', 'title', 'thumbnailUrl'];
   public usePaginator: boolean = true;
+  count$: Observable<number>;
 
   constructor(
     private photosService: PhotosFiltersService,
@@ -88,6 +90,7 @@ export class WithServerDemoComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     this.dataSource.total = 5000;
+    this.count$ = this.dataSource.selectCount();
     this.dataSource.withOptions({
       pageSizeId: '_limit',
       pageSizeDisplay: true,
