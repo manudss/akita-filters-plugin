@@ -8,4 +8,5 @@ export interface DataSourceWithServerOptions {
     pageSizeName?: string; // Name for display page size filter
     pageSizeDisplay?: boolean; // Display page size filter
     debounceTimeBetweenTwoChanges?: number; // Debounce time number between two changes, to avoid closest multiples changes events
+    resetPageIndexOnFiltersChange?: boolean; // If true, will resets page Index after each filters changes (default: true)
 }

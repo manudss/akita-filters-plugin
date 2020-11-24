@@ -2,8 +2,7 @@
 import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, Subject, Subscription} from 'rxjs';
 import {EntityState, getEntityType, HashMap, ID, Order, QueryEntity} from '@datorama/akita';
-
-import {debounceTime, map, takeUntil, tap} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, map, takeUntil, tap} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 // @ts-ignore
@@ -12,11 +11,15 @@ import {DataSourceWithServerOptions} from './data-source-with-server-options.mod
 
 export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
 
+  /**
+   * subscribe to be noticed when a filters has changed (and with server pagination, will exclude pagination filters).
+   */
+  public onFiltersChanges$: Observable<Array<AkitaFilter<S>>>;
 
   private _dataQuery: QueryEntity<E>;
   private _filters: AkitaFiltersPlugin<S>;
   /** if set a custom filter plugins, do not delete all in disconnect() **/
-  private _hasCustomFilters: boolean;
+  private _hasCustomAkitaFiltersPlugins: boolean;
   private _selectAllByFilter$: Observable<E[]>;
   private _count$: BehaviorSubject<number>;
   /** Used to react to internal changes of the paginator that are made by the data source itself. */
@@ -54,16 +57,29 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       pageSizeId: 'size',
       pageSizeName: 'Size',
       pageSizeDisplay: false,
+      debounceTimeBetweenTwoChanges: 60,
+      resetPageIndexOnFiltersChange: true,
       ...dataSourceOptions
     };
     this._dataQuery = query;
 
     this._filters = akitaFilters ? akitaFilters : new AkitaFiltersPlugin<S>(query);
-    this._hasCustomFilters = !!akitaFilters;
+    this._hasCustomAkitaFiltersPlugins = !!akitaFilters;
     this._count$ = new BehaviorSubject(0);
 
+    this.onFiltersChanges$ = this._filters.filtersQuery.selectAll({
+      sortBy: 'order',
+      filterBy: filter => filter.id !== this.options.pageIndexId && filter.id !== this.options.pageSizeId
+    }).pipe(distinctUntilChanged((x, y) => {
+      if (x?.length !== y?.length) { return false; }
+      return !x.some((filterX) => {
+        const find = y.find(filterY => filterY.id === filterX.id);
+        return !(find && find?.value === filterX?.value);
+      });
+    }));
     this._updateChangeSubscription();
   }
+
 
   /**
    * @param searchQuery teh string use to search
@@ -311,7 +327,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * @docs-private
    */
   disconnect(): void {
-    if (!this._hasCustomFilters) {
+    if (!this._hasCustomAkitaFiltersPlugins) {
       this._filters.clearFilters();
       this._filters.destroy();
     }
@@ -407,7 +423,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       serverPagination,
       pageIndexDisplay,
       pageSizeId,
-      pageIndexName
+      pageIndexName,
+      debounceTimeBetweenTwoChanges,
+      resetPageIndexOnFiltersChange
     } = this._dataSourceOptions;
 
     if (paginator && serverPagination) {
@@ -440,6 +458,11 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       this._serverPaginationSubscription.unsubscribe();
     }
 
+    if (resetPageIndexOnFiltersChange) {
+      this.onFiltersChanges$.subscribe((data) => {
+        if (this.paginator.pageIndex > 0 && data?.length > 0) { this.paginator.firstPage(); }
+      });
+    }
   }
 
   private _updateCount(value: E[]) {
