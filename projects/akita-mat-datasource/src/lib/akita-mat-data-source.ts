@@ -3,7 +3,7 @@ import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, Subject, Subscription} from 'rxjs';
 import {EntityState, getEntityType, HashMap, ID, Order, QueryEntity} from '@datorama/akita';
 
-import {debounceTime, map, takeUntil} from 'rxjs/operators';
+import {debounceTime, map, takeUntil, tap} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 // @ts-ignore
@@ -368,13 +368,13 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     } else {
       subscription = this._selectAllByFilter$;
     }
+    subscription.pipe(
+      takeUntil(this._disconnect),
+      debounceTime(this._dataSourceOptions.debounceTimeBetweenTwoChanges)
+    );
     // Watched for paged data changes and send the result to the table to render.
     this._renderChangesSubscription.unsubscribe();
-    this._renderChangesSubscription = subscription.pipe(
-      takeUntil(this._disconnect),
-      debounceTime(this._dataSourceOptions.debounceTimeBetweenToChanges)
-    )
-      .subscribe(data => this._renderData.next(data));
+    this._renderChangesSubscription = subscription.subscribe(data => this._renderData.next(data));
 
     this._internalPageChanges.next();
   }
