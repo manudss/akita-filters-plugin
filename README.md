@@ -577,6 +577,8 @@ See exemple in exemple page "photos"
     pageSizeId: '_limit', // you can set the id of this filter, usefull if the params is different for you (default : "size")
     pageSizeDisplay: true, // Set to true to display size filter (default: false)
     pageSizeName: 'Size', // Set the Name, to you filter, usefull if you want to display the filter : "Name: (value)" (default: "Size")
+    debounceTimeBetweenTwoChanges: 60, // Debounce time number between two changes, to avoid closest multiples changes events  
+    resetPageIndexOnFiltersChange: true, // If true, will resets page Index after each filters changes (default: true)
 });
 ```
 
@@ -595,7 +597,14 @@ But you will need to set the total by your one, depending on how you get this in
     console.log('total number', this.dataSource.total); // or get the setted total, was the length setted in Mat Paginator
 ```
 
+#### Subscribe to filters changes
 
+subscribe to be noticed when a filters has changed (and with server pagination, will exclude pagination filters).
+```typescript
+    this.dataSource.onFiltersChanges$.subscribe(() => {
+      // have some actions here 
+    });
+```
 
 ### AkitaFilters properties : get akitaFiltersPlugin(): AkitaFiltersPlugin<EntityState>
 
