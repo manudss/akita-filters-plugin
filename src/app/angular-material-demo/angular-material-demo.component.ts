@@ -4,6 +4,7 @@ import {ProductPlant, ProductPlantState, ProductsFiltersQuery, ProductsFiltersSe
 import {CartService} from '../cart/state';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-angular-material-demo',
@@ -19,10 +20,13 @@ export class AngularMaterialDemoComponent implements OnInit {
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['id', 'title'];
   public usePaginator: boolean = true;
+  count$: Observable<number>;
 
 
   ngOnInit(): void {
+    // noinspection TypeScriptValidateTypes
     this.dataSource = new AkitaMatDataSource<ProductPlantState>(this.productsQuery, this.productsService.filtersProduct);
+    this.count$ = this.dataSource.selectCount();
     this.productsService.get().subscribe();
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -36,7 +40,7 @@ export class AngularMaterialDemoComponent implements OnInit {
 
   updatePaginator($event) {
     this.usePaginator = $event.checked;
-    this.dataSource.paginator = (this.usePaginator)? this.paginator : null;
+    this.dataSource.paginator = (this.usePaginator) ? this.paginator : null;
   }
 
 
