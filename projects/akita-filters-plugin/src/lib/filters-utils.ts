@@ -1,5 +1,5 @@
 
-import {isDefined, isString, isObject, HashMap, getEntityType} from '@datorama/akita';
+import {isDefined, isString, isObject, HashMap, getEntityType, isArray} from '@datorama/akita';
 import {AkitaFilter} from './akita-filters-store';
 
 /**
@@ -33,3 +33,21 @@ export function searchFilterIn( searchKey: string, inObj: Object, inKey: string 
     && isString(inObj[inKey])
     && inObj[inKey].toLocaleLowerCase().includes(searchKey.toLocaleLowerCase());
 }
+
+
+/**
+ * Function to compare changes between two AkitaFilters arrays
+ */
+export function compareFiltersArray<S = any>(x: Array<AkitaFilter<S>>, y: Array<AkitaFilter<S>>) {
+  if (!x && !y) { return true; }
+  if (!x || !y || x.length !== y.length) { return false; }
+  return !x.some((filterX) => {
+    const find = y.find(filterY => filterY.id === filterX.id);
+    return !(find && find.value === filterX.value);
+  });
+}
+
+export const getCompareFilters = (): Function => {
+  return compareFiltersArray;
+};
+

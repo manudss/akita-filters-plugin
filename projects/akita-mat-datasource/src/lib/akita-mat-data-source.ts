@@ -2,12 +2,13 @@
 import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, Subject, Subscription} from 'rxjs';
 import {EntityState, getEntityType, HashMap, ID, Order, QueryEntity} from '@datorama/akita';
-import {debounceTime, distinctUntilChanged, map, takeUntil, tap} from 'rxjs/operators';
+import {debounceTime, map, takeUntil, tap} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 // @ts-ignore
 import {AkitaFilter, AkitaFiltersPlugin, WithServerOptions} from 'akita-filters-plugin';
 import {DataSourceWithServerOptions} from './data-source-with-server-options.model';
+import {compareFiltersArray} from '../../../akita-filters-plugin/src/lib';
 
 export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
 
@@ -35,6 +36,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    */
   private _renderChangesSubscription = Subscription.EMPTY;
   private _serverPaginationSubscription: Subscription = Subscription.EMPTY;
+  private _previousFilters: Array<AkitaFilter<S>>;
 
   /**
    * Data source to use an Akita EntityStore with a Material table
@@ -67,19 +69,21 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     this._hasCustomAkitaFiltersPlugins = !!akitaFilters;
     this._count$ = new BehaviorSubject(0);
 
+    this._previousFilters = [];
+
     this.onFiltersChanges$ = this._filters.filtersQuery.selectAll({
       sortBy: 'order',
       filterBy: filter => filter.id !== this.options.pageIndexId && filter.id !== this.options.pageSizeId
-    }).pipe(distinctUntilChanged((x, y) => {
-      if (x?.length !== y?.length) { return false; }
-      return !x.some((filterX) => {
-        const find = y.find(filterY => filterY.id === filterX.id);
-        return !(find && find?.value === filterX?.value);
-      });
-    }));
+    }).pipe(
+      filter((current) => !compareFiltersArray<S>(this._previousFilters, current)),
+      tap((data) => this._previousFilters = data),
+    );
     this._updateChangeSubscription();
   }
 
+  get filter(): string {
+    return this.search;
+  }
 
   /**
    * @param searchQuery teh string use to search
@@ -88,10 +92,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     this.search = searchQuery;
   }
 
-  get filter(): string {
-    return this.search;
+  get search(): string {
+    return this._filters.getFilterValue<string>(this._dataSourceOptions.searchFilterId);
   }
-
 
   /**
    * filter all the list by a search term.
@@ -107,9 +110,6 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       // noinspection TypeScriptValidateTypes
       this._filters.setFilter({id: this._dataSourceOptions.searchFilterId, value: searchQuery, name: searchQuery});
     }
-  }
-  get search(): string {
-    return this._filters.getFilterValue<string>(this._dataSourceOptions.searchFilterId);
   }
 
   /**
@@ -200,12 +200,11 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     }
   }
 
-  withOptions(dataSourceOptions: DataSourceWithServerOptions) {
-    this.options = dataSourceOptions;
-    return this;
+  get options(): DataSourceWithServerOptions {
+    return this._dataSourceOptions;
   }
 
-  set options(dataSourceOptions: DataSourceWithServerOptions)  {
+  set options(dataSourceOptions: DataSourceWithServerOptions) {
     this._dataSourceOptions = {
       ...this._dataSourceOptions,
       ...dataSourceOptions
@@ -213,8 +212,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     this.updateSubscriptions();
   }
 
-  get options(): DataSourceWithServerOptions {
-    return this._dataSourceOptions;
+  withOptions(dataSourceOptions: DataSourceWithServerOptions) {
+    this.options = dataSourceOptions;
+    return this;
   }
 
   /**
@@ -460,7 +460,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
 
     if (resetPageIndexOnFiltersChange) {
       this.onFiltersChanges$.subscribe((data) => {
-        if (this.paginator.pageIndex > 0 && data?.length > 0) { this.paginator.firstPage(); }
+        if (this.paginator.pageIndex > 0 && data?.length > 0) {
+          this.paginator.firstPage();
+        }
       });
     }
   }
@@ -470,7 +472,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     if (count !== this._count$.getValue()) {
       this._count$.next(count);
 
-      if (this.paginator && !this._dataSourceOptions.serverPagination) { this._updatePaginator(count); }
+      if (this.paginator && !this._dataSourceOptions.serverPagination) {
+        this._updatePaginator(count);
+      }
     }
   }
 
