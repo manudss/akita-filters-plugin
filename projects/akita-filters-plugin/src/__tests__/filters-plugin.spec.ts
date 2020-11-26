@@ -349,7 +349,7 @@ describe('AkitaFiltersPlugin', () => {
         let filtersWithServer;
 
         beforeEach(() => {
-          filtersQuery = {selectAll: jest.fn().mockReturnValue(of([])), select: jest.fn(), selectSortBy: jest.fn(), getAll: jest.fn()};
+          filtersQuery = {selectAll: jest.fn().mockReturnValue(of([])), select: jest.fn().mockReturnValue(of([])), selectSortBy: jest.fn().mockReturnValue(of([])), getAll: jest.fn()};
           withServerFunc = jest.fn();
           // @ts-ignore
           filtersWithServer = new AkitaFiltersPlugin(widgetsQuery, {filtersQuery});
