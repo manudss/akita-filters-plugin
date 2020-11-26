@@ -1,4 +1,4 @@
-import {AkitaFilter, compareFiltersArray, createFilter, defaultFilter} from 'akita-filters-plugin';
+import {AkitaFilter, compareFiltersArray, createFilter, defaultFilter} from '../lib/index';
 
 describe('Filters-utils :', () => {
   describe('Compare Filters Array to find if their is equals', () => {
