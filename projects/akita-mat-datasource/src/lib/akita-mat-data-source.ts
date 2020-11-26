@@ -6,9 +6,8 @@ import {debounceTime, map, takeUntil, tap, filter, share} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 // @ts-ignore
-import {AkitaFilter, AkitaFiltersPlugin, WithServerOptions} from 'akita-filters-plugin';
+import {AkitaFilter, AkitaFiltersPlugin, WithServerOptions, compareFiltersArray} from 'akita-filters-plugin';
 import {DataSourceWithServerOptions} from './data-source-with-server-options.model';
-import {compareFiltersArray} from '../../../akita-filters-plugin/src/lib';
 
 export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
 
