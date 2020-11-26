@@ -1,7 +1,7 @@
 import {AkitaFilter, AkitaFiltersStore, createFilter, FiltersState} from './akita-filters-store';
 import {AkitaFiltersQuery} from './akita-filters-query';
-import {combineLatest, isObservable, Observable, ObservedValueOf, Subscription} from 'rxjs';
-import {distinctUntilChanged, map} from 'rxjs/operators';
+import {combineLatest, isObservable, Observable, ObservedValueOf, of, Subscription} from 'rxjs';
+import {distinctUntilChanged, map, share} from 'rxjs/operators';
 import {
   compareValues,
   EntityCollectionPlugin,
@@ -62,9 +62,9 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     this._filtersStore = (params.filtersStore) ? params.filtersStore : new AkitaFiltersStore<S>(this.params.filtersStoreName);
     this._filtersQuery = (params.filtersQuery) ? params.filtersQuery : new AkitaFiltersQuery<S>(this._filtersStore);
 
-    this._selectFilters$ = this.filtersQuery.selectAll({sortBy: 'order'});
-    this._selectFiltersAll$ = this.filtersQuery.selectAll({sortBy: 'order', filterBy: filter => !filter.hide});
-    this._selectSortBy$ = this.filtersQuery.select(state => state && state.sort ? state.sort : null);
+    this._selectFilters$ = this.filtersQuery.selectAll({sortBy: 'order'}).pipe(share());
+    this._selectFiltersAll$ = this.filtersQuery.selectAll({sortBy: 'order', filterBy: filter => !filter?.hide}).pipe(share());
+    this._selectSortBy$ = this.filtersQuery.select(state => state?.sort).pipe(share());
   }
 
   get filtersStore(): AkitaFiltersStore<S> {
@@ -93,7 +93,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     this._onChangeFilter = onChangeFilter;
 
     // Change default select filters to remove server filters, if you use selectAllByFilters();
-    this._selectFilters$ = this._filtersQuery.selectAll({sortBy: 'order', filterBy: filter => !filter.server});
+    this._selectFilters$ = this._filtersQuery.selectAll({sortBy: 'order', filterBy: filter => !filter.server}).pipe(share());
 
     const listObservable: Array<Observable<any>> = [];
     listObservable.push(this._filtersQuery.selectAll({sortBy: 'order', filterBy: filter => filter.server === true})
@@ -101,7 +101,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
 
 
     if (options.withSort) {
-      listObservable.push(this.selectSortBy());
+      listObservable.push(this.selectSortBy() ?? of(null));
     }
 
     combineLatest<Observable<Array<getEntityType<S>>> | Observable<SortByOptions<E> | null>> (listObservable)
@@ -178,7 +178,8 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
         map(([filters, entities]) => {
           const unkNowEntity: unknown = entities;
           return this._applyFiltersForHashMap((unkNowEntity as HashMap<getEntityType<S>>), filters);
-        })
+        }),
+        share(),
       );
     } else {
 
@@ -186,7 +187,8 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
         map(([filters, entities, sort]) => {
           const unkNowEntity: unknown = entities;
           return this._applyFiltersForArray((unkNowEntity as Array<getEntityType<S>>), filters, sort);
-        })
+        }),
+        share(),
       );
     }
   }
@@ -222,7 +224,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
    * Remove a Filter
    */
   removeFilter(id: ID) {
-    this.filtersStore.remove(id);
+    this.filtersStore.remove(id as unknown as OrArray<I>);
   }
 
   /**
@@ -335,9 +337,9 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
         });
       });
     }
-
-    if (sort && sort.sortBy) {
-      const _sortBy: any = isFunction(sort.sortBy) ? sort.sortBy : compareValues(sort.sortBy, sort.sortByOrder);
+    const sortOptions = (sort as SortByOptions<E>);
+    if (sortOptions?.sortBy) {
+      const _sortBy: any = isFunction(sortOptions.sortBy) ? sortOptions.sortBy : compareValues(sortOptions.sortBy, sortOptions.sortByOrder);
       entitiesFiltered = [...entitiesFiltered.sort((a, b) => _sortBy(a, b, entities))];
     }
     return entitiesFiltered;
