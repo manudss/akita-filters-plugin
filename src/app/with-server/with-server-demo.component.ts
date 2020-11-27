@@ -109,6 +109,4 @@ export class WithServerDemoComponent implements OnInit {
       this.limit = '30';
     }
   }
-
-
 }

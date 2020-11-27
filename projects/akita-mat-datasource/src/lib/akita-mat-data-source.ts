@@ -2,7 +2,7 @@
 import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, Subject, Subscription} from 'rxjs';
 import {EntityState, getEntityType, HashMap, ID, Order, QueryEntity} from '@datorama/akita';
-import {debounceTime, map, takeUntil, tap, filter, share} from 'rxjs/operators';
+import {debounceTime, map, takeUntil, tap, filter} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 // @ts-ignore
@@ -76,7 +76,6 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     }).pipe(
       filter((current) => !compareFiltersArray<S>(this._previousFilters, current)),
       tap((data: Array<AkitaFilter<S>>) => this._previousFilters = data),
-      share(),
     );
     this._updateChangeSubscription();
   }
@@ -305,7 +304,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * Select Count filtered results.
    */
   selectCount(): Observable<number> {
-    return this._count$.pipe(share());
+    return this._count$;
   }
 
   /**
@@ -319,7 +318,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * Function used by matTable to subscribe to the data
    */
   connect(): Observable<E[]> {
-    return this._renderData.pipe(takeUntil(this._disconnect), share());
+    return this._renderData.pipe(takeUntil(this._disconnect));
   }
 
   /**
