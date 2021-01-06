@@ -162,7 +162,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * Instance of the MatSort directive used by the table to control its sorting. Sort changes
    * emitted by the MatSort will trigger an update to the table's rendered data.
    *
-   * Important : Must be a MatSort, the type any added was to evit a bug with typescript where MatSort was different in external project.
+   * Important : Must be a MatSort, the type any added was to avoid a bug with typescript where MatSort was different in external project.
    */
   set sort(sort: MatSort | any) {
     this._sort = sort;

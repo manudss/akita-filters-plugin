@@ -54,6 +54,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   private readonly _selectFiltersAll$: Observable<Array<AkitaFilter<S>>>;
   private _onChangeFilter: (filtersNormalized: (string | HashMap<any>)) => any | boolean | Observable<Array<getEntityType<S>>>;
   private _lastServerSubscribtion: Subscription;
+  private _withServerOptions: WithServerOptions;
 
   constructor(protected query: QueryEntity<S>, private params: FiltersParams<S> = {}) {
     super(query, params.entityIds);
@@ -90,6 +91,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     options = {...options};
 
     this.server = true;
+    this._withServerOptions = options;
     this._onChangeFilter = onChangeFilter;
 
     // Change default select filters to remove server filters, if you use selectAllByFilters();
@@ -173,17 +175,26 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   selectAllByFilters(options?: SelectAllOptionsA<E>
     | SelectAllOptionsB<E> | SelectAllOptionsC<E> |
     SelectAllOptionsD<E> | SelectAllOptionsE<E> | any): Observable<Array<getEntityType<S>> | HashMap<getEntityType<S>>> {
+    const listObservable: Array<Observable<any>> = [];
+    listObservable.push(this._selectFilters$, this.getQuery().selectAll(options));
+    let sortBy = this.selectSortBy();
     if (options && options.asObject) {
-      return combineLatest(this._selectFilters$, this.getQuery().selectAll(options)).pipe(
-        map(([filters, entities]) => {
+      return combineLatest(listObservable).pipe(
+        map((values) => {
+          const [filters, entities] = values;
           const unkNowEntity: unknown = entities;
           return this._applyFiltersForHashMap((unkNowEntity as HashMap<getEntityType<S>>), filters);
         }),
       );
     } else {
+      if (this.server && this._withServerOptions?.withSort) {
+        sortBy = sortBy.pipe(map(data => null));
+      }
+      listObservable.push(sortBy);
 
-      return combineLatest(this._selectFilters$, this.getQuery().selectAll(options), this.selectSortBy()).pipe(
-        map(([filters, entities, sort]) => {
+      return combineLatest(listObservable).pipe(
+        map((values) => {
+          const [filters, entities, sort] = values;
           const unkNowEntity: unknown = entities;
           return this._applyFiltersForArray((unkNowEntity as Array<getEntityType<S>>), filters, sort);
         }),
@@ -284,11 +295,10 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     for (const filter of this.getServerFilters()) {
       result[filter.id] = filter.value;
     }
-
-    if (options.withSort) {
-      const sort = this.getSortValue();
-      result[options.sortByKey] = sort.sortBy;
-      result[options.sortByOrderKey] = sort.sortByOrder;
+    const sort = this.getSortValue();
+    if (options.withSort && sort?.sortBy) {
+      result[options.sortByKey] = sort?.sortBy;
+      result[options.sortByOrderKey] = sort?.sortByOrder;
     }
 
     if (options.asQueryParams) {
