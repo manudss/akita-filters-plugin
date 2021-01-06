@@ -2,10 +2,8 @@ import {skip, take} from 'rxjs/operators';
 import {createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore} from './setup';
 import {AkitaFiltersPlugin} from '../lib/akita-filters-plugin';
 import {Order} from '@datorama/akita';
-import jest from '@types/jest';
+import {jest} from '@jest/globals';
 import {of} from 'rxjs';
-
-declare var jest: jest;
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);

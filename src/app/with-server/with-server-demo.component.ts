@@ -1,11 +1,11 @@
-import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {AkitaMatDataSource} from '../../../projects/akita-mat-datasource/src/lib/akita-mat-data-source';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {PhotosState} from './with-server/state/photos-store.service';
 import {PhotosQuery} from './with-server/state/users-query.service';
 import {PhotosFiltersService} from './with-server/photos-filters.service';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-angular-material-demo',
@@ -13,7 +13,7 @@ import {Observable} from 'rxjs';
   styleUrls: ['./with-server-demo.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class WithServerDemoComponent implements OnInit {
+export class WithServerDemoComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: true}) sort: MatSort;
   dataSource: AkitaMatDataSource<PhotosState>;
@@ -22,6 +22,7 @@ export class WithServerDemoComponent implements OnInit {
   displayedColumns = ['id', 'albumId', 'title', 'thumbnailUrl'];
   public usePaginator: boolean = true;
   count$: Observable<number>;
+  private _subscribeTotal: Subscription;
 
   constructor(
     private photosService: PhotosFiltersService,
@@ -87,8 +88,7 @@ export class WithServerDemoComponent implements OnInit {
     this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService, {
       searchFilterId: 'title_like', serverPagination: false,
     });
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+
     this.dataSource.total = 5000;
     this.count$ = this.dataSource.selectCount();
     this.dataSource.withOptions({
@@ -98,8 +98,12 @@ export class WithServerDemoComponent implements OnInit {
       pageIndexDisplay: true,
       serverPagination: true,
     });
+    this.dataSource.sort = this.sort;
+    this._subscribeTotal = this.photosService.total$.subscribe((total) => this.dataSource.total = total);
+  }
 
-    this.photosService.total$.subscribe((total) => this.dataSource.total = total);
+  ngOnDestroy(): void {
+    this._subscribeTotal?.unsubscribe();
   }
 
   updatePaginator($event) {
@@ -108,5 +112,10 @@ export class WithServerDemoComponent implements OnInit {
     if (!this.usePaginator) {
       this.limit = '30';
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+
   }
 }
