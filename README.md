@@ -207,7 +207,7 @@ this.filterQuery.getAll()
 
 ### setFilter(filter: Partial<AkitaFilter>)
 
-Create or update a filter (give a Partial AkitaFilter object)
+Create or update a filter (give a Partial AkitaFilter object, all mandatory properties missing will be calculated)
 
 ```typescript
 filterPlugin.setFilter({
@@ -219,9 +219,18 @@ filterPlugin.setFilter({
        }); 
 ```
 
+### setFilters(filter: Partial<AkitaFilter>[])
+
+Create or update multiples filters at once (will trigger only one change)
+
+
 ### removeFilter(id: string)
 
-Remove a specified filter. 
+Remove a specified filter by their id name
+
+### removeFilters(id: string[])
+
+Remove multiples filters at once by their id name (will trigger only one change)
 
 ### clearFilters() 
 
@@ -396,7 +405,56 @@ this.filterForm.controls.search.valueChanges.pipe(untilDestroyed(this)).subscrib
     });
 ```
 
-#BONUS: Angular Material Datasource
+### With Server : apply filters from server 
+
+Previous options applys all filters locally. But some times, you wants to call filters by making request to server.  
+To do this, you need to setWithServer options to your AkitaFiltersPlugin. You will provide a callback function, that will be called everytime a filter changed.
+You will make your call, and return this observable. AkitaFiltersPlugin will subscribe to this observable, and add your new data in the store. 
+An exemple, is available in playground page "photos"
+
+```typescript
+myFilter = new AkitaFiltersPlugin<MyEntitiesState>(this.myEntitiesQuery)
+.withServer((filtersNormalized: string | HashMap<any>) => 
+ {
+     return this.httpClient.get({params: filtersNormalized as HashMap<any>}); // make here your pull request to server and return the observable
+ });
+```
+The data will be filtersNormalized that will be returned by getNormalizedFilters(). 
+This function will return all your server filters in a normalized format : 
+
+By default return an key value object, with all server filters : 
+```json
+{filter1: 'value 1', filter2: 'value 2'}
+```
+or if you specify the NormalizedFilterOptions options in `withServer(Callbackfunc, {asQueryParams: true})`
+
+You will have directly a serialized version for your query params: 
+`filter1=value%201&filter2=value%202`
+
+You can also give some others options : 
+```typescript
+ìnterface NormalizedFilterOptions {
+  asQueryParams?: boolean; // display as query params : filter1=value%201&filter2=value%202
+  withSort?: boolean; // To include sort : { filter1: 'value 1',
+                      //                     filter2: 'value 2',
+                      //                     sortBy: 'id',
+                      //                     sortByOrder: 'desc' }
+                      //  or as query params : filter1=value%201&filter2=value%202&sortBy=id&sortByOrder=desc  
+  sortByKey?: string;      // to specify the sortBy key used in previous example, default 'sortBy'                      
+  sortByOrderKey?: string; // to specify the sortBy key used in previous example, 'sortByOrder'
+                           // will result for example : filter1=value%201&filter2=value%202&_sort=id&_order=desc
+} 
+```
+
+This will return only all filters that was set as `server = true`. 
+
+In your components, you will need to only subecribe to your selectAll() function from your store, to get all new data. 
+
+Or you can also combine it with locals filters or sort (if you add some filters with ``server: false`` ). In this case subscribe to selectAllByFilters(). 
+
+
+
+# BONUS: Angular Material Datasource
 
 This specific package is only for Angular Material datatable. But akita filters plugins could be used without angular material. And maybe without angular. 
 This was released since version 4.x as a subpackage to avoid error, when not using Angular Material.
@@ -414,7 +472,7 @@ Define your data source here :
 
 Import it with submodule package : 
 ```typescript
-import { AkitaMatDataSource } from 'akita-filters-plugins/datasource';
+import { AkitaMatDataSource } from 'akita-filters-plugin/datasource';
 ```
 
 then use it in Mat Data Table like other DataSource. 
@@ -431,7 +489,7 @@ then use it in Mat Data Table like other DataSource.
 
 #### Demo 
 
- a demo page is available in the playground "angular-material-demo".  
+ a demo page is available in the playground "angular-material-demo"
 
 #### Dependencies
 
@@ -458,7 +516,14 @@ By setting search properties, you set a filter like search.
 ```typescript
 this.dataSource.search = "Search"; 
 ```
-Both use filter and filter, but prefere using search, as filter is so confusing with setFilters functions. (filter is here to be iso functionnality, then the MatDataSource)
+Both use filter and filter, but prefer using search, as filter is so confusing with setFilters functions. (filter is here to be iso functionality, then the MatDataSource)
+You can also customize the filter id, if different in your server api
+
+```typescript
+    this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService, {
+    searchFilterId: 'search', // you can set the id of this filter, usefull if the params is different for you (default : "search")
+});
+```
 
 ### Sort properties :  set sort(sort: MatSort)
 
@@ -486,12 +551,59 @@ By setting MatPaginator for enable pagination with datasource. Used by Mat Pagin
 ```
 
 And add the paginator directly like this in the template. No need to give the size, as it will be setted by the datasource. 
+
 ```html
     <mat-paginator #paginator
                    [pageIndex]="0"
                    [pageSize]="25"
                    [pageSizeOptions]="[10, 25, 50, 100, 250]">
     </mat-paginator>
+```
+### Paginator server side :  use server side pagination
+
+By setting MatPaginator (cf before), it will use a local paginator. 
+You can specify the option : "serverPagination" to use server side pagination. (Need also to set a MatPaginator).
+It will subscribe to MatPaginator change page, and create server filter that send the page Number, and page Size. 
+We will be then notified in withServer callback function.
+
+See exemple in exemple page "photos"
+
+```typescript
+    this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService, {
+    serverPagination: true, // set to true, to use server side pagination.
+    pageIndexId: '_page', // you can set the id of this filter, usefull if the params is different for you (default : "page")
+    pageIndexDisplay: true, // Set to true to display page filter (default: false)
+    pageIndexName: 'Page', // Set the Name, to you filter, usefull if you want to display the filter : "Name: (value)" (default: "Page")
+    pageSizeId: '_limit', // you can set the id of this filter, usefull if the params is different for you (default : "size")
+    pageSizeDisplay: true, // Set to true to display size filter (default: false)
+    pageSizeName: 'Size', // Set the Name, to you filter, usefull if you want to display the filter : "Name: (value)" (default: "Size")
+    debounceTimeBetweenTwoChanges: 60, // Debounce time number between two changes, to avoid closest multiples changes events  
+    resetPageIndexOnFiltersChange: true, // If true, will resets page Index after each filters changes (default: true)
+});
+```
+
+You can also set options after constructor with function : 
+```typescript
+    this.dataSource = new AkitaMatDataSource<PhotosState>(this.photosQuery, this.photosService).withOptions({
+    serverPagination: true, // set to true, to use server side pagination.    
+});
+```
+
+
+But you will need to set the total by your one, depending on how you get this information.
+
+```typescript
+    this.dataSource.total = 100; // set the total to Mat Paginator
+    console.log('total number', this.dataSource.total); // or get the setted total, was the length setted in Mat Paginator
+```
+
+#### Subscribe to filters changes
+
+subscribe to be noticed when a filters has changed (and with server pagination, will exclude pagination filters).
+```typescript
+    this.dataSource.onFiltersChanges$.subscribe(() => {
+      // have some actions here 
+    });
 ```
 
 ### AkitaFilters properties : get akitaFiltersPlugin(): AkitaFiltersPlugin<EntityState>
@@ -517,22 +629,32 @@ this.dataSource.setDefaultSort('colomnName', 'asc');
 
 Some proxy function, just to call AkitaFilters Plugins. 
 ```typescript
-* setFilter(filter: Partial<AkitaFilter< S >>): void
-* removeFilter(id: ID): void
-* clearFilters(): void
-* getFilterValue< S >(id: string): E | null
+* setFilter(filter: Partial<AkitaFilter< S >>): void; // Create or update a filter. Any mandatory properties, will be added
+* setFilters(filter: Partial<AkitaFilter< S >>[]): void; // Create or update multiples filters in one time with emit changes onlu once
+* removeFilter(id: ID): void; // Remove a filter by their name
+* removeFilters(id: ID[]): void; // Remove multiples filters with emit changes onlu once
+* clearFilters(): void; // Remove all filters 
+* getFilterValue< S >(id: string): E | null; // Get a filters values 
 ```
+### WithServer : you can also use Akita-Mat-DataSource with server call
+
+You can also use AkitaFilters plugins withServer in Akita-Mat-DataSource by using AkitaFilters Plugins function. 
+Or there is also a function similar in Akita-Mat-DataSource. 
+
+
+
+
 ### Breaking Changes : 3.x to 4.x
 
 Akita-mat-data-source is now a subpackage to avoid error with akita-filters-plugin, if you don't use Angular Material.
 
 Changes this 
 ```typescript
-import { AkitaMatDataSource } from 'akita-filters-plugins';
+import { AkitaMatDataSource } from 'akita-filters-plugin';
 ```
 to 
 ```typescript
-import { AkitaMatDataSource } from 'akita-filters-plugins/datasource';
+import { AkitaMatDataSource } from 'akita-filters-plugin/datasource';
 ```
 
 

@@ -13,6 +13,7 @@ import {CommonModule} from '@angular/common';
 import {HttpClient, HttpClientModule} from '@angular/common/http';
 import {CartModule} from './cart/cart.module';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {NG_ENTITY_SERVICE_CONFIG} from '@datorama/akita-ng-entity-service';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,12 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     environment.production ? [] : AkitaNgDevtools.forRoot(),
     MarkdownModule.forRoot({ loader: HttpClient })
   ],
-  providers: [],
+  providers: [{
+    provide: NG_ENTITY_SERVICE_CONFIG,
+    useValue: {
+      baseUrl: 'https://jsonplaceholder.typicode.com'
+    }
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
