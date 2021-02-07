@@ -6,8 +6,8 @@ import { tap } from 'rxjs/operators';
 import {empty, Observable} from 'rxjs';
 import { ProductsFiltersQuery } from './products-filters.query';
 import {Order} from '@datorama/akita';
-import {AkitaFilter} from '../../../../projects/akita-filters-plugin/src/lib/akita-filters-store';
 import {AkitaFiltersPlugin} from '../../../../projects/akita-filters-plugin/src/lib/akita-filters-plugin';
+import {AkitaFilter} from '../../../../projects/akita-filters-plugin/src/lib/akita-filters.model';
 
 
 @Injectable({

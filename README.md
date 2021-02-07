@@ -165,15 +165,31 @@ type AkitaFilter: AkitaFilter<EntityState>  = {
  };
 ```
  
- - Id and function were mandatored. (By default, Id will guid(), and default function, will be defaultFilter helpers). 
+ - Id and function were mandatory. (By default, Id will guid(), and default function, will be defaultFilter helpers). 
  
  - But you can set a name, that will be useful to display the filter in the ui. (by default, it will be calculated with ID and value).
  
- - You can set the value, that could be used in your filter function, or retrieve the value for a filter (in ex to init the form filter)
+ - You can set the value, that could be used in your filter function, or retrieve the value for a filter (in example, to init the form filter)
  
  - Or it could be useful, to execute a filter at the begin or the end. (Could be useful to execute simple filter at the beginning, and complex filter like full search at the end)
  
  - hide: true, it will be applied and not displayed in the ui. 
+
+You can also use AkitaFilterLocal or AkitaFilterServer, to specify if a filter is local (that must have a predicate) or server that must have a value, and don't have predicate. 
+
+```typescript
+export interface AkitaFilterLocal<S extends EntityState, E = getEntityType<S>> extends AkitaFilterBase<S, E> {
+  /** The function to apply filters, by default use defaultFilter helpers, that will search the value in the object */
+  predicate: (entity: E, index: number, array: E[] | HashMap<E>, filter: AkitaFilter<S>) => boolean;
+}
+
+export interface AkitaFilterServer<S extends EntityState, E = getEntityType<S>> extends AkitaFilterBase<S, E> {
+  /** If you have enabled server filter, specify witch filters will be call to server, default to false. */
+  server: true;
+  /** The filter value will be sent to withServer function */
+  value: any;
+}
+```
  
 
 # AkitaFilterPlugins API
