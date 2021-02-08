@@ -1,6 +1,6 @@
 
 import {isDefined, isString, isObject, HashMap, getEntityType, isArray} from '@datorama/akita';
-import {AkitaFilter} from './akita-filters-store';
+import {AkitaFilter} from './akita-filters.model';
 
 /**
  * Helper function to do a default filter
