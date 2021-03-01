@@ -3,3 +3,4 @@
  */
 export * from './lib/akita-mat-data-source';
 export {DataSourceWithServerOptions} from './lib';
+export {MatTableDataSourceInterface} from './lib';

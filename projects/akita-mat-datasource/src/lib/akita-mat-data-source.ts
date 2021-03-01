@@ -2,40 +2,32 @@
 import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, Subject, Subscription} from 'rxjs';
 import {EntityState, getEntityType, HashMap, ID, Order, QueryEntity} from '@datorama/akita';
-import {debounceTime, map, takeUntil, tap, filter} from 'rxjs/operators';
+import {debounceTime, filter, map, takeUntil, tap} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 // @ts-ignore
-import {AkitaFilter, AkitaFiltersPlugin, WithServerOptions, compareFiltersArray} from 'akita-filters-plugin';
+import {AkitaFilter, AkitaFiltersPlugin, compareFiltersArray, defaultFilter, WithServerOptions} from 'akita-filters-plugin';
 import {DataSourceWithServerOptions} from './data-source-with-server-options.model';
+import {MatTableDataSourceInterface} from './mat-table-data-source.interface';
 
-export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
+export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>>
+  extends DataSource<E>
+  implements MatTableDataSourceInterface<E> {
+  get data(): E[] {
+    return this._data;
+  }
 
-  /**
-   * subscribe to be noticed when a filters has changed (and with server pagination, will exclude pagination filters).
-   */
-  public onFiltersChanges$: Observable<Array<AkitaFilter<S>>>;
+  set data(value: E[]) {
+    this._data = value;
+  }
 
-  private _dataQuery: QueryEntity<E>;
-  private _filters: AkitaFiltersPlugin<S>;
-  /** if set a custom filter plugins, do not delete all in disconnect() **/
-  private _hasCustomAkitaFiltersPlugins: boolean;
-  private _selectAllByFilter$: Observable<E[]>;
-  private _count$: BehaviorSubject<number>;
-  /** Used to react to internal changes of the paginator that are made by the data source itself. */
-  private readonly _internalPageChanges = new Subject<void>();
-  /** Stream emitting render data to the table (depends on ordered data changes). */
-  private readonly _renderData = new BehaviorSubject<E[]>([]);
-  /** Used to react to internal changes of the paginator that are made by the data source itself. */
-  private readonly _disconnect = new Subject<void>();
-  private _dataSourceOptions: DataSourceWithServerOptions;
-  /**
-   * Subscription to the changes that should trigger an update to the table's rendered rows, such
-   * as filtering, sorting, pagination, or base data changes.
-   */
-  private _renderChangesSubscription = Subscription.EMPTY;
-  private _serverPaginationSubscription: Subscription = Subscription.EMPTY;
-  private _previousFilters: Array<AkitaFilter<S>>;
+  get filteredData(): E[] {
+    return this._filteredData;
+  }
+
+  set filteredData(value: E[]) {
+    this._filteredData = value;
+  }
 
   /**
    * Data source to use an Akita EntityStore with a Material table
@@ -106,8 +98,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     if (searchQuery === '' || !searchQuery) {
       this._filters.removeFilter(this._dataSourceOptions.searchFilterId);
     } else {
+      const predicate = this._getPredicate();
       // noinspection TypeScriptValidateTypes
-      this._filters.setFilter({id: this._dataSourceOptions.searchFilterId, value: searchQuery, name: searchQuery});
+      this._filters.setFilter({id: this._dataSourceOptions.searchFilterId, value: searchQuery, name: searchQuery, predicate});
     }
   }
 
@@ -124,8 +117,6 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   get akitaFiltersPlugIn(): AkitaFiltersPlugin<S> {
     return this._filters;
   }
-
-  private _paginator: MatPaginator | any = null;
 
   /**
    * Instance of the MatPaginator component used by the table to control what page of the data is
@@ -148,8 +139,6 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     this._paginator = paginator;
     this.updateSubscriptions();
   }
-
-  private _sort: MatSort | any = null;
 
   /**
    * Instance of the MatSort component used by the table to sort data
@@ -210,6 +199,58 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     };
     this.updateSubscriptions();
   }
+
+  /**
+   * subscribe to be noticed when a filters has changed (and with server pagination, will exclude pagination filters).
+   */
+  public onFiltersChanges$: Observable<Array<AkitaFilter<S>>>;
+
+  private _dataQuery: QueryEntity<E>;
+  private _filters: AkitaFiltersPlugin<S>;
+  /** if set a custom filter plugins, do not delete all in disconnect() **/
+  private _hasCustomAkitaFiltersPlugins: boolean;
+  private _selectAllByFilter$: Observable<E[]>;
+  private _count$: BehaviorSubject<number>;
+  /** Used to react to internal changes of the paginator that are made by the data source itself. */
+  private readonly _internalPageChanges = new Subject<void>();
+  /** Stream emitting render data to the table (depends on ordered data changes). */
+  private readonly _renderData = new BehaviorSubject<E[]>([]);
+  /** Used to react to internal changes of the paginator that are made by the data source itself. */
+  private readonly _disconnect = new Subject<void>();
+  private _dataSourceOptions: DataSourceWithServerOptions;
+  /**
+   * Subscription to the changes that should trigger an update to the table's rendered rows, such
+   * as filtering, sorting, pagination, or base data changes.
+   */
+  private _renderChangesSubscription = Subscription.EMPTY;
+  private _serverPaginationSubscription: Subscription = Subscription.EMPTY;
+  private _previousFilters: Array<AkitaFilter<S>>;
+
+  private _paginator: MatPaginator | any = null;
+
+  private _sort: MatSort | any = null;
+
+  private _data: E[];
+
+  private _filteredData: E[];
+
+  private _getPredicate() {
+    return (
+      value: E | getEntityType<S>,
+      index: number, array: E[] | HashMap<getEntityType<E>>,
+      searchFilter: AkitaFilter<E, S>) => this.filterPredicate(value, searchFilter?.value);
+  }
+  /**
+   * Checks if a data object matches the data source's filter string. By default, each data object
+   * is converted to a string of its properties and returns true if the filter has
+   * at least one occurrence in that string. By default, the filter string has its whitespace
+   * trimmed and the match is case-insensitive. May be overridden for a custom implementation of
+   * filter matching.
+   * @param data Data object used to check against the filter.
+   * @param filter Filter string that has been set on the data source.
+   * @returns Whether the filter matches against the data
+   */
+  filterPredicate: ((data: E, filter: string) => boolean) = (data: E, searchFilter: string) => defaultFilter(data, null, null, {value: searchFilter});
 
   withOptions(dataSourceOptions: DataSourceWithServerOptions) {
     this.options = dataSourceOptions;
@@ -490,5 +531,21 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
 
     return data.slice(startIndex, startIndex + this.paginator.pageSize);
+  }
+
+
+
+
+  /**
+   * Data accessor function that is used for accessing data properties for sorting through
+   * the default sortData function.
+   * This default function assumes that the sort header IDs (which defaults to the column name)
+   * matches the data's properties (e.g. column Xyz represents data['Xyz']).
+   * May be set to a custom function for different behavior.
+   * @param data Data object that is being accessed.
+   * @param sortHeaderId The name of the column that represents the data.
+   */
+  sortingDataAccessor(data: E, sortHeaderId: string): string | number {
+    return undefined;
   }
 }
