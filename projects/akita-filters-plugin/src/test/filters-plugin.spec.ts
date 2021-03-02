@@ -173,7 +173,7 @@ describe('AkitaFiltersPlugin', () => {
 
       it('should select all if no filters', () => {
         filters
-          .selectAllByFilters({asObject: true,})
+          .selectAllByFilters({asObject: true})
           .pipe(take(1))
           .subscribe(result => {
             expect(result).toBeDefined();
@@ -189,7 +189,7 @@ describe('AkitaFiltersPlugin', () => {
         filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
 
         filters
-          .selectAllByFilters({asObject: true,})
+          .selectAllByFilters({asObject: true})
           .pipe(take(1))
           .subscribe(result => {
             expect(result).toBeDefined();
@@ -204,7 +204,7 @@ describe('AkitaFiltersPlugin', () => {
         filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
 
         filters
-          .selectAllByFilters({asObject: true,})
+          .selectAllByFilters({asObject: true})
           .pipe(take(1))
           .subscribe(result1 => {
             expect(result1).toBeDefined();

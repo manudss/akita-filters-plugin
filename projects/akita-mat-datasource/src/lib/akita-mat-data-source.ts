@@ -250,7 +250,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * @param filter Filter string that has been set on the data source.
    * @returns Whether the filter matches against the data
    */
-  filterPredicate: ((data: E, filter: string) => boolean) = (data: E, searchFilter: string) => defaultFilter(data, null, null, {value: searchFilter});
+  filterPredicate(data: E, searchFilter: string) {
+    return defaultFilter(data, null, null, {value: searchFilter});
+  }
 
   withOptions(dataSourceOptions: DataSourceWithServerOptions) {
     this.options = dataSourceOptions;
@@ -278,7 +280,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   }
 
   public hasServer() {
-    return this._server;
+    return this._filters.hasServer();
   }
 
 

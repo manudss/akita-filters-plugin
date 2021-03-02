@@ -6,7 +6,7 @@ import {of} from 'rxjs';
 import Mock = jest.Mock;
 import MockedFunction = jest.MockedFunction;
 import {AkitaMatDataSource} from '../lib';
-import {createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore} from '../../../akita-filters-plugin/src/__tests__/setup';
+import {createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore} from '../../../akita-filters-plugin/src/test/setup';
 import { MatSort } from '@angular/material/sort';
 
 declare var jest: jest;
@@ -287,7 +287,7 @@ describe('AkitaMatDataSource', () => {
     });
 
 
-    describe('WithServer Feture : SelectAll when any change in filter, or entities', () => {
+    describe('WithServer Feature : SelectAll when any change in filter, or entities', () => {
       jest.useFakeTimers();
 
       beforeEach(() => {
