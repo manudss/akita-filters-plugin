@@ -26,6 +26,7 @@
   ],
   "jest": {
     "globals": {
+      "window": {},
       "ts-jest": {
         "diagnostics": false
       }
@@ -50,7 +51,8 @@
       "\\.(ts)$": "ts-jest"
     },
     "verbose": true,
-    "testRegex": ".*/test/.*\\.spec.(ts|js)$"
+    "testRegex": ".*/test/.*\\.spec.(ts|js)$",
+    "testEnvironment": "node"
   },
   "dependencies": {
     "@angular/animations": "~11.2.0",

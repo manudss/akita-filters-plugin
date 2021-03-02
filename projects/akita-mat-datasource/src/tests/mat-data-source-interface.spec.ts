@@ -4,18 +4,31 @@ import {Order} from '@datorama/akita';
 import jest from '@types/jest';
 import {of} from 'rxjs';
 import Mock = jest.Mock;
-import {AkitaMatDataSource} from '../lib';
-import {createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore} from '../../../akita-filters-plugin/src/test/setup';
+import MockedFunction = jest.MockedFunction;
+import {AkitaMatDataSource, MatTableDataSourceInterface} from '../lib';
+import {createWidget, createWidgetCompleted, Widget, WidgetsQuery, WidgetsStore} from '../../../akita-filters-plugin/src/test/setup';
 import { MatSort } from '@angular/material/sort';
 
 declare var jest: jest;
+global.window = jest.fn(() => {});
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);
 const akitaMatDataSource = new AkitaMatDataSource(widgetsQuery);
+const matTableDataSource: MatTableDataSourceInterface<Widget> = akitaMatDataSource;
 
 
-describe('AkitaMatDataSource', () => {
+describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
+
+  describe('datasource should be empty when no data or filters', () => {
+    it('should be empty', () => {
+      expect(matTableDataSource.data).toEqual([]);
+      expect(matTableDataSource.filteredData).toEqual([]);
+      expect(matTableDataSource.filter).toEqual('');
+      expect(matTableDataSource.paginator).toBeNull();
+      expect(matTableDataSource.sort).toBeNull();
+    });
+  });
 
  describe('Manages Filters', () => {
     describe('Filters', () => {

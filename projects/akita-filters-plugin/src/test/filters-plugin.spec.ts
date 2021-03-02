@@ -5,11 +5,10 @@ import {Order} from '@datorama/akita';
 import {jest} from '@jest/globals';
 import {of} from 'rxjs';
 import Mock = jest.Mock;
-import MockedFunction = jest.MockedFunction;
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);
-const filters = new AkitaFiltersPlugin(widgetsQuery);
+const filters = new AkitaFiltersPlugin<any>(widgetsQuery);
 
 
 describe('AkitaFiltersPlugin', () => {
@@ -349,6 +348,7 @@ describe('AkitaFiltersPlugin', () => {
         let filtersWithServer;
 
         beforeEach(() => {
+          // tslint:disable-next-line:max-line-length
           filtersQuery = {selectAll: jest.fn().mockReturnValue(of([])), select: jest.fn().mockReturnValue(of([])), selectSortBy: jest.fn().mockReturnValue(of([])), getAll: jest.fn()};
           withServerFunc = jest.fn();
           // @ts-ignore
