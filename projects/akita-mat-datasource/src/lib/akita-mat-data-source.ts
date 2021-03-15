@@ -22,7 +22,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   }
 
   get filteredData(): E[] {
-    return this._renderData.getValue();
+    return this.akitaFiltersPlugIn.getAllByFilters();
   }
 
   set filteredData(value: E[]) {

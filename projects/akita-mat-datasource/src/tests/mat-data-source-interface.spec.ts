@@ -43,43 +43,38 @@ describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
       widgetsStore.remove();
       akitaMatDataSource.akitaFiltersPlugIn.filtersStore.remove();
       widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
-      /*widgetsStore.update(2, { complete: true });
-      widgetsStore.update(3, { complete: true });*/
+      widgetsStore.update(2, { complete: true });
+      widgetsStore.update(3, { complete: true });
     });
 
     it('should return all data if no filters', () => {
-      expect(matTableDataSource.data).toEqual([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
-      expect(matTableDataSource.filteredData).toEqual([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+      expect(matTableDataSource.data).toEqual([createWidget(1), createWidgetCompleted(2), createWidgetCompleted(3), createWidget(4)]);
+      expect(matTableDataSource.filteredData).toEqual([createWidget(1), createWidgetCompleted(2), createWidgetCompleted(3), createWidget(4)]);
     });
 
     it('should search if filter is set', () => {
       matTableDataSource.filter = '1';
 
-      expect(matTableDataSource.data).toEqual([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+      expect(matTableDataSource.data).toEqual([createWidget(1), createWidgetCompleted(2), createWidgetCompleted(3), createWidget(4)]);
       expect(matTableDataSource.filteredData).toEqual([createWidget(1)]);
     });
 
-    it('should apply 1 filter in filtered Data', async() => {
+    it('should apply 1 filter in filtered Data', () => {
       akitaMatDataSource.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
-
-      await akitaMatDataSource.connect().pipe(take(2));
-      // expect(matTableDataSource.data).toEqual([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
-      expect(matTableDataSource.filteredData).toEqual([createWidget(1), createWidget(3)]);
+      expect(matTableDataSource.filteredData).toEqual([createWidget(1), createWidgetCompleted(3)]);
     });
 
-    it('should apply 2 filter in current order if provided when select all', async() => {
+    it('should apply 2 filter in current order if provided when select all', () => {
       akitaMatDataSource.setFilter({ id: 'filter2', predicate: filter => filter.complete });
 
-      await akitaMatDataSource.connect().pipe(take(2));
-      expect(matTableDataSource.filteredData).toEqual([createWidget(3)]);
+      expect(matTableDataSource.filteredData).toEqual([createWidgetCompleted(2), createWidgetCompleted(3)]);
     });
 
-    it('should apply 2 filter with specified order if order is specified when select all', await() => {
+    it('should apply 2 filter with specified order if order is specified when get all filtered data', () => {
       akitaMatDataSource.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1, order: 2 });
       akitaMatDataSource.setFilter({ id: 'filter2', predicate: filter => filter.complete, order: 1 });
 
-      await akitaMatDataSource.connect().pipe(take(3));
-      expect(matTableDataSource.filteredData).toEqual([createWidget(3)]);
+      expect(matTableDataSource.filteredData).toEqual([createWidgetCompleted(3)]);
     });
   });
 
