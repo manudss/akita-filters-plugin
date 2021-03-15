@@ -26,7 +26,6 @@
   ],
   "jest": {
     "globals": {
-      "window": {},
       "ts-jest": {
         "diagnostics": false
       }
@@ -51,7 +50,7 @@
       "\\.(ts)$": "ts-jest"
     },
     "verbose": true,
-    "testRegex": ".*/test/.*\\.spec.(ts|js)$",
+    "testRegex": ".*/tests/.*\\.spec.(ts|js)$",
     "testEnvironment": "node"
   },
   "dependencies": {

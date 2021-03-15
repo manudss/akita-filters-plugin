@@ -22,7 +22,7 @@ import {
   SelectAllOptionsE,
   SortByOptions
 } from '@datorama/akita';
-import {AkitaFilter, AkitaFilterLocal, AkitaFilterServer, createFilter} from './akita-filters.model';
+import {AkitaFilter, AkitaFilterBase, AkitaFilterLocal, AkitaFilterServer, createFilter} from './akita-filters.model';
 
 export interface FiltersParams<S extends EntityState> {
   filtersStoreName?: string;
@@ -208,7 +208,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   /**
    * Create or update a filter
    */
-  setFilter(filter: Partial<AkitaFilterLocal<S> | AkitaFilterServer<S>>) {
+  setFilter(filter: Partial<AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S>>) {
     if (this.server && isUndefined(filter.server)) {
       filter.server = true;
     }
@@ -220,7 +220,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   /**
    * Create or update multiples filters
    */
-  setFilters(filters: Array<Partial<AkitaFilterLocal<S> | AkitaFilterServer<S>>>) {
+  setFilters(filters: Array<Partial<AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S>>>) {
     if (!filters) { return; }
     const entities = filters.map((filter => {
       if (this.server && isUndefined(filter.server)) {
@@ -318,12 +318,12 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
 
 
   /** This method is responsible for getting access to the query. */
-  protected getQuery(): QueryEntity<S> {
+  public getQuery(): QueryEntity<S> {
     return this.query;
   }
 
   /** This method is responsible for getting access to the store. */
-  protected getStore(): EntityStore<S> {
+  public getStore(): EntityStore<S> {
     return this.getQuery().__store__;
   }
 

@@ -18,11 +18,11 @@ export class Todo {
   }
 }
 
-export interface State extends EntityState<Todo>, ActiveState {
+export interface WidgetState extends EntityState<Todo>, ActiveState {
   metadata?: { name: string };
 }
 
-export const initialState: State = {
+export const initialState: WidgetState = {
   ...getInitialActiveState(),
   metadata: { name: 'metadata' }
 };
@@ -30,7 +30,7 @@ export const initialState: State = {
 @StoreConfig({
   name: 'todos'
 })
-export class TodosStore extends EntityStore<State, Todo> {
+export class TodosStore extends EntityStore<WidgetState, Todo> {
   constructor() {
     super(initialState);
   }
@@ -90,19 +90,19 @@ export type Widget = {
 };
 
 @StoreConfig({ name: 'widgets' })
-export class WidgetsStore extends EntityStore<any, Widget> {
+export class WidgetsStore extends EntityStore<WidgetState> {
   constructor(initState?) {
     super(initState);
   }
 }
 
-export class WidgetsQuery extends QueryEntity<any, Widget> {
+export class WidgetsQuery extends QueryEntity<WidgetState> {
   constructor(protected store) {
     super(store);
   }
 }
 
-export function createWidget(id) {
+export function createWidget(id): Widget {
   return {
     id,
     title: `Widget ${id}`,
@@ -110,7 +110,7 @@ export function createWidget(id) {
   } as Widget;
 }
 
-export function createWidgetCompleted(id) {
+export function createWidgetCompleted(id): Widget {
   return {
     id,
     title: `Widget ${id}`,

@@ -5,7 +5,7 @@ import jest from '@types/jest';
 import {of} from 'rxjs';
 import Mock = jest.Mock;
 import {AkitaMatDataSource} from '../lib';
-import {createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore} from '../../../akita-filters-plugin/src/test/setup';
+import {createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore} from '../../../akita-filters-plugin/src/tests/setup';
 import { MatSort } from '@angular/material/sort';
 
 declare var jest: jest;
@@ -319,7 +319,7 @@ describe('AkitaMatDataSource', () => {
 
           filtersWithServer.withServer(withServerFunc, {withSort: true});
           expect(filtersWithServer.hasServer()).toEqual(true);
-          expect(withServerFunc).toHaveBeenCalledTimes(0);
+          expect(withServerFunc).toHaveBeenCalledTimes(1);
         });
 
       });

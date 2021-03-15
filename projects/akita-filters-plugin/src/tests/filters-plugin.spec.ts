@@ -5,6 +5,7 @@ import {Order} from '@datorama/akita';
 import {jest} from '@jest/globals';
 import {of} from 'rxjs';
 import Mock = jest.Mock;
+import {AkitaFilterLocal} from 'akita-filters-plugin';
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);
@@ -30,7 +31,7 @@ describe('AkitaFiltersPlugin', () => {
       });
 
       it('should add filter if not exist with all default values', () => {
-        filters.setFilter({id: 'filter4', predicate: filter => filter.id});
+        filters.setFilter({id: 'filter4', predicate: filter => filter.id} as AkitaFilterLocal<any>);
         expect(filters.filtersQuery.getCount()).toEqual(4);
         expect(filters.filtersQuery.getEntity('filter4').id).toEqual('filter4');
         expect(filters.filtersQuery.getEntity('filter4').hide).toEqual(false);
@@ -518,6 +519,7 @@ describe('AkitaFiltersPlugin', () => {
     });
 
     describe('METHOD : getServerFilters()', () => {
+      // tslint:disable-next-line:prefer-const
       let filtersQuery;
       let withServerFunc;
       let filtersWithServer;
@@ -594,4 +596,4 @@ describe('AkitaFiltersPlugin', () => {
   });
 
   });
-});
+
