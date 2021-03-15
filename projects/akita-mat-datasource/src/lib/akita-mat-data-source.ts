@@ -14,19 +14,19 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   extends DataSource<E>
   implements MatTableDataSourceInterface<E> {
   get data(): E[] {
-    return this._data;
+    return this._dataQuery.getAll();
   }
 
   set data(value: E[]) {
-    this._data = value;
+    this._dataQuery.__store__.set(value);
   }
 
   get filteredData(): E[] {
-    return this._filteredData;
+    return this._renderData.getValue();
   }
 
   set filteredData(value: E[]) {
-    this._filteredData = value;
+    this.data = value;
   }
 
   /**

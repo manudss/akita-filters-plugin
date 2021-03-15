@@ -6,15 +6,23 @@ import {of} from 'rxjs';
 import Mock = jest.Mock;
 import MockedFunction = jest.MockedFunction;
 import {AkitaMatDataSource, MatTableDataSourceInterface} from '../lib';
-import {createWidget, createWidgetCompleted, Widget, WidgetsQuery, WidgetsStore} from '../../../akita-filters-plugin/src/test/setup';
+import {
+  createWidget,
+  createWidgetCompleted,
+  Widget,
+  WidgetsQuery,
+  WidgetsStore,
+  WidgetState
+} from '../../../akita-filters-plugin/src/tests/setup';
 import { MatSort } from '@angular/material/sort';
+import {waitForAsync} from '@angular/core/testing';
 
 declare var jest: jest;
-global.window = jest.fn(() => {});
+// global.window = jest.fn(() => {});
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);
-const akitaMatDataSource = new AkitaMatDataSource(widgetsQuery);
+const akitaMatDataSource = new AkitaMatDataSource<WidgetState>(widgetsQuery);
 const matTableDataSource: MatTableDataSourceInterface<Widget> = akitaMatDataSource;
 
 
@@ -24,13 +32,58 @@ describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
     it('should be empty', () => {
       expect(matTableDataSource.data).toEqual([]);
       expect(matTableDataSource.filteredData).toEqual([]);
-      expect(matTableDataSource.filter).toEqual('');
+      expect(matTableDataSource.filter).toEqual(null);
       expect(matTableDataSource.paginator).toBeNull();
       expect(matTableDataSource.sort).toBeNull();
     });
   });
 
- describe('Manages Filters', () => {
+  describe('mat table data source with some data ', () => {
+    beforeEach(() => {
+      widgetsStore.remove();
+      akitaMatDataSource.akitaFiltersPlugIn.filtersStore.remove();
+      widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+      /*widgetsStore.update(2, { complete: true });
+      widgetsStore.update(3, { complete: true });*/
+    });
+
+    it('should return all data if no filters', () => {
+      expect(matTableDataSource.data).toEqual([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+      expect(matTableDataSource.filteredData).toEqual([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+    });
+
+    it('should search if filter is set', () => {
+      matTableDataSource.filter = '1';
+
+      expect(matTableDataSource.data).toEqual([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+      expect(matTableDataSource.filteredData).toEqual([createWidget(1)]);
+    });
+
+    it('should apply 1 filter in filtered Data', async() => {
+      akitaMatDataSource.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
+
+      await akitaMatDataSource.connect().pipe(take(2));
+      // expect(matTableDataSource.data).toEqual([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+      expect(matTableDataSource.filteredData).toEqual([createWidget(1), createWidget(3)]);
+    });
+
+    it('should apply 2 filter in current order if provided when select all', async() => {
+      akitaMatDataSource.setFilter({ id: 'filter2', predicate: filter => filter.complete });
+
+      await akitaMatDataSource.connect().pipe(take(2));
+      expect(matTableDataSource.filteredData).toEqual([createWidget(3)]);
+    });
+
+    it('should apply 2 filter with specified order if order is specified when select all', await() => {
+      akitaMatDataSource.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1, order: 2 });
+      akitaMatDataSource.setFilter({ id: 'filter2', predicate: filter => filter.complete, order: 1 });
+
+      await akitaMatDataSource.connect().pipe(take(3));
+      expect(matTableDataSource.filteredData).toEqual([createWidget(3)]);
+    });
+  });
+
+ xdescribe('Manages Filters', () => {
     describe('Filters', () => {
       beforeEach(() => {
         widgetsStore.remove();
@@ -272,7 +325,7 @@ describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
         akitaMatDataSource
           .connect()
           .pipe(take(1))
-          .subscribe(result => {
+          .subscribe((result: Widget[]) => {
             expect(Array.isArray(result)).toBeTruthy();
             expect(result.length).toEqual(4);
             expect(result[0].id).toEqual(4);
