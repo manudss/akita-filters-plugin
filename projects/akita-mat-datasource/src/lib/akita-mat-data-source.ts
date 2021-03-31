@@ -9,6 +9,13 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {AkitaFilter, AkitaFiltersPlugin, compareFiltersArray, defaultFilter, WithServerOptions} from 'akita-filters-plugin';
 import {DataSourceWithServerOptions} from './data-source-with-server-options.model';
 import {MatTableDataSourceInterface} from './mat-table-data-source.interface';
+import {_isNumberValue} from '@angular/cdk/coercion';
+
+/**
+ * Corresponds to `Number.MAX_SAFE_INTEGER`. Moved out into a variable here due to
+ * flaky browser support and the value not being defined in Closure's typings.
+ */
+const MAX_SAFE_INTEGER = 9007199254740991;
 
 export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>>
   extends DataSource<E>
@@ -156,14 +163,18 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   set sort(sort: MatSort | any) {
     this._sort = sort;
     sort.sortChange.pipe(takeUntil(this._disconnect)).subscribe((sortValue: Sort) => {
-      this._filters.setSortBy({
-        sortBy: sortValue.active as keyof E,
-        sortByOrder: sortValue.direction === 'desc' ? Order.DESC : Order.ASC
-      });
+      this._setSortBy(sortValue);
     });
 
     sort.initialized.subscribe(() => {
       this.setDefaultSort(sort.active as keyof E, sort.direction === 'desc' ? Order.DESC : Order.ASC);
+    });
+  }
+
+  private _setSortBy(sortValue: Sort) {
+    this._filters.setSortBy({
+      sortBy: (a, b, list) => this.sortFunction(a, b, this.sort),
+      sortByOrder: sortValue.direction === 'desc' ? Order.DESC : Order.ASC
     });
   }
 
@@ -230,9 +241,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
 
   private _sort: MatSort | any = null;
 
-  private _data: E[];
 
-  private _filteredData: E[];
 
   private _getPredicate() {
     return (
@@ -250,7 +259,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * @param filter Filter string that has been set on the data source.
    * @returns Whether the filter matches against the data
    */
-  filterPredicate(data: E, searchFilter: string) {
+  filterPredicate: ((data: T, filter: string) => boolean) = (data: E, searchFilter: string) => {
     return defaultFilter(data, null, null, {value: searchFilter});
   }
 
@@ -541,8 +550,30 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     return data.slice(startIndex, startIndex + this.paginator.pageSize);
   }
 
+  sortData(data: T[], sort: MatSort): T[] {
+    throw new Error('This function is not implemented, and will not be implemented as akita works differently for sorting data rather than MatTableDataSource, overwrite sortingDataAccessor or  sortFunction');
+    return null;
+  }
 
+  sortFunction: ((a: E, b: E, sort: MatSort) => 0 | 1 | -1) = (a, b, sort): 0 | 1 | -1 => {
+    let varA = this.sortingDataAccessor(a, sort.active);
+    let varB = this.sortingDataAccessor(b, sort.active);
 
+    if (!varA || !varB) {
+      return 0;
+    }
+
+    varA = typeof varA === 'string' ? varA.toUpperCase() : varA;
+    varB = typeof varB === 'string' ? varB.toUpperCase() : varB;
+
+    let comparison: 0 | 1 | -1 = 0;
+    if (varA > varB) {
+      comparison = 1;
+    } else if (varA < varB) {
+      comparison = -1;
+    }
+    return sort.direction === 'desc'? comparison * -1 as 0 | 1 | -1 : comparison;
+  }
 
   /**
    * Data accessor function that is used for accessing data properties for sorting through
@@ -553,7 +584,18 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * @param data Data object that is being accessed.
    * @param sortHeaderId The name of the column that represents the data.
    */
-  sortingDataAccessor(data: E, sortHeaderId: string): string | number {
-    return undefined;
-  }
+  sortingDataAccessor: ((data: T, sortHeaderId: string) => string | number) =
+    (data: T, sortHeaderId: string): string|number => {
+      const value = (data as {[key: string]: any})[sortHeaderId];
+
+      if (_isNumberValue(value)) {
+        const numberValue = Number(value);
+
+        // Numbers beyond `MAX_SAFE_INTEGER` can't be compared reliably so we
+        // leave them as strings. For more info: https://goo.gl/y5vbSg
+        return numberValue < MAX_SAFE_INTEGER ? numberValue : value;
+      }
+
+      return value;
+    }
 }
