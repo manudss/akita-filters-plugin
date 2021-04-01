@@ -259,7 +259,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * @param filter Filter string that has been set on the data source.
    * @returns Whether the filter matches against the data
    */
-  filterPredicate: ((data: T, filter: string) => boolean) = (data: E, searchFilter: string) => {
+  filterPredicate: ((data: E, filter: string) => boolean) = (data: E, searchFilter: string) => {
     return defaultFilter(data, null, null, {value: searchFilter});
   }
 
@@ -577,15 +577,15 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
 
   /**
    * Data accessor function that is used for accessing data properties for sorting through
-   * the default sortData function.
+   * the default sortFunction.
    * This default function assumes that the sort header IDs (which defaults to the column name)
    * matches the data's properties (e.g. column Xyz represents data['Xyz']).
    * May be set to a custom function for different behavior.
    * @param data Data object that is being accessed.
    * @param sortHeaderId The name of the column that represents the data.
    */
-  sortingDataAccessor: ((data: T, sortHeaderId: string) => string | number) =
-    (data: T, sortHeaderId: string): string|number => {
+  sortingDataAccessor: ((data: E, sortHeaderId: string) => string | number) =
+    (data: E, sortHeaderId: string): string|number => {
       const value = (data as {[key: string]: any})[sortHeaderId];
 
       if (_isNumberValue(value)) {
