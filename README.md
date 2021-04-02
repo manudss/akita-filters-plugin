@@ -159,7 +159,7 @@ type AkitaFilter: AkitaFilter<EntityState>  = {
      /** If you have enabled server filter, specify witch filters will be call to server, default to false. */
      server?: boolean;
    /** The function to apply filters, by default use defaultFilter helpers, that will search the value in the object */
-     predicate: ( entity: getEntityType<S>, index: number, array: getEntityType<S>[] | HashMap<getEntityType<S>>, filter: AkitaFilter<S> ) => boolean;
+     predicate: ( entity: getEntityType<S>, index: number, array: getEntityType<S>[] | HashMap<getEntityType<S>>, filter: AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S> ) => boolean;
      /** add any other data you want to add **/
      [key: string]: any;
  };
@@ -180,7 +180,7 @@ You can also use AkitaFilterLocal or AkitaFilterServer, to specify if a filter i
 ```typescript
 export interface AkitaFilterLocal<S extends EntityState, E = getEntityType<S>> extends AkitaFilterBase<S, E> {
   /** The function to apply filters, by default use defaultFilter helpers, that will search the value in the object */
-  predicate: (entity: E, index: number, array: E[] | HashMap<E>, filter: AkitaFilter<S>) => boolean;
+  predicate: (entity: E, index: number, array: E[] | HashMap<E>, filter: AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S>) => boolean;
 }
 
 export interface AkitaFilterServer<S extends EntityState, E = getEntityType<S>> extends AkitaFilterBase<S, E> {

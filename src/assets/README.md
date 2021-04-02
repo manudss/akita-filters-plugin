@@ -159,7 +159,7 @@ type AkitaFilter: AkitaFilter<EntityState>  = {
      /** If you have enabled server filter, specify witch filters will be call to server, default to false. */
      server?: boolean;
    /** The function to apply filters, by default use defaultFilter helpers, that will search the value in the object */
-     predicate: ( entity: getEntityType<S>, index: number, array: getEntityType<S>[] | HashMap<getEntityType<S>>, filter: AkitaFilter<S> ) => boolean;
+     predicate: ( entity: getEntityType<S>, index: number, array: getEntityType<S>[] | HashMap<getEntityType<S>>, filter: AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S> ) => boolean;
      /** add any other data you want to add **/
      [key: string]: any;
  };
