@@ -1,6 +1,6 @@
 
 import {isDefined, isString, isObject, HashMap, getEntityType, isArray} from '@datorama/akita';
-import {AkitaFilter, AkitaFilterLocal, AkitaFilterServer} from './akita-filters.model';
+import {AkitaFilter, AkitaFilterBase, AkitaFilterLocal, AkitaFilterServer} from './akita-filters.model';
 
 /**
  * Helper function to do a default filter
@@ -38,7 +38,7 @@ export function searchFilterIn( searchKey: string, inObj: Object, inKey: string 
 /**
  * Function to compare changes between two AkitaFilters arrays
  */
-export function compareFiltersArray<S = any>(x: Array<AkitaFilterLocal<S> | AkitaFilterServer<S>>, y: Array<AkitaFilterLocal<S> | AkitaFilterServer<S>>) {
+export function compareFiltersArray<S = any>(x: Array<AkitaFilterBase<S>>, y: Array<AkitaFilterBase<S>>) {
   if (!x && !y) { return true; }
   if (!x || !y || x.length !== y.length) { return false; }
   return !x.some((filterX) => {
