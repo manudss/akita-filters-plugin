@@ -401,12 +401,73 @@ describe('AkitaMatDataSource', () => {
           expect(storeSet.set).toHaveBeenCalledTimes(0);
         });
 
+        describe('when set sort must not call sorting function', () => {
+          let spySortFunction;
+          let spySortingDataAccessor;
+
+          beforeEach(() => {
+            withServerFunc = jest.fn();
+            // @ts-ignore
+            filtersWithServer = new AkitaMatDataSource(widgetsQuery);
+            storeSet = {set: jest.fn()};
+            filtersWithServer.akitaFiltersPlugIn.getStore = jest.fn().mockReturnValue(storeSet);
+          });
+
+          beforeEach(() => {
+            filtersWithServer.sort = new MatSort();
+            spySortFunction = jest.spyOn(akitaMatDataSource, 'sortFunction');
+            spySortingDataAccessor = jest.spyOn(akitaMatDataSource, 'sortingDataAccessor');
+          });
+
+          afterEach(() => {
+            spySortFunction.mockRestore();
+            spySortingDataAccessor.mockRestore();
+          });
+
+          it('should not be called when sorting and return id to with server', () => {
+            filtersWithServer.withServer(withServerFunc,  {withSort: true});
+            filtersWithServer.sort.sort({
+              id: 'id',
+              start: 'desc',
+              disableClear: false,
+            });
+
+            expect(spySortFunction).not.toHaveBeenCalled();
+            expect(spySortingDataAccessor).not.toHaveBeenCalled();
+            expect(filtersWithServer.akitaFiltersPlugIn.getNormalizedFilters(filtersWithServer.akitaFiltersPlugIn.withServerOptions)).toEqual({ sortBy: 'id', sortByOrder: 'desc' });
+            expect(withServerFunc).toHaveBeenCalledTimes(2);
+            expect(withServerFunc).toHaveBeenCalledWith([{}, { sortBy: 'id', sortByOrder: 'desc' }]);
+          });
+
+          it('should be called when server without sorting server', () => {
+            withServerFunc.mockReturnValueOnce.
+            filtersWithServer.withServer(withServerFunc,  {withSort: false});
+            filtersWithServer.sort.sort({
+              id: 'id',
+              start: 'desc',
+              disableClear: false,
+            });
+
+
+            expect(filtersWithServer.akitaFiltersPlugIn.getNormalizedFilters(filtersWithServer.akitaFiltersPlugIn.withServerOptions))
+              .toMatchObject({});
+
+            expect(withServerFunc).toHaveBeenCalledTimes(1);
+            expect(withServerFunc).toHaveBeenCalledWith({});
+            expect(spySortFunction).toHaveBeenCalled();
+            expect(spySortingDataAccessor).toHaveBeenCalled();
+          });
+
+        });
+
       });
 
       describe('METHOD : getServerFilters()', () => {
         let filtersQuery;
         let withServerFunc;
         let filtersWithServer;
+
+
 
         beforeEach(() => {
           withServerFunc = jest.fn();

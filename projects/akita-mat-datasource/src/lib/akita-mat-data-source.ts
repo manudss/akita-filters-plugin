@@ -174,10 +174,17 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
 
   private _setSortBy(sortValue: Sort) {
     const sortByOrder = sortValue.direction === 'desc' ? Order.DESC : Order.ASC;
-    this._filters.setSortBy({
-      sortBy: (a, b, list) => this.sortFunction(a, b, this.sort),
-      sortByOrder: sortByOrder
-    });
+    if (this.server && this.akitaFiltersPlugIn?.withServerOptions?.withSort) {
+      this._filters.setSortBy({
+        sortBy: this.sort.active,
+        sortByOrder: sortByOrder
+      });
+    } else {
+      this._filters.setSortBy({
+        sortBy: (a, b, list) => this.sortFunction(a, b, this.sort),
+        sortByOrder: sortByOrder
+      });
+    }
   }
 
   get server(): boolean {

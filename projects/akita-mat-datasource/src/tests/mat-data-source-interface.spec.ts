@@ -1,10 +1,4 @@
-import { skip, take } from 'rxjs/operators';
-
-import {Order} from '@datorama/akita';
 import jest from '@types/jest';
-import {of} from 'rxjs';
-import Mock = jest.Mock;
-import MockedFunction = jest.MockedFunction;
 import {AkitaMatDataSource, MatTableDataSourceInterface} from '../lib';
 import {
   createWidget,
@@ -14,8 +8,7 @@ import {
   WidgetsStore,
   WidgetState
 } from '../../../akita-filters-plugin/src/tests/setup';
-import { MatSort } from '@angular/material/sort';
-import {waitForAsync} from '@angular/core/testing';
+import {MatSort} from '@angular/material/sort';
 
 declare var jest: jest;
 // global.window = jest.fn(() => {});
@@ -43,8 +36,8 @@ describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
       widgetsStore.remove();
       akitaMatDataSource.akitaFiltersPlugIn.filtersStore.remove();
       widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
-      widgetsStore.update(2, { complete: true });
-      widgetsStore.update(3, { complete: true });
+      widgetsStore.update(2, {complete: true});
+      widgetsStore.update(3, {complete: true});
     });
 
     it('should return all data if no filters', () => {
@@ -62,19 +55,19 @@ describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
     });
 
     it('should apply 1 filter in filtered Data', () => {
-      akitaMatDataSource.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1 });
+      akitaMatDataSource.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
       expect(matTableDataSource.filteredData).toEqual([createWidget(1), createWidgetCompleted(3)]);
     });
 
     it('should apply 2 filter in current order if provided when select all', () => {
-      akitaMatDataSource.setFilter({ id: 'filter2', predicate: filter => filter.complete });
+      akitaMatDataSource.setFilter({id: 'filter2', predicate: filter => filter.complete});
 
       expect(matTableDataSource.filteredData).toEqual([createWidgetCompleted(2), createWidgetCompleted(3)]);
     });
 
     it('should apply 2 filter with specified order if order is specified when get all filtered data', () => {
-      akitaMatDataSource.setFilter({ id: 'filter1', predicate: filter => filter.id % 2 === 1, order: 2 });
-      akitaMatDataSource.setFilter({ id: 'filter2', predicate: filter => filter.complete, order: 1 });
+      akitaMatDataSource.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1, order: 2});
+      akitaMatDataSource.setFilter({id: 'filter2', predicate: filter => filter.complete, order: 1});
 
       expect(matTableDataSource.filteredData).toEqual([createWidgetCompleted(3)]);
     });
@@ -85,8 +78,8 @@ describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
       widgetsStore.remove();
       akitaMatDataSource.akitaFiltersPlugIn.filtersStore.remove();
       widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
-      widgetsStore.update(2, { complete: true });
-      widgetsStore.update(3, { complete: true });
+      widgetsStore.update(2, {complete: true});
+      widgetsStore.update(3, {complete: true});
 
     });
 

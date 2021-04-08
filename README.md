@@ -175,7 +175,7 @@ type AkitaFilter: AkitaFilter<EntityState>  = {
  
  - hide: true, it will be applied and not displayed in the ui. 
 
-You can also use AkitaFilterLocal or AkitaFilterServer, to specify if a filter is local (that must have a predicate) or server that must have a value, and don't have predicate. 
+This type is deprecated in favor of AkitaFilterLocal or AkitaFilterServer, to specify if a filter is local (that must have a predicate) or server that must have a value, and don't have predicate. 
 
 ```typescript
 export interface AkitaFilterLocal<S extends EntityState, E = getEntityType<S>> extends AkitaFilterBase<S, E> {
@@ -651,8 +651,8 @@ this.dataSource.setDefaultSort('colomnName', 'asc');
 
 Some proxy function, just to call AkitaFilters Plugins. 
 ```typescript
-    setFilter(filter: Partial<AkitaFilter< S >>): void; // Create or update a filter. Any mandatory properties, will be added
-    setFilters(filter: Partial<AkitaFilter< S >>[]): void; // Create or update multiples filters in one time with emit changes onlu once
+    setFilter(filter: Partial<AkitaFilterBase< S >>): void; // Create or update a filter. Any mandatory properties, will be added
+    setFilters(filter: Partial<AkitaFilterBase< S >>[]): void; // Create or update multiples filters in one time with emit changes onlu once
     removeFilter(id: ID): void; // Remove a filter by their name
     removeFilters(id: ID[]): void; // Remove multiples filters with emit changes onlu once
     clearFilters(): void; // Remove all filters 
@@ -787,7 +787,7 @@ AkitaFilter<MyEntitiesState, MyEntity>[]
 ```
 to 
 ```typescript
-AkitaFilter<MyEntitiesState>[]
+AkitaFilterBase<MyEntitiesState>[]
 ```
 
 Changes this 
@@ -799,3 +799,11 @@ to
 new AkitaMatDataSource<MyEntitiesState>()
 ```
 
+### Breaking Changes : 3.x to 4.x
+
+Only update all libraries : Use last version of Angular, and last version of Akita
+
+### Breaking Changes : 4.x to 5.x
+
+Deprecation of AkitaFilter type. Use AkitaFilterLocal when you use local filters, and AkitaFilterServer, when you use server feature. 
+All type extends AkitaFilterBase, this type is used in the libraries. So you can also use it. 
