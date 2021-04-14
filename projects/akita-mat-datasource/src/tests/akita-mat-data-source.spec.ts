@@ -409,8 +409,6 @@ describe('AkitaMatDataSource', () => {
             withServerFunc = jest.fn();
             // @ts-ignore
             filtersWithServer = new AkitaMatDataSource(widgetsQuery);
-            storeSet = {set: jest.fn()};
-            filtersWithServer.akitaFiltersPlugIn.getStore = jest.fn().mockReturnValue(storeSet);
           });
 
           beforeEach(() => {
@@ -436,26 +434,31 @@ describe('AkitaMatDataSource', () => {
             expect(spySortingDataAccessor).not.toHaveBeenCalled();
             expect(filtersWithServer.akitaFiltersPlugIn.getNormalizedFilters(filtersWithServer.akitaFiltersPlugIn.withServerOptions)).toEqual({ sortBy: 'id', sortByOrder: 'desc' });
             expect(withServerFunc).toHaveBeenCalledTimes(2);
-            expect(withServerFunc).toHaveBeenCalledWith([{}, { sortBy: 'id', sortByOrder: 'desc' }]);
+            expect(withServerFunc).toHaveBeenCalledWith({});
+            expect(withServerFunc).toHaveBeenCalledWith({
+              "sortBy": "id",
+              "sortByOrder": "desc",
+              });
           });
 
           it('should be called when server without sorting server', () => {
-            withServerFunc.mockReturnValueOnce.
+            withServerFunc.mockReturnValue(of([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]));
             filtersWithServer.withServer(withServerFunc,  {withSort: false});
+            filtersWithServer.connect().subscribe();
             filtersWithServer.sort.sort({
               id: 'id',
               start: 'desc',
               disableClear: false,
             });
+            akitaMatDataSource.setFilter({ id: 'filter1', value: 'b' });
+
 
 
             expect(filtersWithServer.akitaFiltersPlugIn.getNormalizedFilters(filtersWithServer.akitaFiltersPlugIn.withServerOptions))
               .toMatchObject({});
 
             expect(withServerFunc).toHaveBeenCalledTimes(1);
-            expect(withServerFunc).toHaveBeenCalledWith({});
-            expect(spySortFunction).toHaveBeenCalled();
-            expect(spySortingDataAccessor).toHaveBeenCalled();
+
           });
 
         });

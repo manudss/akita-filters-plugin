@@ -308,7 +308,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   /**
    * Select Sort by value
    */
-  public selectSortBy(): Observable<SortByOptions<E> | null> {
+  selectSortBy(): Observable<SortByOptions<E> | null> {
     return this._selectSortBy$;
   }
 
@@ -350,12 +350,12 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
 
 
   /** This method is responsible for getting access to the query. */
-  public getQuery(): QueryEntity<S> {
+  getQuery(): QueryEntity<S> {
     return this.query;
   }
 
   /** This method is responsible for getting access to the store. */
-  public getStore(): EntityStore<S> {
+  getStore(): EntityStore<S> {
     return this.getQuery().__store__;
   }
 
