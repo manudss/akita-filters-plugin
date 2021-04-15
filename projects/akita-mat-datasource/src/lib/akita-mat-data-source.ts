@@ -10,7 +10,7 @@ import {AkitaFilter, AkitaFiltersPlugin, compareFiltersArray, defaultFilter, Wit
 import {DataSourceWithServerOptions} from './data-source-with-server-options.model';
 import {MatTableDataSourceInterface} from './mat-table-data-source.interface';
 import {_isNumberValue} from '@angular/cdk/coercion';
-import {AkitaFilterBase, AkitaFilterLocal, AkitaFilterServer} from '../../../akita-filters-plugin/src/lib';
+import {AkitaFilterBase, AkitaFilterLocal, AkitaFilterServer} from 'akita-filters-plugin';
 
 /**
  * Corresponds to `Number.MAX_SAFE_INTEGER`. Moved out into a variable here due to
