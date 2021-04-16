@@ -422,7 +422,7 @@ describe('AkitaFiltersPlugin', () => {
         widgetsStore.update(3, {complete: true});
       });
 
-      it('should select all if no filters', () => {
+      it('should get all if no filters', () => {
         const result = filters
           .getAllByFilters({asObject: true});
 
@@ -435,7 +435,7 @@ describe('AkitaFiltersPlugin', () => {
 
       });
 
-      it('should apply filter if provided when select all', () => {
+      it('should apply filter if provided when get all', () => {
         filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
 
         const result = filters
@@ -448,7 +448,7 @@ describe('AkitaFiltersPlugin', () => {
 
       });
 
-      it('should apply 2 filter if provided when select all', () => {
+      it('should apply 2 filter if provided when get all', () => {
         filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
         filters.setFilter({id: 'filter2', predicate: filter => filter.complete});
 
@@ -458,7 +458,7 @@ describe('AkitaFiltersPlugin', () => {
         expect(result1).toBeDefined();
         expect(Object.keys(result1).length).toEqual(1);
         expect(result1['3']).toEqual({id: 3, title: 'Widget 3', complete: true});
-        1;
+
       });
     });
 
@@ -722,6 +722,66 @@ describe('AkitaFiltersPlugin', () => {
       });
     });
 
+  });
+
+  describe('refresh function', () => {
+    let withServerFunc: Mock;
+    let filters: AkitaFiltersPlugin<any>;
+    let storeSet: {set: Mock};
+
+    beforeEach(() => {
+      withServerFunc = jest.fn();
+      // @ts-ignore
+      filters = new AkitaFiltersPlugin(widgetsQuery);
+      storeSet = {set: jest.fn()};
+      filters.getStore = jest.fn().mockReturnValue(storeSet);
+    });
+
+    it('should increment data on each refresh and return it', () => {
+      expect(filters.refresh()).toEqual(1);
+      expect(filters.refresh()).toEqual(2);
+      expect(filters.refresh()).toEqual(3);
+      expect(filters.refresh()).toEqual(4);
+    });
+
+    it('should recall again the with server data with same data', () => {
+        filters.withServer(withServerFunc);
+        expect(withServerFunc).toHaveBeenCalledTimes(1);
+        expect(withServerFunc).toHaveBeenCalledWith({});
+        filters.setFilters([{ id: 'filter1', value: true }, { id: 'filter2', value: 'aaaa' }, { id: 'filter3', value: 'bbb' }]);
+
+        expect(withServerFunc).toHaveBeenCalledTimes(2);
+        expect(withServerFunc).toHaveBeenNthCalledWith(2,  {'filter1': true,  'filter2': 'aaaa' ,  'filter3': 'bbb'});
+        filters.refresh();
+        expect(withServerFunc).toHaveBeenCalledTimes(3);
+        expect(withServerFunc).toHaveBeenNthCalledWith(3,  {'filter1': true,  'filter2': 'aaaa' ,  'filter3': 'bbb'});
+
+    });
+
+    it('should apply filter and sort multiple time if triger refresh', () => {
+      const allResults = [];
+      const expected = [createWidget(3), createWidget(1)];
+
+      widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+      filters.setSortBy({sortBy: 'id', sortByOrder: Order.DESC});
+      filters.setFilter({id: 'filter1', predicate: filter => filter.id % 2 === 1});
+
+
+      filters
+        .selectAllByFilters()
+        .pipe(take(3))
+        .subscribe({ next: (result) => {
+            allResults.push(result);
+        }, complete: () => {
+          expect(allResults.length).toEqual(3);
+          expect(allResults[0]).toEqual(expected);
+          expect(allResults[1]).toEqual(expected);
+          expect(allResults[3]).toEqual(expected);
+        }});
+
+      expect(filters.refresh()).toEqual(1);
+      expect(filters.refresh()).toEqual(2);
+    });
   });
 
   });

@@ -607,4 +607,8 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
 
       return value;
     }
+
+  refresh() {
+    return this.akitaFiltersPlugIn.refresh();
+  }
 }

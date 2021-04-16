@@ -541,6 +541,16 @@ describe('AkitaMatDataSource', () => {
         });
       });
 
+      describe('MATHOD : refresh()', () => {
+        it('should call refresh from akitaFiltersPlugIn', () => {
+          const refrehMock = jest.spyOn(akitaMatDataSource.akitaFiltersPlugIn, 'refresh');
+          expect(akitaMatDataSource.refresh()).toEqual(1);
+          expect(akitaMatDataSource.refresh()).toEqual(2);
+          expect(akitaMatDataSource.refresh()).toEqual(3);
+          expect(refrehMock).toHaveBeenCalledTimes(3);
+        });
+      });
+
     });
 
   });

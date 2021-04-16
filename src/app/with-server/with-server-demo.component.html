@@ -22,6 +22,7 @@
       <input matInput type="number" min="1" max="99" placeholder="1 -> 99" [(ngModel)]="albumIdLocal"  [ngModelOptions]="{updateOn: 'blur'}">
       <mat-icon matSuffix>collections</mat-icon>
     </mat-form-field>
+    <button mat-button (click)="dataSource.refresh();" color="primary">Refresh</button>
     <mat-slide-toggle (change)="updatePaginator($event)" [checked]="usePaginator">Use pagninator </mat-slide-toggle>
     <mat-chip-list *ngIf="dataSource.akitaFiltersPlugIn.selectFilters() | async as filters">
     <mat-chip *ngFor="let filter of filters">

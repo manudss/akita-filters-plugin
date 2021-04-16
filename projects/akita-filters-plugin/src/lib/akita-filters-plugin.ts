@@ -1,6 +1,6 @@
 import {AkitaFiltersStore, FiltersState} from './akita-filters-store';
 import {AkitaFiltersQuery} from './akita-filters-query';
-import {combineLatest, isObservable, Observable, ObservedValueOf, of, Subscription} from 'rxjs';
+import {BehaviorSubject, combineLatest, isObservable, Observable, ObservedValueOf, of, Subject, Subscription} from 'rxjs';
 import {distinctUntilChanged, map} from 'rxjs/operators';
 import {
   compareValues,
@@ -55,6 +55,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
 
   private readonly _filtersStore: AkitaFiltersStore<S>;
   private readonly _filtersQuery: AkitaFiltersQuery<S>;
+  private readonly _refresh$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
   private _server: boolean = false;
 
   private _selectFilters$: Observable<Array<AkitaFilterBase<S>>>;
@@ -113,6 +114,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     if (this.withServerOptions.withSort) {
       listObservable.push(this.selectSortBy() ?? of(null));
     }
+    listObservable.push(this._refresh$);
 
     combineLatest<Observable<Array<getEntityType<S>>> | Observable<SortByOptions<E> | null>> (listObservable)
       .pipe(map((data) => {
@@ -186,17 +188,18 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
     | SelectAllOptionsB<E> | SelectAllOptionsC<E> |
     SelectAllOptionsD<E> | SelectAllOptionsE<E> | any): Observable<Array<getEntityType<S>> | HashMap<getEntityType<S>>> {
     const listObservable: Array<Observable<any>> = [];
-    listObservable.push(this._selectFilters$, this.getQuery().selectAll(options));
-    let sortBy = this.selectSortBy();
+    listObservable.push(this._selectFilters$, this.getQuery().selectAll(options), this._refresh$);
+
     if (options && options.asObject) {
       return combineLatest(listObservable).pipe(
         map((values) => {
-          const [filters, entities] = values;
+          const [filters, entities, refresh] = values;
           const unkNowEntity: unknown = entities;
           return this._applyFiltersForHashMap((unkNowEntity as HashMap<getEntityType<S>>), filters);
         }),
       );
     } else {
+      let sortBy = this.selectSortBy();
       if (this.server && this._withServerOptions?.withSort) {
         sortBy = sortBy.pipe(map(data => null));
       }
@@ -204,7 +207,7 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
 
       return combineLatest(listObservable).pipe(
         map((values) => {
-          const [filters, entities, sort] = values;
+          const [filters, entities, refresh, sort ] = values;
           const unkNowEntity: unknown = entities;
           return this._applyFiltersForArray((unkNowEntity as Array<getEntityType<S>>), filters, sort);
         }),
@@ -357,6 +360,16 @@ export class AkitaFiltersPlugin<S extends EntityState, E = getEntityType<S>, I =
   /** This method is responsible for getting access to the store. */
   getStore(): EntityStore<S> {
     return this.getQuery().__store__;
+  }
+
+  /**
+   * Trigger a refresh of the data. This will force the library to replay all filters.
+   * Very useful for the withServer feature, because it allows to call back the with server callback function with the same parameters, to make a new call to the api.
+   */
+  refresh() {
+      const value = this._refresh$.getValue() + 1;
+      this._refresh$.next(value);
+      return value;
   }
 
   private _serialize(obj) {

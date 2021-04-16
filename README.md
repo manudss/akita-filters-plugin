@@ -475,6 +475,9 @@ In your components, you will need to only subscribe to your selectAll() function
 
 Or you can also combine it with locals filters or sort (if you add some filters with ``server: false``). In this case subscribe to selectAllByFilters().
 
+### refresh ()
+Trigger a refresh of the data. This will force the library to replay all filters.
+Very useful for the withServer feature, because it allows to call back the with server callback function with the same parameters, to make a new call to the api.
 
 # BONUS: Angular Material Data source
 
