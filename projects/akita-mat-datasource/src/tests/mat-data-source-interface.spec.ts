@@ -1,4 +1,4 @@
-import jest from '@types/jest';
+import {jest} from '@jest/globals';
 import {AkitaMatDataSource, MatTableDataSourceInterface} from '../lib';
 import {
   createWidget,
@@ -10,8 +10,7 @@ import {
 } from '../../../akita-filters-plugin/src/tests/setup';
 import {MatSort} from '@angular/material/sort';
 
-declare var jest: jest;
-// global.window = jest.fn(() => {});
+
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);
@@ -36,7 +35,9 @@ describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
       widgetsStore.remove();
       akitaMatDataSource.akitaFiltersPlugIn.filtersStore.remove();
       widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+      // noinspection TypeScriptValidateTypes
       widgetsStore.update(2, {complete: true});
+      // noinspection TypeScriptValidateTypes
       widgetsStore.update(3, {complete: true});
     });
 
@@ -78,7 +79,9 @@ describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
       widgetsStore.remove();
       akitaMatDataSource.akitaFiltersPlugIn.filtersStore.remove();
       widgetsStore.add([createWidget(1), createWidget(2), createWidget(3), createWidget(4)]);
+      // noinspection TypeScriptValidateTypes
       widgetsStore.update(2, {complete: true});
+      // noinspection TypeScriptValidateTypes
       widgetsStore.update(3, {complete: true});
 
     });

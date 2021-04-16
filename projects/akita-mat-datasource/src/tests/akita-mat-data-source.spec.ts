@@ -1,14 +1,13 @@
 import { skip, take } from 'rxjs/operators';
 
 import {Order} from '@datorama/akita';
-import jest from '@types/jest';
+import {jest} from '@jest/globals'
 import {of} from 'rxjs';
 import Mock = jest.Mock;
 import {AkitaMatDataSource} from '../lib';
 import {createWidget, createWidgetCompleted, WidgetsQuery, WidgetsStore} from '../../../akita-filters-plugin/src/tests/setup';
 import { MatSort } from '@angular/material/sort';
 
-declare var jest: jest;
 
 const widgetsStore = new WidgetsStore();
 const widgetsQuery = new WidgetsQuery(widgetsStore);
