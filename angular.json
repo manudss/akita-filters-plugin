@@ -85,23 +85,6 @@
             "browserTarget": "akita-filters-plugin-playground:build"
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "src/tsconfig.spec.json",
-            "karmaConfig": "src/karma.conf.js",
-            "styles": [
-              "src/styles.scss"
-            ],
-            "scripts": [],
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ]
-          }
-        },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
@@ -162,14 +145,6 @@
             }
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/akita-filters-plugin/src/test.ts",
-            "tsConfig": "projects/akita-filters-plugin/tsconfig.spec.json",
-            "karmaConfig": "projects/akita-filters-plugin/karma.conf.js"
-          }
-        },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
@@ -200,14 +175,6 @@
             "production": {
               "tsConfig": "projects/akita-mat-datasource/tsconfig.lib.prod.json"
             }
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "projects/akita-mat-datasource/src/test.ts",
-            "tsConfig": "projects/akita-mat-datasource/tsconfig.spec.json",
-            "karmaConfig": "projects/akita-mat-datasource/karma.conf.js"
           }
         },
         "lint": {

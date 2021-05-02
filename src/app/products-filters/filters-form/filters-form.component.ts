@@ -22,6 +22,7 @@ export class FiltersFormComponent implements OnInit, OnDestroy {
   category: string;
   filterFastDelivery: boolean = false;
   public filters$: Observable<AkitaFilter<ProductPlant, ProductPlantState>[]>;
+  public nbRefresh: number = 0;
 
   constructor( private productsService: ProductsFiltersService ) {
   }
@@ -110,5 +111,9 @@ export class FiltersFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+  }
+
+  refresh() {
+    this.nbRefresh = this.productsService.filtersProduct.refresh();
   }
 }

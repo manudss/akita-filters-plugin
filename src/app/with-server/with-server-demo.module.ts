@@ -11,6 +11,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatChipsModule} from '@angular/material/chips';
+import {MatButtonModule} from '@angular/material/button';
 
 
 const routes: Routes = [
@@ -22,19 +23,20 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [WithServerDemoComponent],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(routes),
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    FormsModule,
-    MatSlideToggleModule,
-    MatChipsModule
-  ],
+    imports: [
+        CommonModule,
+        RouterModule.forChild(routes),
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatIconModule,
+        FormsModule,
+        MatSlideToggleModule,
+        MatChipsModule,
+        MatButtonModule
+    ],
   providers: []
 })
 export class WithServerDemoModule {

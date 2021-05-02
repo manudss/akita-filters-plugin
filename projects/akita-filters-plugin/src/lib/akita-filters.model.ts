@@ -21,7 +21,7 @@ export interface AkitaFilterLocal<S extends EntityState, E = getEntityType<S>> e
   /** If you have enabled server filter, specify witch filters will be call to server, default to false. */
   server?: false;
   /** The function to apply filters, by default use defaultFilter helpers, that will search the value in the object */
-  predicate: (entity: E, index: number, array: E[] | HashMap<E>, filter: AkitaFilter<S>) => boolean;
+  predicate: (entity: E, index: number, array: E[] | HashMap<E>, filter: AkitaFilterBase<S> | AkitaFilterLocal<S>) => boolean;
 }
 
 export interface AkitaFilterServer<S extends EntityState, E = getEntityType<S>> extends AkitaFilterBase<S, E> {
@@ -31,22 +31,27 @@ export interface AkitaFilterServer<S extends EntityState, E = getEntityType<S>> 
   value: any;
 }
 
-export type AkitaFilter<S extends EntityState, E = getEntityType<S>> = AkitaFilterLocal<S, E> | AkitaFilterServer<S, E> | {
-  /** add any other data you want to add, keep this to get the compatibilities with others versions **/
+/**
+ * @deprecated: consider using AkitaFilterLocal or AkitaFilterServer rathers than AkitaFilter.
+ */
+export interface AkitaFilter<S extends EntityState, E = getEntityType<S>> extends AkitaFilterBase<S, E> {
+  predicate?: (entity: E, index: number, array: E[] | HashMap<E>, filter: AkitaFilterBase<S> | AkitaFilterLocal<S>) => boolean;
+  server?: boolean;
+  /** add any other data you want to add, keep this to get the compatibilities with olders versions **/
   [key: string]: any;
 };
 
 export function createFilter<S extends EntityState, E = getEntityType<S>>
-  (filterParams: Partial<AkitaFilterLocal<S> | AkitaFilterServer<S>>) {
+  (filterParams: Partial<AkitaFilterBase<S>>) {
     const id = filterParams.id ? filterParams.id : guid();
     const name = filterParams.name || (filterParams.value && filterParams.id ?
         `${capitalize(filterParams.id.toString())}: ${filterParams.value.toString()}` : undefined);
 
-    if (!(filterParams as AkitaFilterLocal<S>)?.predicate && filterParams.value && !filterParams.server) {
+    if (!(filterParams as AkitaFilterLocal<S>)?.predicate && filterParams.value && !(filterParams as AkitaFilterServer<S>).server) {
         /** use default function, if not provided */
         // @ts-ignore
         (filterParams as AkitaFilterLocal<S>).predicate = defaultFilter;
     }
 
-    return {id, name, hide: false, order: 10, server: false, ...filterParams} as AkitaFilter<S>;
+    return {id, name, hide: false, order: 10, server: false, ...filterParams} as AkitaFilterBase<S>;
 }

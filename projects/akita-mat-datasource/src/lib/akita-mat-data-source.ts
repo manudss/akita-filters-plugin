@@ -2,40 +2,40 @@
 import {DataSource} from '@angular/cdk/table';
 import {BehaviorSubject, combineLatest, merge, Observable, Subject, Subscription} from 'rxjs';
 import {EntityState, getEntityType, HashMap, ID, Order, QueryEntity} from '@datorama/akita';
-import {debounceTime, map, takeUntil, tap, filter} from 'rxjs/operators';
+import {debounceTime, filter, map, takeUntil, tap} from 'rxjs/operators';
 import {MatSort, Sort} from '@angular/material/sort';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 // @ts-ignore
-import {AkitaFilter, AkitaFiltersPlugin, WithServerOptions, compareFiltersArray} from 'akita-filters-plugin';
+import {AkitaFilter, AkitaFiltersPlugin, compareFiltersArray, defaultFilter, WithServerOptions} from 'akita-filters-plugin';
 import {DataSourceWithServerOptions} from './data-source-with-server-options.model';
+import {MatTableDataSourceInterface} from './mat-table-data-source.interface';
+import {_isNumberValue} from '@angular/cdk/coercion';
+import {AkitaFilterBase, AkitaFilterLocal, AkitaFilterServer} from 'akita-filters-plugin';
 
-export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>> extends DataSource<E> {
+/**
+ * Corresponds to `Number.MAX_SAFE_INTEGER`. Moved out into a variable here due to
+ * flaky browser support and the value not being defined in Closure's typings.
+ */
+const MAX_SAFE_INTEGER = 9007199254740991;
 
-  /**
-   * subscribe to be noticed when a filters has changed (and with server pagination, will exclude pagination filters).
-   */
-  public onFiltersChanges$: Observable<Array<AkitaFilter<S>>>;
+export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>>
+  extends DataSource<E>
+  implements MatTableDataSourceInterface<E> {
+  get data(): getEntityType<S>[] {
+    return this._dataQuery.getAll() as unknown as getEntityType<S>[];
+  }
 
-  private _dataQuery: QueryEntity<E>;
-  private _filters: AkitaFiltersPlugin<S>;
-  /** if set a custom filter plugins, do not delete all in disconnect() **/
-  private _hasCustomAkitaFiltersPlugins: boolean;
-  private _selectAllByFilter$: Observable<E[]>;
-  private _count$: BehaviorSubject<number>;
-  /** Used to react to internal changes of the paginator that are made by the data source itself. */
-  private readonly _internalPageChanges = new Subject<void>();
-  /** Stream emitting render data to the table (depends on ordered data changes). */
-  private readonly _renderData = new BehaviorSubject<E[]>([]);
-  /** Used to react to internal changes of the paginator that are made by the data source itself. */
-  private readonly _disconnect = new Subject<void>();
-  private _dataSourceOptions: DataSourceWithServerOptions;
-  /**
-   * Subscription to the changes that should trigger an update to the table's rendered rows, such
-   * as filtering, sorting, pagination, or base data changes.
-   */
-  private _renderChangesSubscription = Subscription.EMPTY;
-  private _serverPaginationSubscription: Subscription = Subscription.EMPTY;
-  private _previousFilters: Array<AkitaFilter<S>>;
+  set data(value: getEntityType<S>[]) {
+    this._dataQuery.__store__.set(value);
+  }
+
+  get filteredData(): getEntityType<S>[] {
+    return this.akitaFiltersPlugIn.getAllByFilters() as getEntityType<S>[];
+  }
+
+  set filteredData(value: getEntityType<S>[]) {
+    this.data = value;
+  }
 
   /**
    * Data source to use an Akita EntityStore with a Material table
@@ -75,7 +75,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       filterBy: filterConfig => filterConfig.id !== this.options.pageIndexId && filterConfig.id !== this.options.pageSizeId
     }).pipe(
       filter((current) => !compareFiltersArray<S>(this._previousFilters, current)),
-      tap((data: Array<AkitaFilter<S>>) => this._previousFilters = data),
+      tap((data: Array<AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S>>) => this._previousFilters = data),
     );
     this._updateChangeSubscription();
   }
@@ -106,8 +106,9 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     if (searchQuery === '' || !searchQuery) {
       this._filters.removeFilter(this._dataSourceOptions.searchFilterId);
     } else {
+      const predicate = this._getPredicate();
       // noinspection TypeScriptValidateTypes
-      this._filters.setFilter({id: this._dataSourceOptions.searchFilterId, value: searchQuery, name: searchQuery});
+      this._filters.setFilter({id: this._dataSourceOptions.searchFilterId, value: searchQuery, name: searchQuery, predicate});
     }
   }
 
@@ -124,8 +125,6 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   get akitaFiltersPlugIn(): AkitaFiltersPlugin<S> {
     return this._filters;
   }
-
-  private _paginator: MatPaginator | any = null;
 
   /**
    * Instance of the MatPaginator component used by the table to control what page of the data is
@@ -149,8 +148,6 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     this.updateSubscriptions();
   }
 
-  private _sort: MatSort | any = null;
-
   /**
    * Instance of the MatSort component used by the table to sort data
    */
@@ -167,15 +164,27 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
   set sort(sort: MatSort | any) {
     this._sort = sort;
     sort.sortChange.pipe(takeUntil(this._disconnect)).subscribe((sortValue: Sort) => {
-      this._filters.setSortBy({
-        sortBy: sortValue.active as keyof E,
-        sortByOrder: sortValue.direction === 'desc' ? Order.DESC : Order.ASC
-      });
+      this._setSortBy(sortValue);
     });
 
     sort.initialized.subscribe(() => {
       this.setDefaultSort(sort.active as keyof E, sort.direction === 'desc' ? Order.DESC : Order.ASC);
     });
+  }
+
+  private _setSortBy(sortValue: Sort) {
+    const sortByOrder = sortValue.direction === 'desc' ? Order.DESC : Order.ASC;
+    if (this.server && this.akitaFiltersPlugIn?.withServerOptions?.withSort) {
+      this._filters.setSortBy({
+        sortBy: this.sort.active,
+        sortByOrder: sortByOrder
+      });
+    } else {
+      this._filters.setSortBy({
+        sortBy: (a, b, list) => this.sortFunction(a, b, this.sort),
+        sortByOrder: sortByOrder
+      });
+    }
   }
 
   get server(): boolean {
@@ -211,6 +220,58 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     this.updateSubscriptions();
   }
 
+  /**
+   * subscribe to be noticed when a filters has changed (and with server pagination, will exclude pagination filters).
+   */
+  public onFiltersChanges$: Observable<Array<AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S>>>;
+
+  private _dataQuery: QueryEntity<E>;
+  private _filters: AkitaFiltersPlugin<S>;
+  /** if set a custom filter plugins, do not delete all in disconnect() **/
+  private _hasCustomAkitaFiltersPlugins: boolean;
+  private _selectAllByFilter$: Observable<E[]>;
+  private _count$: BehaviorSubject<number>;
+  /** Used to react to internal changes of the paginator that are made by the data source itself. */
+  private readonly _internalPageChanges = new Subject<void>();
+  /** Stream emitting render data to the table (depends on ordered data changes). */
+  private readonly _renderData = new BehaviorSubject<E[]>([]);
+  /** Used to react to internal changes of the paginator that are made by the data source itself. */
+  private readonly _disconnect = new Subject<void>();
+  private _dataSourceOptions: DataSourceWithServerOptions;
+  /**
+   * Subscription to the changes that should trigger an update to the table's rendered rows, such
+   * as filtering, sorting, pagination, or base data changes.
+   */
+  private _renderChangesSubscription = Subscription.EMPTY;
+  private _serverPaginationSubscription: Subscription = Subscription.EMPTY;
+  private _previousFilters: Array<AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S>>;
+
+  private _paginator: MatPaginator | any = null;
+
+  private _sort: MatSort | any = null;
+
+
+
+  private _getPredicate() {
+    return (
+      value: E | getEntityType<S>,
+      index: number, array: E[] | HashMap<getEntityType<S>>,
+      searchFilter: AkitaFilter<E, S>) => this.filterPredicate(value, searchFilter?.value);
+  }
+  /**
+   * Checks if a data object matches the data source's filter string. By default, each data object
+   * is converted to a string of its properties and returns true if the filter has
+   * at least one occurrence in that string. By default, the filter string has its whitespace
+   * trimmed and the match is case-insensitive. May be overridden for a custom implementation of
+   * filter matching.
+   * @param data Data object used to check against the filter.
+   * @param filter Filter string that has been set on the data source.
+   * @returns Whether the filter matches against the data
+   */
+  filterPredicate: ((data: E, filter: string) => boolean) = (data: E, searchFilter: string) => {
+    return defaultFilter(data, null, null, {value: searchFilter});
+  }
+
   withOptions(dataSourceOptions: DataSourceWithServerOptions) {
     this.options = dataSourceOptions;
     return this;
@@ -236,24 +297,30 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     return this;
   }
 
+  public hasServer() {
+    return this._filters.hasServer();
+  }
+
+
+
   /**
    *  add a filter to filters plugins
    */
-  addFilter(akitaFilter: Partial<AkitaFilter<S>>): void {
+  addFilter(akitaFilter: Partial<AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S>>): void {
     this._filters.setFilter(akitaFilter);
   }
 
   /**
    *  add or update a filter to filters plugins
    */
-  setFilter(akitaFilter: Partial<AkitaFilter<S>>): void {
+  setFilter(akitaFilter: Partial<AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S>>): void {
     this._filters.setFilter(akitaFilter);
   }
 
   /**
    *  add or update multiple filter to filters plugins
    */
-  setFilters(filters: Array<Partial<AkitaFilter<S>>>): void {
+  setFilters(filters: Array<Partial<AkitaFilterBase<S> | AkitaFilterLocal<S> | AkitaFilterServer<S>>>): void {
     this._filters.setFilters(filters);
   }
 
@@ -490,5 +557,58 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     const startIndex = this.paginator.pageIndex * this.paginator.pageSize;
 
     return data.slice(startIndex, startIndex + this.paginator.pageSize);
+  }
+
+  sortData(data: getEntityType<S>[], sort: MatSort): getEntityType<S>[] {
+    throw new Error('This function is not implemented, and will not be implemented as akita works differently for sorting data rather than MatTableDataSource, overwrite sortingDataAccessor or  sortFunction');
+    return null;
+  }
+
+  sortFunction: ((a: E, b: E, sort: MatSort) => 0 | 1 | -1) = (a, b, sort): 0 | 1 | -1 => {
+    let varA = this.sortingDataAccessor(a, sort.active);
+    let varB = this.sortingDataAccessor(b, sort.active);
+
+    if (!varA || !varB) {
+      return 0;
+    }
+
+    varA = typeof varA === 'string' ? varA.toUpperCase() : varA;
+    varB = typeof varB === 'string' ? varB.toUpperCase() : varB;
+
+    let comparison: 0 | 1 | -1 = 0;
+    if (varA > varB) {
+      comparison = 1;
+    } else if (varA < varB) {
+      comparison = -1;
+    }
+    return sort.direction === 'desc'? comparison * -1 as 0 | 1 | -1 : comparison;
+  }
+
+  /**
+   * Data accessor function that is used for accessing data properties for sorting through
+   * the default sortFunction.
+   * This default function assumes that the sort header IDs (which defaults to the column name)
+   * matches the data's properties (e.g. column Xyz represents data['Xyz']).
+   * May be set to a custom function for different behavior.
+   * @param data Data object that is being accessed.
+   * @param sortHeaderId The name of the column that represents the data.
+   */
+  sortingDataAccessor: ((data: E, sortHeaderId: string) => string | number) =
+    (data: E, sortHeaderId: string): string|number => {
+      const value = (data as {[key: string]: any})[sortHeaderId];
+
+      if (_isNumberValue(value)) {
+        const numberValue = Number(value);
+
+        // Numbers beyond `MAX_SAFE_INTEGER` can't be compared reliably so we
+        // leave them as strings. For more info: https://goo.gl/y5vbSg
+        return numberValue < MAX_SAFE_INTEGER ? numberValue : value;
+      }
+
+      return value;
+    }
+
+  refresh() {
+    return this.akitaFiltersPlugIn.refresh();
   }
 }

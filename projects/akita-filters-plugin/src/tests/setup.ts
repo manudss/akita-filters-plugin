@@ -8,7 +8,7 @@ const getInitialActiveState = () =>
 export class Todo {
   id: ID;
   title?: string;
-  completed? = false;
+  completed?: false;
   price?: number;
   constructor(params: Todo) {
     Object.assign(this, params);
@@ -18,11 +18,11 @@ export class Todo {
   }
 }
 
-export interface State extends EntityState<Todo>, ActiveState {
+export interface TodoState extends EntityState<Todo>, ActiveState {
   metadata?: { name: string };
 }
 
-export const initialState: State = {
+export const initialTodoState: TodoState = {
   ...getInitialActiveState(),
   metadata: { name: 'metadata' }
 };
@@ -30,34 +30,37 @@ export const initialState: State = {
 @StoreConfig({
   name: 'todos'
 })
-export class TodosStore extends EntityStore<State, Todo> {
+export class TodosStore extends EntityStore<TodoState, Widget> {
   constructor() {
-    super(initialState);
+    super(initialTodoState);
   }
 }
 
-export type TodoCustomID = {
+export interface TodoCustomID {
   todoId: ID;
   title?: string;
   completed?;
-};
+}
 
-export interface StateTwo extends EntityState<TodoCustomID> {}
+export interface StateTwoState extends EntityState<TodoCustomID> {}
+
+export const initialCustomIDState: StateTwoState = {
+};
 
 @StoreConfig({
   name: 'todos',
   idKey: 'todoId'
 })
-export class TodosStoreCustomID extends EntityStore<StateTwo, TodoCustomID> {
+export class TodosStoreCustomID extends EntityStore<StateTwoState, TodoCustomID> {
   constructor() {
-    super(initialState, { idKey: 'todoId' });
+    super(initialCustomIDState, { idKey: 'todoId' });
   }
 }
 
 export function createTodos(len) {
   const arr = [];
   const factory = ct();
-  for (var i = 0; i < len; i++) {
+  for (let i = 0; i < len; i++) {
     arr.push(factory());
   }
   return arr;
@@ -83,26 +86,30 @@ export function cot() {
   } as Todo;
 }
 
-export type Widget = {
+export interface Widget {
   id: ID;
   title: string;
   complete?: boolean;
-};
+}
+
+export interface WidgetState extends EntityState<Todo>, ActiveState {
+  metadata?: { name: string };
+}
 
 @StoreConfig({ name: 'widgets' })
-export class WidgetsStore extends EntityStore<any, Widget> {
+export class WidgetsStore extends EntityStore<WidgetState> {
   constructor(initState?) {
     super(initState);
   }
 }
 
-export class WidgetsQuery extends QueryEntity<any, Widget> {
+export class WidgetsQuery extends QueryEntity<WidgetState> {
   constructor(protected store) {
     super(store);
   }
 }
 
-export function createWidget(id) {
+export function createWidget(id): Widget {
   return {
     id,
     title: `Widget ${id}`,
@@ -110,7 +117,7 @@ export function createWidget(id) {
   } as Widget;
 }
 
-export function createWidgetCompleted(id) {
+export function createWidgetCompleted(id): Widget {
   return {
     id,
     title: `Widget ${id}`,

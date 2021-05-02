@@ -7,7 +7,7 @@
     "build": "ng build --prod --output-path docs --base-href /akita-filters-plugin/",
     "compile": "ng build akita-filters-plugin --prod",
     "compile:datasource": "ng build akita-mat-datasource --prod",
-    "test": "jest",
+    "test": "jest  --runInBand",
     "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand --watch",
     "test:watch": "jest --watch",
     "lint": "ng lint",
@@ -30,17 +30,28 @@
         "diagnostics": false
       }
     },
+    "rootDir": "projects",
     "moduleFileExtensions": [
       "ts",
       "js"
     ],
+    "moduleNameMapper": {
+      "^akita-filters-plugin$":
+        "<rootDir>/akita-filters-plugin/src/lib/index.ts"
+      ,
+      "^akita-filters-plugin\/datasource$":
+        "<rootDir>/akita-mat-datasource/src/lib/index.ts"
+
+    },
     "setupFiles": [
       "jest-localstorage-mock"
     ],
     "transform": {
       "\\.(ts)$": "ts-jest"
     },
-    "testRegex": "/__tests__/.*\\.spec.(ts|js)$"
+    "verbose": true,
+    "testRegex": ".*/tests/.*\\.spec.(ts|js)$",
+    "testEnvironment": "node"
   },
   "dependencies": {
     "@angular/animations": "~11.2.0",
@@ -55,7 +66,6 @@
     "@angular/router": "~11.2.0",
     "@datorama/akita": "^6.0.0",
     "@datorama/akita-ng-entity-service": "^6.0.0",
-    "@types/jest": "^26.0.20",
     "core-js": "^3.8.3",
     "ngx-markdown": "^11.0.1",
     "ngx-take-until-destroy": "^5.4.0",
@@ -72,19 +82,11 @@
     "@datorama/akita-ng-router-store": "^6.0.0",
     "@datorama/akita-ngdevtools": "^6.0.0",
     "@jest/globals": "^26.6.2",
-    "@types/jasmine": "~3.6.3",
-    "@types/jasminewd2": "~2.0.8",
+    "@types/jest": "^26.0.20",
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.1",
-    "jasmine-core": "~3.6.0",
-    "jasmine-spec-reporter": "~6.0.0",
     "jest": "^26.6.3",
     "jest-localstorage-mock": "^2.4.6",
-    "karma": "~6.1.0",
-    "karma-chrome-launcher": "~3.1.0",
-    "karma-coverage-istanbul-reporter": "~3.0.3",
-    "karma-jasmine": "~4.0.1",
-    "karma-jasmine-html-reporter": "^1.5.4",
     "ng-packagr": "^11.2.1",
     "protractor": "~7.0.0",
     "semantic-release": "^17.3.8",
