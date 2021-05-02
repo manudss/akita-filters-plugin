@@ -18,7 +18,7 @@ jobs:
     - stage: Build library
       script:
         - cd $TRAVIS_BUILD_DIR/
-        - yarn run test
+        - FENGARICONF='{"LUAI_MAXSTACK":100000}' travis_wait yarn run test --maxWorkers=2
         - yarn run compile
     - stage: deploy gihub page
       script:
