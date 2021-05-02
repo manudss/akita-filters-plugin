@@ -19,6 +19,7 @@ const matTableDataSource: MatTableDataSourceInterface<Widget> = akitaMatDataSour
 
 
 describe('AkitaMatDataSource as Mat-Table-Datasource', () => {
+  jest.setTimeout(10000);
 
   describe('datasource should be empty when no data or filters', () => {
     it('should be empty', () => {

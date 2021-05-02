@@ -7,7 +7,7 @@
     "build": "ng build --prod --output-path docs --base-href /akita-filters-plugin/",
     "compile": "ng build akita-filters-plugin --prod",
     "compile:datasource": "ng build akita-mat-datasource --prod",
-    "test": "jest",
+    "test": "jest  --runInBand",
     "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand --watch",
     "test:watch": "jest --watch",
     "lint": "ng lint",

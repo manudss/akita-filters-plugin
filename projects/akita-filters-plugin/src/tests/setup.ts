@@ -18,11 +18,11 @@ export class Todo {
   }
 }
 
-export interface WidgetState extends EntityState<Todo>, ActiveState {
+export interface TodoState extends EntityState<Todo>, ActiveState {
   metadata?: { name: string };
 }
 
-export const initialState: WidgetState = {
+export const initialTodoState: TodoState = {
   ...getInitialActiveState(),
   metadata: { name: 'metadata' }
 };
@@ -30,34 +30,37 @@ export const initialState: WidgetState = {
 @StoreConfig({
   name: 'todos'
 })
-export class TodosStore extends EntityStore<WidgetState, Todo> {
+export class TodosStore extends EntityStore<TodoState, Widget> {
   constructor() {
-    super(initialState);
+    super(initialTodoState);
   }
 }
 
-export type TodoCustomID = {
+export interface TodoCustomID {
   todoId: ID;
   title?: string;
   completed?;
-};
+}
 
-export interface StateTwo extends EntityState<TodoCustomID> {}
+export interface StateTwoState extends EntityState<TodoCustomID> {}
+
+export const initialCustomIDState: StateTwoState = {
+};
 
 @StoreConfig({
   name: 'todos',
   idKey: 'todoId'
 })
-export class TodosStoreCustomID extends EntityStore<StateTwo, TodoCustomID> {
+export class TodosStoreCustomID extends EntityStore<StateTwoState, TodoCustomID> {
   constructor() {
-    super(initialState, { idKey: 'todoId' });
+    super(initialCustomIDState, { idKey: 'todoId' });
   }
 }
 
 export function createTodos(len) {
   const arr = [];
   const factory = ct();
-  for (var i = 0; i < len; i++) {
+  for (let i = 0; i < len; i++) {
     arr.push(factory());
   }
   return arr;
@@ -83,11 +86,15 @@ export function cot() {
   } as Todo;
 }
 
-export type Widget = {
+export interface Widget {
   id: ID;
   title: string;
   complete?: boolean;
-};
+}
+
+export interface WidgetState extends EntityState<Todo>, ActiveState {
+  metadata?: { name: string };
+}
 
 @StoreConfig({ name: 'widgets' })
 export class WidgetsStore extends EntityStore<WidgetState> {
