@@ -21,19 +21,19 @@ const MAX_SAFE_INTEGER = 9007199254740991;
 export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S>>
   extends DataSource<E>
   implements MatTableDataSourceInterface<E> {
-  get data(): getEntityType<S>[] {
-    return this._dataQuery.getAll() as unknown as getEntityType<S>[];
+  get data(): getEntityType<S>[] | E[] {
+    return this._dataQuery.getAll() as unknown as getEntityType<S>[]  | E[];
   }
 
-  set data(value: getEntityType<S>[]) {
+  set data(value: getEntityType<S>[]  | E[]) {
     this._dataQuery.__store__.set(value);
   }
 
-  get filteredData(): getEntityType<S>[] {
-    return this.akitaFiltersPlugIn.getAllByFilters() as getEntityType<S>[];
+  get filteredData(): getEntityType<S>[]  | E[] {
+    return this.akitaFiltersPlugIn.getAllByFilters() as getEntityType<S>[]  | E[];
   }
 
-  set filteredData(value: getEntityType<S>[]) {
+  set filteredData(value: getEntityType<S>[] | E[]) {
     this.data = value;
   }
 
@@ -45,7 +45,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * @param akitaFilters string [Optional] If you want to provide an AkitaFilters that you use externally. Else it will create a new one.
    * @param dataSourceOptions [Optional] If you want to specify some options for user
    */
-  constructor(query: QueryEntity<getEntityType<S>> | any,
+  constructor(query: QueryEntity<getEntityType<S> | E> | any,
               akitaFilters: AkitaFiltersPlugin<S> = null,
               dataSourceOptions: DataSourceWithServerOptions = {}) {
     super();
@@ -172,21 +172,6 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     });
   }
 
-  private _setSortBy(sortValue: Sort) {
-    const sortByOrder = sortValue.direction === 'desc' ? Order.DESC : Order.ASC;
-    if (this.server && this.akitaFiltersPlugIn?.withServerOptions?.withSort) {
-      this._filters.setSortBy({
-        sortBy: this.sort.active,
-        sortByOrder: sortByOrder
-      });
-    } else {
-      this._filters.setSortBy({
-        sortBy: (a, b, list) => this.sortFunction(a, b, this.sort),
-        sortByOrder: sortByOrder
-      });
-    }
-  }
-
   get server(): boolean {
     return this.akitaFiltersPlugIn.server;
   }
@@ -250,12 +235,27 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
 
   private _sort: MatSort | any = null;
 
+  private _setSortBy(sortValue: Sort) {
+    const sortByOrder = sortValue.direction === 'desc' ? Order.DESC : Order.ASC;
+    if (this.server && this.akitaFiltersPlugIn?.withServerOptions?.withSort) {
+      this._filters.setSortBy({
+        sortBy: this.sort.active,
+        sortByOrder: sortByOrder
+      });
+    } else {
+      this._filters.setSortBy({
+        sortBy: (a, b, list) => this.sortFunction(a, b, this.sort),
+        sortByOrder: sortByOrder
+      });
+    }
+  }
+
 
 
   private _getPredicate() {
     return (
       value: E | getEntityType<S>,
-      index: number, array: E[] | HashMap<getEntityType<S>>,
+      index: number, array: E[] | HashMap<getEntityType<S> | E>,
       searchFilter: AkitaFilter<E, S>) => this.filterPredicate(value, searchFilter?.value);
   }
   /**
@@ -265,7 +265,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
    * trimmed and the match is case-insensitive. May be overridden for a custom implementation of
    * filter matching.
    * @param data Data object used to check against the filter.
-   * @param filter Filter string that has been set on the data source.
+   * @param searchFilter Filter string that has been set on the data source.
    * @returns Whether the filter matches against the data
    */
   filterPredicate: ((data: E, filter: string) => boolean) = (data: E, searchFilter: string) => {
@@ -490,7 +490,6 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
       pageIndexDisplay,
       pageSizeId,
       pageIndexName,
-      debounceTimeBetweenTwoChanges,
       resetPageIndexOnFiltersChange
     } = this._dataSourceOptions;
 
@@ -559,9 +558,8 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     return data.slice(startIndex, startIndex + this.paginator.pageSize);
   }
 
-  sortData(data: getEntityType<S>[], sort: MatSort): getEntityType<S>[] {
+  sortData(data: getEntityType<S>[] | E[], sort: MatSort): getEntityType<S>[]  | E[] {
     throw new Error('This function is not implemented, and will not be implemented as akita works differently for sorting data rather than MatTableDataSource, overwrite sortingDataAccessor or  sortFunction');
-    return null;
   }
 
   sortFunction: ((a: E, b: E, sort: MatSort) => 0 | 1 | -1) = (a, b, sort): 0 | 1 | -1 => {
@@ -581,7 +579,7 @@ export class AkitaMatDataSource<S extends EntityState = any, E = getEntityType<S
     } else if (varA < varB) {
       comparison = -1;
     }
-    return sort.direction === 'desc'? comparison * -1 as 0 | 1 | -1 : comparison;
+    return sort.direction === 'desc' ? comparison * -1 as 0 | 1 | -1 : comparison;
   }
 
   /**
